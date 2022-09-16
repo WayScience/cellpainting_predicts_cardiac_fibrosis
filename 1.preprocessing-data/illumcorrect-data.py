@@ -49,7 +49,7 @@ for channel in channels:
     print("Correcting", channel, "channel images")
 
     # If you want to output the flatfield and darkfield calculations, then put "output_calc=True".
-    # If not, leave out from function since it is defaulted to False
+    # If you would like to overwrite any existing images when running this function, set "overwrite=True"
 
     ICutils.run_illum_correct(
         channel_path,

@@ -10,6 +10,7 @@ import skimage
 sys.path.append("./PyBaSiC/")
 import pybasic
 
+
 def load_pybasic_data(
     channel_path: pathlib.Path,
     channel: str,
@@ -20,8 +21,8 @@ def load_pybasic_data(
     Load all images from a specified directory in preparation for pybasic illum correction
 
     Parameters:
-    channels_path (pathlib.Path): path to directory where the all images for each channel are stored
-    channel (str): The name of the channel (currently one of ["GFP", "RFP", "DAPI"])
+    channels_path (pathlib.Path): Path to directory where the all images for each channel are stored
+    channel (str): The name of the channel (either `d0`, `d1`, `d2`, `d3`, `d4`)
     file_extension (str): The filename extension of the types of files to search for (default: ".tif")
     verbosity (bool): Prints out information regarding the function running through the images (default: "True")
 
@@ -29,14 +30,14 @@ def load_pybasic_data(
         channel_images: list of ndarrays of the loaded in images
         image_files: list of strings of the paths to each image
     """
-    image_files = (
-        []
-    )  # List that holds all of the paths to the images in the directory for a specific channel
-    image_names = (
-        []
-    )  # List that holds the names (str) for the images that is used for saving
+    # List that holds all of the paths to the images in the directory for a specific channel
+    image_files = []
 
-    images = []  # List of numpy arrays for the images that are read in
+    # List that holds the names (str) for the images that is used for saving
+    image_names = []
+
+    # List of numpy arrays for the images that are read in
+    images = []
 
     # This for loop will run through the specified directory, find images for a specific channel (channel name is in the file name metadata),
     # save paths to a list, and then save the names to a list after stripping the file_extension
@@ -67,15 +68,17 @@ def run_illum_correct(
     channel: str,
     output_calc: bool = False,
     file_extension: str = ".tif",
+    overwrite: bool = False,
 ):
-    """calculates flatfield, darkfield, performs illumination correction on channel images, coverts to 8-bit and saves images into designated folder
+    """Calculates flatfield, darkfield, performs illumination correction on channel images, coverts to 8-bit and saves images into designated folder
 
     Parameters:
-        channels_path (pathlib.Path): path to directory where the all images for each channel are stored
-        save_path (pathlib.Path): path to directory where the corrected images will be saved to
-        channel (str): name of channel
-        output_calc (bool): outputs plots of the flatfield and darkfield function for visual review if set to 'True'
-        file_extension (str): sets the file_extension for the images
+        channels_path (pathlib.Path): Path to directory where the all images for each channel are stored
+        save_path (pathlib.Path): Path to directory where the corrected images will be saved to
+        channel (str): Name of channel
+        output_calc (bool): Outputs plots of the flatfield and darkfield function for visual review if set to 'True' (default = False)
+        file_extension (str): Sets the file_extension for the images
+        overwrite (bool): Will save over existing images if set to 'True' (default = False)
     """
     # Loads in the variables returned from "load_pybasic_data" function
     images, image_names = load_pybasic_data(channel_path, channel, file_extension)
@@ -104,23 +107,33 @@ def run_illum_correct(
 
     # Covert illum corrected images to uint8 for downstream analysis
     corrected_images_coverted = np.array(channel_images_corrected)
+    # Makes the negatives 0
     corrected_images_coverted[
         corrected_images_coverted < 0
-    ] = 0  # makes the negatives 0
+    ] = 0  
+    # Normalizes the data to 0 - 1
     corrected_images_coverted = corrected_images_coverted / np.max(
         corrected_images_coverted
-    )  # normalize the data to 0 - 1
-    corrected_images_coverted = 255 * corrected_images_coverted  # Scale by 255
+    )  
+    # Scale by 255
+    corrected_images_coverted = 255 * corrected_images_coverted 
+    # Convert images from 16-bit to 8-bit
     corrected_images = corrected_images_coverted.astype(np.uint8)
 
+    # Correlate the image names to the respective image and save the images with the file name suffix '_IllumCorrect.tif'
     for i, image in enumerate(corrected_images):
-        orig_file = image_names[i]
-        orig_file_name = orig_file.split("/")[3]
+        orig_file = pathlib.Path(image_names[i])
+        orig_file_name = orig_file.name
         new_filename = pathlib.Path(f"{save_path}/{orig_file_name}_IllumCorrect.tif")
 
-        # If the image has not been correcrted yet, then the function will save the image. If the image exists, it will skip saving.
-        if not new_filename.is_file():
+        # If set to 'True', images will be saved regardless of if the image already exists in the directory
+        if overwrite == True:
             skimage.io.imsave(new_filename, image)
 
-        else:
-            print(f"{new_filename.name} already exists!")
+        # If set to 'False', and the image has not been corrected yet, then the function will save the image. If the image exists, it will skip saving.
+        if overwrite == False:
+            if not new_filename.is_file():
+                skimage.io.imsave(new_filename, image)
+
+            else:
+                print(f"{new_filename.name} already exists!")

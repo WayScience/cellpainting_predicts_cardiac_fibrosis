@@ -2,9 +2,9 @@
 
 ## Data
 
-The data used in this project is a [Cell Painting assay](https://www.moleculardevices.com/applications/cell-imaging/cell-painting#gref) on [cardiac fibroblasts](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5588900/#:~:text=Definition%20by%20function,%2C%20and%20glycoproteins5%2C6.) from 3 patients that suffered from cardiac arrest. 
+The data used in this project is a modified [Cell Painting assay](https://www.moleculardevices.com/applications/cell-imaging/cell-painting#gref) on [cardiac fibroblasts](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5588900/#:~:text=Definition%20by%20function,%2C%20and%20glycoproteins5%2C6.) from 3 patients that suffered from cardiac arrest. 
 
-In this Cell Painting, there are five channels:
+In this modified Cell Painting, there are five channels:
 
 - `d0` (Nuclei)
 - `d1` (Endoplasmic Reticulum)
@@ -14,9 +14,11 @@ In this Cell Painting, there are five channels:
 
 ![Composite_Figure.png](example_figs/Composite_Figure.png)
 
-## Goal
+## Goals
 
-The goal of this project is to identify a biomarker associated with cardiac fibroblasts that indicates if the scarring caused by cardiac arrest is reversed.
+The goals of this project are:
+1. To identify morphology features from cardiac fibroblasts that distinguish cardiac patients 
+2. To discover a cell morphology biomarker associated with drug treatment to reverse fibrosis scarring caused by cardiac arrest.
 
 ## Repository Structure
 

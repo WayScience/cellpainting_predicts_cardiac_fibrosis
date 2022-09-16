@@ -9,7 +9,9 @@ Channels: d0 (Nuclei), d1 (Endoplasmic Reticulum), d2 (Golgi/Plasma Membrane), d
 
 Cells: Cardiac Fibroblasts
 
-Samples: Cells from 3 patients that suffered cardiac arrest
+Samples: Cells from three patients that suffered cardiac arrest
+
+Perturbations: One negative control (DMSO) and one drug treatment (A-485)
 
 Microscope: TBD
 
@@ -28,4 +30,4 @@ Total memory: 2.42 GB
 
 ## Download Pilot Images
 
-Steps for downloading the images are currently being worked on.
+We are currently working on uploading images to a public repository (see [issue #1](https://github.com/WayScience/CFReT_data/issues/1)).
