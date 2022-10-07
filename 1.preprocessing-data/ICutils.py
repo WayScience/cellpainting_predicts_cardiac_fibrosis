@@ -12,7 +12,8 @@ import pybasic
 
 
 def load_pybasic_data(
-    channel_path: pathlib.Path,
+    data_path: pathlib.Path,
+    plate: str,
     channel: str,
     file_extension: str = ".tif",
     verbosity: bool = True,
@@ -21,8 +22,9 @@ def load_pybasic_data(
     Load all images from a specified directory in preparation for pybasic illum correction
 
     Parameters:
-    channels_path (pathlib.Path): Path to directory where the all images for each channel are stored
-    channel (str): The name of the channel (either `d0`, `d1`, `d2`, `d3`, `d4`)
+    data_path (pathlib.Path): Path to directory where the all folders with data per plate are stored
+    plate (str): The name of the plate to correct (either "localhost220512140003_KK22-05-198" or "localhost220513100001_KK22-05-198_FactinAdjusted")
+    channel (str): The name of the channel to correct(either `d0`, `d1`, `d2`, `d3`, `d4`)
     file_extension (str): The filename extension of the types of files to search for (default: ".tif")
     verbosity (bool): Prints out information regarding the function running through the images (default: "True")
 
@@ -41,12 +43,17 @@ def load_pybasic_data(
 
     # This for loop will run through the specified directory, find images for a specific channel (channel name is in the file name metadata),
     # save paths to a list, and then save the names to a list after stripping the file_extension
-    for image_path in channel_path.iterdir():
-        image_path = str(image_path)
-        if channel in image_path:
-            image_files.append(image_path)
-            if image_path.endswith(file_extension):
-                image_names.append(image_path.strip(file_extension))
+    for plate_path in data_path.iterdir():
+        # print(plate_path)
+        for image_path in plate_path.iterdir():
+            image_path = str(image_path)
+            # print(image_path)
+            if plate in plate_path.name:
+                # print(plate)
+                if channel in image_path:
+                    image_files.append(image_path)
+                    if image_path.endswith(file_extension):
+                        image_names.append(image_path.strip(file_extension))
 
     # Sorts the file paths and names into alphabetical order (puts well C at the start)
     image_files.sort()
@@ -63,8 +70,9 @@ def load_pybasic_data(
 
 
 def run_illum_correct(
-    channel_path: pathlib.Path,
+    data_path: pathlib.Path,
     save_path: pathlib.Path,
+    plate: str,
     channel: str,
     output_calc: bool = False,
     file_extension: str = ".tif",
@@ -73,15 +81,16 @@ def run_illum_correct(
     """Calculates flatfield, darkfield, performs illumination correction on channel images, coverts to 8-bit and saves images into designated folder
 
     Parameters:
-        channels_path (pathlib.Path): Path to directory where the all images for each channel are stored
+        data_path (pathlib.Path): Path to directory where the folders for each plate with data are stored
         save_path (pathlib.Path): Path to directory where the corrected images will be saved to
+        plate (str): Name of plate
         channel (str): Name of channel
         output_calc (bool): Outputs plots of the flatfield and darkfield function for visual review if set to 'True' (default = False)
         file_extension (str): Sets the file_extension for the images
         overwrite (bool): Will save over existing images if set to 'True' (default = False)
     """
     # Loads in the variables returned from "load_pybasic_data" function
-    images, image_names = load_pybasic_data(channel_path, channel, file_extension)
+    images, image_names = load_pybasic_data(data_path, plate, channel, file_extension)
 
     print("Correcting", {channel})
 
@@ -124,7 +133,7 @@ def run_illum_correct(
     for i, image in enumerate(corrected_images):
         orig_file = pathlib.Path(image_names[i])
         orig_file_name = orig_file.name
-        new_filename = pathlib.Path(f"{save_path}/{orig_file_name}_IllumCorrect.tif")
+        new_filename = pathlib.Path(f"{save_path}/{plate}/{orig_file_name}_IllumCorrect.tif")
 
         # If set to 'True', images will be saved regardless of if the image already exists in the directory
         if overwrite == True:

@@ -47,3 +47,13 @@ import sys
 sys.path.append("./PyBaSiC/")
 import pybasic
 ```
+
+## Step 2: Run IC on CFReT data
+
+To perform illumination correction on the CFReT data, you will need to run the [illumcorrect-data.ipynb notebook](1.preprocessing-data/illumcorrect-data.ipynb).
+Remember that you can update the `data_path` and `save_path` if needed.
+
+```bash
+# Run this script in terminal to segment NF1 data
+bash 1.illumcorrect-data.sh
+```
