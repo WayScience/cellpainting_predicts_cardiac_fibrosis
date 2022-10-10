@@ -1,28 +1,27 @@
-# raw images are too large for Github so it is ignored
-0.download-data/Images
-
 # ignore pycache 
 __pycache__
 
-# test files that are not relevant to the pipelines
+# ignore test files that are not relevant to the pipelines
 1.preprocessing-data/test.ipynb
 example.csv
+issue_testing.ipynb
 
-# old raw images that were being used for analysis but is not used 
-0.download-data/Old_Images
+# ignore folders that are not needed
+IC_Corrected_Images
+Old_IC_Images
+Images
+Old_Images
 
-# old IC images from previous data that is not used
-1.preprocessing-data/Old_IC_Images
+# ignore all .tif files since there are too many images per plate for GitHub to handle
+*.tif
+*.TIF
 
-# IC corrected that totalling 9.5 GB -> too large for GitHub
-1.preprocessing-data/IC_Corrected_Images
-
-# .txt file with output from IC for reference
+# .txt file with output from IC and CellProfiler for reference
 1.preprocessing-data/IC_log.txt
+2.cellprofiler_processing/CellProfiler_output/cp_FactinAdjusted_log.txt
 
 # test jupyter notebook for running CellProfiler
 2.cellprofiler_processing/test.ipynb
 
 # ignore the output files as they are too large
-2.cellprofiler_processing/CellProfiler_output/localhost220512140003_KK22-05-198.sqlite
-2.cellprofiler_processing/CellProfiler_output/localhost220513100001_KK22-05-198_FactinAdjusted.sqlite
+*.sqlite

@@ -50,7 +50,7 @@ import pybasic
 
 ## Step 2: Run IC on CFReT data
 
-To perform illumination correction on the CFReT data, you will need to run the [illumcorrect-data.ipynb notebook](1.preprocessing-data/illumcorrect-data.ipynb).
+To perform illumination correction on the CFReT data, you will need to run the [illumcorrect-data.ipynb notebook](illumcorrect-data.ipynb).
 Remember that you can update the `data_path` and `save_path` if needed.
 
 ```bash

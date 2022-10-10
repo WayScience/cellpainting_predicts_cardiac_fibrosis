@@ -90,7 +90,9 @@ def run_illum_correct(
         overwrite (bool): Will save over existing images if set to 'True' (default = False)
     """
     # Loads in the variables returned from "load_pybasic_data" function
-    images, image_names = load_pybasic_data(data_path, plate, channel, file_extension)
+    images, image_names = load_pybasic_data(
+        data_path=data_path, plate=plate, channel=channel, file_extension=file_extension
+    )
 
     print("Correcting", {channel})
 
@@ -117,15 +119,13 @@ def run_illum_correct(
     # Covert illum corrected images to uint8 for downstream analysis
     corrected_images_coverted = np.array(channel_images_corrected)
     # Makes the negatives 0
-    corrected_images_coverted[
-        corrected_images_coverted < 0
-    ] = 0  
+    corrected_images_coverted[corrected_images_coverted < 0] = 0
     # Normalizes the data to 0 - 1
     corrected_images_coverted = corrected_images_coverted / np.max(
         corrected_images_coverted
-    )  
+    )
     # Scale by 255
-    corrected_images_coverted = 255 * corrected_images_coverted 
+    corrected_images_coverted = 255 * corrected_images_coverted
     # Convert images from 16-bit to 8-bit
     corrected_images = corrected_images_coverted.astype(np.uint8)
 
@@ -133,7 +133,9 @@ def run_illum_correct(
     for i, image in enumerate(corrected_images):
         orig_file = pathlib.Path(image_names[i])
         orig_file_name = orig_file.name
-        new_filename = pathlib.Path(f"{save_path}/{plate}/{orig_file_name}_IllumCorrect.tif")
+        new_filename = pathlib.Path(
+            f"{save_path}/{plate}/{orig_file_name}_IllumCorrect.tif"
+        )
 
         # If set to 'True', images will be saved regardless of if the image already exists in the directory
         if overwrite == True:

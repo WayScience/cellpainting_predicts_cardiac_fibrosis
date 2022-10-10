@@ -8,22 +8,22 @@
 # In[1]:
 
 
-import os
 import pathlib
 
 import importlib
+
 CPutils = importlib.import_module("cputils")
 
 
 # ## Set paths for CellProfiler
-# 
+#
 # The paths for the command line command can be set here. These must be `absolute paths`, so these will have to be changed from what I have set below for my local machine.
 
 # In[2]:
 
 
-# must be an absolute path to the pipeline 
-path_to_pipeline = "/home/jenna/CFReT_data/2.cellprofiler_processing/CellProfiler_input/CFReT_project.cpproj"
+# must be an absolute path to the pipeline (specifically the .cppipe file for the command line)
+path_to_pipeline = "/home/jenna/CFReT_data/2.cellprofiler_processing/CellProfiler_input/CFReT_project_CL.cppipe"
 
 # must be relative path for the output directory
 path_to_output = "/home/jenna/CFReT_data/2.cellprofiler_processing/CellProfiler_output"
@@ -34,7 +34,7 @@ path_to_images_plate2 = "/home/jenna/CFReT_data/1.preprocessing-data/IC_Correcte
 
 
 # ## Run CellProfiler through command line
-# 
+#
 # Below is an example of the code used in terminal to run CellProfiler on one of the plates. Since there is already a file there, it will show that it can't run.
 
 # In[3]:
@@ -59,7 +59,7 @@ plate2 = "localhost220513100001_KK22-05-198_FactinAdjusted"
 
 
 # ### Rename the file
-# 
+#
 # Below example shows renaming the `CFReT.sqlite` file after the `localhost220513100001_KK22-05-198_FactinAdjusted` plate was ran.
 
 # In[5]:
@@ -67,3 +67,4 @@ plate2 = "localhost220513100001_KK22-05-198_FactinAdjusted"
 
 CPutils.rename_sqlite_file(sqlite_file_path, plate2)
 
+# After renaming the plate, repeat the steps above for the next plate until all plates have been run through CellProfiler

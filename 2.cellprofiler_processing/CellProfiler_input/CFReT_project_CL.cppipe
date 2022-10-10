@@ -233,7 +233,7 @@ ExportToDatabase:[module_num:16|svn_version:'Unknown'|variable_revision_number:2
     Database name:DefaultDB
     Add a prefix to table names?:No
     Table prefix:MyExpt_
-    Output file location:Elsewhere...|
+    Output file location:Default Output Folder|
     Create a CellProfiler Analyst properties file?:No
     Database host:
     Username:
