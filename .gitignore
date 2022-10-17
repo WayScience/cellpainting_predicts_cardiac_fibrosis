@@ -1,5 +1,8 @@
-# ignore pycache 
+# ignore pycache
 __pycache__
+
+# ignore PyBaSiC since they will git clone it themselves
+PyBaSiC
 
 # ignore test files that are not relevant to the pipelines
 1.preprocessing-data/test.ipynb

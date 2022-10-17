@@ -1,3 +1,8 @@
+"""
+The collection of functions will load in the raw images and save their names into lists, then the images will be corrected for illumination using PyBaSiC 
+and saved into a directory for further analysis. 
+"""
+
 import sys
 import numpy as np
 import pathlib
@@ -41,19 +46,16 @@ def load_pybasic_data(
     # List of numpy arrays for the images that are read in
     images = []
 
-    # This for loop will run through the specified directory, find images for a specific channel (channel name is in the file name metadata),
-    # save paths to a list, and then save the names to a list after stripping the file_extension
-    for plate_path in data_path.iterdir():
-        # print(plate_path)
-        for image_path in plate_path.iterdir():
-            image_path = str(image_path)
-            # print(image_path)
-            if plate in plate_path.name:
-                # print(plate)
-                if channel in image_path:
-                    image_files.append(image_path)
-                    if image_path.endswith(file_extension):
-                        image_names.append(image_path.strip(file_extension))
+    # This `for` loop is making a list of directories and files within the specified data_path (glob)
+    for image_path in data_path.glob(f"**/*{file_extension}"):
+        # Within this "glob", it will find the images from the specific plate from the name of the parent folders (e.g. plate folders)
+        if plate in image_path.parent.name:
+            # Finds images with the channel in the name (needs to be string to iterate through)
+            if channel in str(image_path):
+                # Puts all of the paths to the files in a list
+                image_files.append(image_path)
+                # Removes the file extension from the names from the names of the images and then puts all the names into a list
+                image_names.append(image_path.stem)
 
     # Sorts the file paths and names into alphabetical order (puts well C at the start)
     image_files.sort()

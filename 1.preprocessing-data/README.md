@@ -39,14 +39,8 @@ git checkout f3fcf1987db47c4a29506d240d0f69f117c82d2b
 ```
 
 **Note:** This implementation does not have package support which means that it can not be imported as you normally would. 
-To correct for this, use this line of code within your "Importing Libraries" cell to be able to use the functions within the 
+To correct for this, we use a line of code within the "Importing Libraries" cell to be able to use the functions within the 
 [notebook](1.preprocessing-data/illumcorrect-data.ipynb).
-
-```console
-import sys
-sys.path.append("./PyBaSiC/")
-import pybasic
-```
 
 ## Step 2: Run IC on CFReT data
 

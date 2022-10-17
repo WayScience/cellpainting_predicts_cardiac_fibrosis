@@ -1,3 +1,8 @@
+"""
+This collection of functions runs CellProfiler on a given set of images from a plate and will rename the .sqlite outputed to be named 
+the plate that was processed.
+"""
+
 import os
 import pathlib
 from pathlib import Path
