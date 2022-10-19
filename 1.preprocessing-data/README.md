@@ -39,11 +39,15 @@ git checkout f3fcf1987db47c4a29506d240d0f69f117c82d2b
 ```
 
 **Note:** This implementation does not have package support which means that it can not be imported as you normally would. 
-To correct for this, use this line of code within your "Importing Libraries" cell to be able to use the functions within the 
+To correct for this, we use a line of code within the "Importing Libraries" cell to be able to use the functions within the 
 [notebook](1.preprocessing-data/illumcorrect-data.ipynb).
 
-```console
-import sys
-sys.path.append("./PyBaSiC/")
-import pybasic
+## Step 2: Run IC on CFReT data
+
+To perform illumination correction on the CFReT data, you will need to run the [illumcorrect-data.ipynb notebook](illumcorrect-data.ipynb).
+Remember that you can update the `data_path` and `save_path` if needed.
+
+```bash
+# Run this script in terminal to segment NF1 data
+bash 1.illumcorrect-data.sh
 ```

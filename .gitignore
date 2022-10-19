@@ -1,5 +1,30 @@
-0.download-data/Images
-1.preprocessing-data/IC_Corrected_Images
+# ignore pycache
 __pycache__
+
+# ignore PyBaSiC since they will git clone it themselves
+PyBaSiC
+
+# ignore test files that are not relevant to the pipelines
 1.preprocessing-data/test.ipynb
 example.csv
+issue_testing.ipynb
+
+# ignore folders that are not needed
+IC_Corrected_Images
+Old_IC_Images
+Images
+Old_Images
+
+# ignore all .tif files since there are too many images per plate for GitHub to handle
+*.tif
+*.TIF
+
+# .txt file with output from IC and CellProfiler for reference
+1.preprocessing-data/IC_log.txt
+2.cellprofiler_processing/CellProfiler_output/cp_FactinAdjusted_log.txt
+
+# test jupyter notebook for running CellProfiler
+2.cellprofiler_processing/test.ipynb
+
+# ignore the output files as they are too large
+*.sqlite

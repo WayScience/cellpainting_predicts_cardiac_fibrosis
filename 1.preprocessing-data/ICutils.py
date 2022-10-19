@@ -1,3 +1,8 @@
+"""
+The collection of functions will load in the raw images and save their names into lists, then the images will be corrected for illumination using PyBaSiC 
+and saved into a directory for further analysis. 
+"""
+
 import sys
 import numpy as np
 import pathlib
@@ -12,7 +17,8 @@ import pybasic
 
 
 def load_pybasic_data(
-    channel_path: pathlib.Path,
+    data_path: pathlib.Path,
+    plate: str,
     channel: str,
     file_extension: str = ".tif",
     verbosity: bool = True,
@@ -21,8 +27,9 @@ def load_pybasic_data(
     Load all images from a specified directory in preparation for pybasic illum correction
 
     Parameters:
-    channels_path (pathlib.Path): Path to directory where the all images for each channel are stored
-    channel (str): The name of the channel (either `d0`, `d1`, `d2`, `d3`, `d4`)
+    data_path (pathlib.Path): Path to directory where the all folders with data per plate are stored
+    plate (str): The name of the plate to correct (either "localhost220512140003_KK22-05-198" or "localhost220513100001_KK22-05-198_FactinAdjusted")
+    channel (str): The name of the channel to correct(either `d0`, `d1`, `d2`, `d3`, `d4`)
     file_extension (str): The filename extension of the types of files to search for (default: ".tif")
     verbosity (bool): Prints out information regarding the function running through the images (default: "True")
 
@@ -39,14 +46,16 @@ def load_pybasic_data(
     # List of numpy arrays for the images that are read in
     images = []
 
-    # This for loop will run through the specified directory, find images for a specific channel (channel name is in the file name metadata),
-    # save paths to a list, and then save the names to a list after stripping the file_extension
-    for image_path in channel_path.iterdir():
-        image_path = str(image_path)
-        if channel in image_path:
-            image_files.append(image_path)
-            if image_path.endswith(file_extension):
-                image_names.append(image_path.strip(file_extension))
+    # This `for` loop is making a list of directories and files within the specified data_path (glob)
+    for image_path in data_path.glob(f"**/*{file_extension}"):
+        # Within this "glob", it will find the images from the specific plate from the name of the parent folders (e.g. plate folders)
+        if plate in image_path.parent.name:
+            # Finds images with the channel in the name (needs to be string to iterate through)
+            if channel in str(image_path):
+                # Puts all of the paths to the files in a list
+                image_files.append(image_path)
+                # Removes the file extension from the names from the names of the images and then puts all the names into a list
+                image_names.append(image_path.stem)
 
     # Sorts the file paths and names into alphabetical order (puts well C at the start)
     image_files.sort()
@@ -63,8 +72,9 @@ def load_pybasic_data(
 
 
 def run_illum_correct(
-    channel_path: pathlib.Path,
+    data_path: pathlib.Path,
     save_path: pathlib.Path,
+    plate: str,
     channel: str,
     output_calc: bool = False,
     file_extension: str = ".tif",
@@ -73,15 +83,18 @@ def run_illum_correct(
     """Calculates flatfield, darkfield, performs illumination correction on channel images, coverts to 8-bit and saves images into designated folder
 
     Parameters:
-        channels_path (pathlib.Path): Path to directory where the all images for each channel are stored
+        data_path (pathlib.Path): Path to directory where the folders for each plate with data are stored
         save_path (pathlib.Path): Path to directory where the corrected images will be saved to
+        plate (str): Name of plate
         channel (str): Name of channel
         output_calc (bool): Outputs plots of the flatfield and darkfield function for visual review if set to 'True' (default = False)
         file_extension (str): Sets the file_extension for the images
         overwrite (bool): Will save over existing images if set to 'True' (default = False)
     """
     # Loads in the variables returned from "load_pybasic_data" function
-    images, image_names = load_pybasic_data(channel_path, channel, file_extension)
+    images, image_names = load_pybasic_data(
+        data_path=data_path, plate=plate, channel=channel, file_extension=file_extension
+    )
 
     print("Correcting", {channel})
 
@@ -108,15 +121,13 @@ def run_illum_correct(
     # Covert illum corrected images to uint8 for downstream analysis
     corrected_images_coverted = np.array(channel_images_corrected)
     # Makes the negatives 0
-    corrected_images_coverted[
-        corrected_images_coverted < 0
-    ] = 0  
+    corrected_images_coverted[corrected_images_coverted < 0] = 0
     # Normalizes the data to 0 - 1
     corrected_images_coverted = corrected_images_coverted / np.max(
         corrected_images_coverted
-    )  
+    )
     # Scale by 255
-    corrected_images_coverted = 255 * corrected_images_coverted 
+    corrected_images_coverted = 255 * corrected_images_coverted
     # Convert images from 16-bit to 8-bit
     corrected_images = corrected_images_coverted.astype(np.uint8)
 
@@ -124,7 +135,9 @@ def run_illum_correct(
     for i, image in enumerate(corrected_images):
         orig_file = pathlib.Path(image_names[i])
         orig_file_name = orig_file.name
-        new_filename = pathlib.Path(f"{save_path}/{orig_file_name}_IllumCorrect.tif")
+        new_filename = pathlib.Path(
+            f"{save_path}/{plate}/{orig_file_name}_IllumCorrect.tif"
+        )
 
         # If set to 'True', images will be saved regardless of if the image already exists in the directory
         if overwrite == True:
