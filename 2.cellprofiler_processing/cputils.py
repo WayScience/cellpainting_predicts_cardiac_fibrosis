@@ -8,7 +8,7 @@ import pathlib
 from pathlib import Path
 
 
-def run_cellprofiler(path_to_pipeline: str, path_to_output: str, path_to_images: str):
+def run_cellprofiler(path_to_pipeline: str, path_to_output: str, path_to_images: str, plate_name: str):
     """Profile batch with CellProfiler (runs segmentation and feature extraction)
 
     Args:
@@ -16,10 +16,14 @@ def run_cellprofiler(path_to_pipeline: str, path_to_output: str, path_to_images:
         path_to_output (str): path to the output folder for the .sqlite file
         path_to_images (str): path to folder with IC images from specific plate
     """
-    # run CellProfiler on a plate
-    command = f"cellprofiler -c -r -p {path_to_pipeline} -o {path_to_output} -i {path_to_images}"
-    os.system(command)
-
+    # runs through any files that are in the output path
+    if any(files.name.startswith(plate_name) for files in pathlib.Path(path_to_output).iterdir()):
+        print("This plate has already been analyzed!")
+        return
+    else:
+        # run CellProfiler on a plate
+        command = f"cellprofiler -c -r -p {path_to_pipeline} -o {path_to_output} -i {path_to_images}"
+        os.system(command)
 
 def rename_sqlite_file(sqlite_file_path: pathlib.Path, plate: str):
     """Rename the .sqlite file to be {plate}.sqlite as to differentiate between the files
@@ -37,3 +41,8 @@ def rename_sqlite_file(sqlite_file_path: pathlib.Path, plate: str):
             )
             # change the file name in the directory
             Path(sqlite_files).rename(Path(new_file_name))
+            print("The file is renamed!")
+        else:
+            # if there is no file named "CFReT.sqlite" then the file name as been changed/corrected
+            print("The sqlite file has already been renamed!")
+            break

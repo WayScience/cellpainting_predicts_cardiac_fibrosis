@@ -11,7 +11,7 @@ Cells: Cardiac Fibroblasts
 
 Samples: Cells from three patients that suffered cardiac arrest
 
-Perturbations: One negative control (DMSO) and one drug treatment (A-485)
+Perturbations: One negative control (DMSO) and one drug treatment
 
 Microscope: TBD
 
