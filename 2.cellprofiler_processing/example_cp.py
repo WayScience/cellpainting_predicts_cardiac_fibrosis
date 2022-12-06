@@ -17,7 +17,6 @@ CPutils = importlib.import_module("cputils")
 # ## Set paths for CellProfiler
 # 
 # The paths for the command line command can be set here. These must be `absolute paths`, so these will have to be changed from what I have set below for my local machine. 
-# Paths to rename the `CFReT.sqlite` file are `relative paths`.
 
 # In[2]:
 
@@ -31,9 +30,6 @@ path_to_output = "/home/jenna/CFReT_data/2.cellprofiler_processing/CellProfiler_
 # path to the images for each plate
 path_to_images_plate1 = "/home/jenna/CFReT_data/1.preprocessing-data/IC_Corrected_Images/localhost220512140003_KK22-05-198"
 path_to_images_plate2 = "/home/jenna/CFReT_data/1.preprocessing-data/IC_Corrected_Images/localhost220513100001_KK22-05-198_FactinAdjusted"
-
-# relative path to the directory with .sqlite files
-sqlite_file_path = pathlib.Path("CellProfiler_output")
 
 # name of plate from the CP run
 plate1 = "localhost220512140003_KK22-05-198"
@@ -52,28 +48,12 @@ plate2 = "localhost220513100001_KK22-05-198_FactinAdjusted"
 CPutils.run_cellprofiler(path_to_pipeline, path_to_output, path_to_images_plate1, plate1)
 
 
-# In[4]:
-
-
-# Rename the 'CFReT.sqlite` file to `localhost220512140003_KK22-05-198.sqlite`
-
-CPutils.rename_sqlite_file(sqlite_file_path, plate1)
-
-
 # ### Run plate localhost220513100001_KK22-05-198_FactinAdjusted
 
-# In[5]:
+# In[4]:
 
 
 # Run plate localhost220513100001_KK22-05-198_FactinAdjusted
 
 CPutils.run_cellprofiler(path_to_pipeline, path_to_output, path_to_images_plate2, plate2)
-
-
-# In[6]:
-
-
-# Rename the 'CFReT.sqlite` file to `localhost220513100001_KK22-05-198_FactinAdjusted.sqlite`
-
-CPutils.rename_sqlite_file(sqlite_file_path, plate2)
 

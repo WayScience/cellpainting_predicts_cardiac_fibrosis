@@ -73,7 +73,7 @@ To run CellProfiler through the command line, run the [example_cp.ipynb notebook
 `path_to_pipeline`(must contain "CFReT_project.cppipe" at the end), `path_to_images` (for each plate) and `path_to_output` variables need to be changed to your absolute paths on your machine.
 
 ```bash
-# Run this script in terminal to segment NF1 data
+# Run this script in terminal
 bash run_cellprofiler.sh
 ```
 
