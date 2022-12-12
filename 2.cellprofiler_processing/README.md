@@ -74,7 +74,7 @@ To run CellProfiler through the command line, run the [example_cp.ipynb notebook
 
 ```bash
 # Run this script in terminal
-bash run_cellprofiler.sh
+bash cellprofiler_feature_seg.sh
 ```
 
 CellProfiler runs on CPU, and it took approximately 9 hours and 50 minutes to run plate `localhost220512140003_KK22-05-198` and approximately 5 hours to run plate `localhost220513100001_KK22-05-198_FactinAdjusted`. 
