@@ -2,7 +2,7 @@ CellProfiler Pipeline: http://www.cellprofiler.org
 Version:5
 DateRevision:424
 GitHash:
-ModuleCount:16
+ModuleCount:17
 HasImagePlaneDetails:False
 
 Images:[module_num:1|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['To begin creating your project, use the Images module to compile a list of files and/or folders that you want to analyze. You can also specify a set of rules to include only the desired files in your selected folders.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
@@ -228,12 +228,31 @@ MeasureTexture:[module_num:15|svn_version:'Unknown'|variable_revision_number:7|s
     Measure whole images or objects?:Objects
     Texture scale to measure:3
 
-ExportToDatabase:[module_num:16|svn_version:'Unknown'|variable_revision_number:28|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+MeasureImageQuality:[module_num:16|svn_version:'Unknown'|variable_revision_number:6|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Calculate metrics for which images?:All loaded images
+    Image count:1
+    Scale count:1
+    Threshold count:1
+    Select the images to measure:
+    Include the image rescaling value?:Yes
+    Calculate blur metrics?:Yes
+    Spatial scale for blur measurements:20
+    Calculate saturation metrics?:No
+    Calculate intensity metrics?:No
+    Calculate thresholds?:No
+    Use all thresholding methods?:No
+    Select a thresholding method:Otsu
+    Typical fraction of the image covered by objects:0.1
+    Two-class or three-class thresholding?:Two classes
+    Minimize the weighted variance or the entropy?:Weighted variance
+    Assign pixels in the middle intensity class to the foreground or the background?:Foreground
+
+ExportToDatabase:[module_num:17|svn_version:'Unknown'|variable_revision_number:28|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Database type:SQLite
     Database name:DefaultDB
     Add a prefix to table names?:No
     Table prefix:MyExpt_
-    Output file location:Default Output Folder|
+    Output file location:Default Output Folder|CFReT_data/2.cellprofiler_processing/CellProfiler_output
     Create a CellProfiler Analyst properties file?:No
     Database host:
     Username:

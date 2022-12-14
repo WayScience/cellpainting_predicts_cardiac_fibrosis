@@ -32,6 +32,7 @@ The modules used include:
 - **MeasureObjectIntensityDistribution**
 - **MeasureObjectSizeShape**
 - **MeasureTexture**
+- **MeasureImageQuality**
 
 For more information on these modules and the parameters within me, please reference the NF1 Schwann Cell project documentation above for the CellProfiler pipeline.
 More modules can be added based on the needs of the project.
@@ -72,11 +73,11 @@ To run CellProfiler through the command line, run the [example_cp.ipynb notebook
 `path_to_pipeline`(must contain "CFReT_project.cppipe" at the end), `path_to_images` (for each plate) and `path_to_output` variables need to be changed to your absolute paths on your machine.
 
 ```bash
-# Run this script in terminal to segment NF1 data
-bash 1.illumcorrect-data.sh
+# Run this script in terminal
+bash cellprofiler_feature_seg.sh
 ```
 
-CellProfiler runs on CPU, and it took approximately 8 hours to run plate `localhost220512140003_KK22-05-198` and approximately 5 hours to run plate `localhost220513100001_KK22-05-198_FactinAdjusted`. 
+CellProfiler runs on CPU, and it took approximately 9 hours and 50 minutes to run plate `localhost220512140003_KK22-05-198` and approximately 5 hours to run plate `localhost220513100001_KK22-05-198_FactinAdjusted`. 
 
 ### Step 2b: Run through GUI
 

@@ -28,3 +28,11 @@ Old_Images
 
 # ignore the output files as they are too large
 *.sqlite
+
+# ignore plugin for cellprofiler
+2.cellprofiler_processing/CellProfiler_input/CFReT_project_copy.cpproj
+2.cellprofiler_processing/runcellpose_test_discard_nuclei.py
+
+# ignore all old feature files
+depricated_feature_outputs
+*bak
