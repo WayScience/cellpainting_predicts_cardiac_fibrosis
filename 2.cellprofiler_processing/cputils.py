@@ -17,6 +17,7 @@ def rename_sqlite_file(sqlite_file_path: pathlib.Path, plate: str):
     for sqlite_files in sqlite_file_path.iterdir():
         # the CellProfiler pipeline hardcodes the .sqlite file name, so all files outputted are called "CFReT.sqlite"
         if "CFReT.sqlite" in str(sqlite_files):
+            print(sqlite_files.name)
             # change the file name to include the plate name
             new_file_name = str(sqlite_files).replace(
                 sqlite_files.name, f"{plate}.sqlite"
@@ -27,7 +28,6 @@ def rename_sqlite_file(sqlite_file_path: pathlib.Path, plate: str):
         else:
             # if there is no file named "CFReT.sqlite" then the file name as been changed/corrected
             print("The sqlite file has already been renamed!")
-            break
 
 def run_cellprofiler(
     path_to_pipeline: str, path_to_output: str, path_to_images: str, plate_name: str
