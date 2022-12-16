@@ -29,15 +29,11 @@ conda env create -f 3.preprocessing_CFReT_features.yml
 
 ## Step 2: Normalize Single Cell Features
 
-### Step 2a: Set Up Paths
-
-Within the [extract_sc_features.ipynb](3.processing_CP_features/extract_sc_features.ipynb) notebook, you can change the paths to reflect the local paths or names for your machine (***IF* you changed anything from the original pipeline**) for the various parameters (e.g. CellProfiler directory, output directory, path to sqlite file, etc.)
-
-### Step 2b: Run Extract Single Cell Features
+### Step 2a: Run Extract Single Cell Features
 
 Using the code below, run the notebook to extract and normalize single cell features from CellProfiler.
 
-```bash
+```sh
 # Run this script in terminal
-bash 3.extract_CFReT_sc_features.sh
+bash 3.process-cfret-features.sh
 ```
