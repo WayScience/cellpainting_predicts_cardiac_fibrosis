@@ -252,7 +252,7 @@ ExportToDatabase:[module_num:17|svn_version:'Unknown'|variable_revision_number:2
     Database name:DefaultDB
     Add a prefix to table names?:No
     Table prefix:MyExpt_
-    Output file location:Default Output Folder sub-folder|CFReT_data/2.cellprofiler_processing/CellProfiler_output
+    Output file location:Default Output Folder|CFReT_data/2.cellprofiler_processing/CellProfiler_output
     Create a CellProfiler Analyst properties file?:No
     Database host:
     Username:

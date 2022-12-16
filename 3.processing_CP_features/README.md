@@ -5,7 +5,7 @@ The processed features are saved into compressed `.csv.gz` for use during statis
 
 ## Pycytominer
 
-We use [Pycytominer](https://github.com/cytomining/pycytominer) to perform the aggregation, merging, and normalization of the NF1 single cell features.
+We use [Pycytominer](https://github.com/cytomining/pycytominer) to perform the aggregation, merging, and normalization of the CFReT single cell features.
 
 For more information regarding the functions that we used, please see [the documentation](https://pycytominer.readthedocs.io/en/latest/pycytominer.cyto_utils.html#pycytominer.cyto_utils.cells.SingleCells.merge_single_cells) from the Pycytominer team.
 
@@ -39,5 +39,5 @@ Using the code below, run the notebook to extract and normalize single cell feat
 
 ```bash
 # Run this script in terminal
-bash 4.extract_sc_features.sh
+bash 3.extract_CFReT_sc_features.sh
 ```

@@ -36,3 +36,6 @@ Old_Images
 # ignore all old feature files
 depricated_feature_outputs
 *bak
+
+# ignore data files (e.g. files that are outputted when run in the module)
+3.processing_CP_features/data
