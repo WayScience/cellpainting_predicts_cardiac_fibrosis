@@ -16,6 +16,13 @@ from pycytominer.cyto_utils import cells, output
 
 
 # ## Set up paths
+# 
+# There are two plates from the CFReT data:
+# 
+# 1) localhost220512140003_KK22-05-198 - contains images from well columns 1-8 (only wells that did not have phalloidin blow out)
+# 2) localhost220513100001_KK22-05-198_FactinAdjusted - contains images from well columns 9-12 (wells that were adjusted for the phalloidin blow out)
+# 
+# These two plates images together make a full 384-well plate, but they are kept in their separate plates in case there are any batch effects.
 
 # In[2]:
 
