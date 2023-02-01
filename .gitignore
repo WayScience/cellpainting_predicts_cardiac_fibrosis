@@ -36,3 +36,6 @@ Old_Images
 # ignore all old feature files
 depricated_feature_outputs
 *bak
+
+# ignore OS-specific files
+.DS_Store
