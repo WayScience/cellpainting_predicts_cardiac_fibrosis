@@ -1,6 +1,9 @@
 # ignore pycache
 __pycache__
 
+# ignore jupyter notebook extras
+.ipynb_checkpoints/
+
 # ignore PyBaSiC since they will git clone it themselves
 PyBaSiC
 
@@ -36,3 +39,6 @@ Old_Images
 # ignore all old feature files
 depricated_feature_outputs
 *bak
+
+# ignore OS-specific files
+.DS_Store
