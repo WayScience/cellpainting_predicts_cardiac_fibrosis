@@ -35,5 +35,5 @@ The goals of this project are:
 | [0.download-data](0.download-data/) | Download CFReT pilot data | Download pilot images for the CFReT project |
 | [1.preprocessing-data](1.preprocessing-data/) | Perform Illumination Correction (IC) | Use `BaSiCPy` to perform IC on images per channel |
 | [2.cellprofiler_processing](2_cellprofiler_processing/) | Apply feature extraction pipeline | Extract hundreds of morphology features per imaging channel |
-| [3.process-cfret-features](3.process-cfret-features/) | Use `pycytominer` to perform single cell normalization and feature selection |
-| [4.analyze-data](4.analyze-data/) | Analyze the single cell profiles to achieve goals listed above |
+| [3.process-cfret-features](3.process-cfret-features/) | Get morphology features analysis ready | Apply `pycytominer` to perform single cell normalization and feature selection |
+| [4.analyze-data](4.analyze-data/) | Analyze the single cell profiles to achieve goals listed above | Several independent analyses to describe data and test hypotheses |
