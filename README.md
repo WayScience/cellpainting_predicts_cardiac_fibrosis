@@ -14,6 +14,14 @@ In this modified Cell Painting, there are five channels:
 
 ![Composite_Figure.png](example_figs/Composite_Figure.png)
 
+## Plate maps
+
+We applied this modified Cell Painting assay using the following plate design:
+
+![treatment_dose_platemap.png](4.analyze-data/platemap_figures/treatment_dose_platemap.png)
+
+See our [platemaps](3.process-cfret-features/metadata/) for more details.
+
 ## Goals
 
 The goals of this project are:
