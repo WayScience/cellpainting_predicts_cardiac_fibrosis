@@ -93,7 +93,7 @@ ggsave(
     output_fig_treatment,
     plate_replicate_gg,
     dpi = 500,
-    height = 6,
+    height = 3.5,
     width = 6
 )
 
@@ -116,7 +116,7 @@ ggsave(
     output_fig_cellcount,
     plate_cell_count_gg,
     dpi = 500,
-    height = 6,
+    height = 3.5,
     width = 6
 )
 
