@@ -5,7 +5,7 @@ the plate that was processed.
 
 import os
 import pathlib
-from pathlib import Path
+
 
 def rename_sqlite_file(sqlite_dir_path: pathlib.Path, plate: str):
     """Rename the .sqlite file to be {plate}.sqlite as to differentiate between the files
@@ -17,17 +17,22 @@ def rename_sqlite_file(sqlite_dir_path: pathlib.Path, plate: str):
     try:
         # CellProfiler requires a name to be set in to pipeline, so regardless of plate, all sqlite files are outputed as "CFReT.sqlite"
         sqlite_file_path = pathlib.Path(f"{sqlite_dir_path}/CFReT.sqlite")
-        
-        new_file_name = str(sqlite_file_path).replace(sqlite_file_path.name, f"{plate}.sqlite")
+
+        new_file_name = str(sqlite_file_path).replace(
+            sqlite_file_path.name, f"{plate}.sqlite"
+        )
 
         # change the file name in the directory
-        Path(sqlite_file_path).rename(Path(new_file_name))
-        print(f"The file is renamed to {Path(new_file_name).name}!")
+        pathlib.Path(sqlite_file_path).rename(pathlib.Path(new_file_name))
+        print(f"The file is renamed to {pathlib.Path(new_file_name).name}!")
 
     except FileNotFoundError as e:
-        print(f"The CFReT.sqlite file is not found in directory. Either the pipeline wasn't ran properly or the file is already renamed.\n"
-            f"{e}")
-    
+        print(
+            f"The CFReT.sqlite file is not found in directory. Either the pipeline wasn't ran properly or the file is already renamed.\n"
+            f"{e}"
+        )
+
+
 def run_cellprofiler(
     path_to_pipeline: str, path_to_output: str, path_to_images: str, plate_name: str
 ):
@@ -51,5 +56,5 @@ def run_cellprofiler(
     command = f"cellprofiler -c -r -p {path_to_pipeline} -o {path_to_output} -i {path_to_images}"
     os.system(command)
 
-    # rename the outputted .sqlite file to the 
+    # rename the outputted .sqlite file to the
     rename_sqlite_file(sqlite_dir_path=pathlib.Path(path_to_output), plate=plate_name)
