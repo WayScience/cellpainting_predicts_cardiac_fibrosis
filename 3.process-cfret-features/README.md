@@ -1,7 +1,8 @@
-# 3. Processing Extracted Single Cell Features from CellProfiler
+# 3. Processing Extracted Single Cell and Image Features from CellProfiler
 
-In this module, we present our pipeline for processing outputted `.sqlite` file with single cell features from CellProfiler.
-The processed features are saved into compressed `.csv.gz` for use during statistical analysis.
+In this module, we present our pipeline for processing outputted `.sqlite` files with single cell and image features from CellProfiler.
+The processed features are saved into compressed `.csv.gz` files for use during statistical analysis for each plate (except for image features).
+We are only extracting image features from the second plate (e.g., Factin_Adjusted plate) as we are planning on continuing with this Cell Painting protocol for further plates.
 
 ## Pycytominer
 
@@ -14,6 +15,10 @@ For more information regarding the functions that we used, please see [the docum
 CellProfiler features can display a variety of distributions across cells.
 To facilitate analysis, we standardize all features (z-score) to the same scale.
 
+### Feature Selection
+
+Pycytominer will use specified operations to perform feature selection and remove features from the dataframe that are not significant.
+
 ---
 
 ## Step 1: Setup Processing Feature Environment
@@ -22,18 +27,23 @@ To facilitate analysis, we standardize all features (z-score) to the same scale.
 
 Make sure you are in the `3.processing_CP_features` directory before performing the below command.
 
-```sh
+```bash
 # Run this command in terminal to create the conda environment
 conda env create -f 3.preprocessing_CFReT_features.yml
 ```
 
-## Step 2: Normalize Single Cell Features
+### Step 1b: Activate Environment
 
-### Step 2a: Run Extract Single Cell Features
+```bash
+# Run this command in terminal to activate the conda environment
+conda activate 3.process-cfret-features
+```
+
+## Step 2: Extract Single Cell and Image Features
 
 Using the code below, run the notebook to extract and normalize single cell features from CellProfiler.
 
-```sh
+```bash
 # Run this script in terminal
 bash 3.process-cfret-features.sh
 ```

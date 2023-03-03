@@ -77,7 +77,7 @@ Groups:[module_num:4|svn_version:'Unknown'|variable_revision_number:2|show_windo
     grouping metadata count:1
     Metadata category:None
 
-IdentifyPrimaryObjects:[module_num:5|svn_version:'Unknown'|variable_revision_number:15|show_window:False|notes:['Note: Blurry images seem to be segmenting very well -> almost better than sharper images', 'This is struggling with two nuclei close together even with the best parameters']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+IdentifyPrimaryObjects:[module_num:5|svn_version:'Unknown'|variable_revision_number:15|show_window:False|notes:['Note: Blurry images seem to be segmenting very well -> almost better than sharper images', 'This is struggling with two nuclei close together even with the best parameters.', '', 'This module segments the nuclei from the Hoechst channel.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:Hoechst
     Name the primary objects to be identified:Nuclei
     Typical diameter of objects, in pixel units (Min,Max):30,100
@@ -113,7 +113,7 @@ IdentifyPrimaryObjects:[module_num:5|svn_version:'Unknown'|variable_revision_num
     # of deviations:2.0
     Thresholding method:Minimum Cross-Entropy
 
-IdentifySecondaryObjects:[module_num:6|svn_version:'Unknown'|variable_revision_number:10|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+IdentifySecondaryObjects:[module_num:6|svn_version:'Unknown'|variable_revision_number:10|show_window:False|notes:['This module segments the whole cells (these parameters are the best for the dataset at the current moment).']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input objects:Nuclei
     Name the objects to be identified:Cells
     Select the method to identify the secondary objects:Propagation
@@ -143,16 +143,16 @@ IdentifySecondaryObjects:[module_num:6|svn_version:'Unknown'|variable_revision_n
     # of deviations:2.0
     Thresholding method:Minimum Cross-Entropy
 
-IdentifyTertiaryObjects:[module_num:7|svn_version:'Unknown'|variable_revision_number:3|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+IdentifyTertiaryObjects:[module_num:7|svn_version:'Unknown'|variable_revision_number:3|show_window:False|notes:['This module will identify the cytoplasm object based on subtracting the nuclei from the cell objects.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the larger identified objects:Cells
     Select the smaller identified objects:Nuclei
     Name the tertiary objects to be identified:Cytoplasm
     Shrink smaller object prior to subtraction?:Yes
 
-MeasureColocalization:[module_num:8|svn_version:'Unknown'|variable_revision_number:5|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+MeasureColocalization:[module_num:8|svn_version:'Unknown'|variable_revision_number:5|show_window:False|notes:['This module measures colocalization for both the whole images and for each object.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select images to measure:Actin, ER, Golgi, Hoechst, Mitochondria
     Set threshold as percentage of maximum intensity for the images:15.0
-    Select where to measure correlation:Within objects
+    Select where to measure correlation:Both
     Select objects to measure:Cells, Cytoplasm, Nuclei
     Run all metrics?:Yes
     Calculate correlation and slope metrics?:Yes
@@ -162,7 +162,7 @@ MeasureColocalization:[module_num:8|svn_version:'Unknown'|variable_revision_numb
     Calculate the Manders coefficients using Costes auto threshold?:Yes
     Method for Costes thresholding:Faster
 
-MeasureGranularity:[module_num:9|svn_version:'Unknown'|variable_revision_number:4|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+MeasureGranularity:[module_num:9|svn_version:'Unknown'|variable_revision_number:4|show_window:False|notes:['Looks like based on the running this originally, this module will measure image granularity with the option to measure within objects also so only need one of these modules.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select images to measure:Actin, ER, Golgi, Hoechst, Mitochondria
     Measure within objects?:Yes
     Select objects to measure:Cells, Cytoplasm, Nuclei
@@ -171,18 +171,18 @@ MeasureGranularity:[module_num:9|svn_version:'Unknown'|variable_revision_number:
     Radius of structuring element:10
     Range of the granular spectrum:16
 
-MeasureObjectIntensity:[module_num:10|svn_version:'Unknown'|variable_revision_number:4|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+MeasureObjectIntensity:[module_num:10|svn_version:'Unknown'|variable_revision_number:4|show_window:False|notes:['This module measures the intensity within each individual object']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select images to measure:Actin, ER, Golgi, Hoechst, Mitochondria
     Select objects to measure:Cells, Cytoplasm, Nuclei
 
-MeasureImageIntensity:[module_num:11|svn_version:'Unknown'|variable_revision_number:4|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+MeasureImageIntensity:[module_num:11|svn_version:'Unknown'|variable_revision_number:4|show_window:False|notes:['This is set to measure intensity for the whole image.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select images to measure:Actin, ER, Golgi, Hoechst, Mitochondria
-    Measure the intensity only from areas enclosed by objects?:Yes
+    Measure the intensity only from areas enclosed by objects?:No
     Select input object sets:Cells, Cytoplasm, Nuclei
     Calculate custom percentiles:No
     Specify percentiles to measure:10,90
 
-MeasureObjectNeighbors:[module_num:12|svn_version:'Unknown'|variable_revision_number:3|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+MeasureObjectNeighbors:[module_num:12|svn_version:'Unknown'|variable_revision_number:3|show_window:False|notes:['This measures adjacent nuclei neighbors.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select objects to measure:Nuclei
     Select neighboring objects to measure:Nuclei
     Method to determine neighbors:Adjacent
@@ -195,7 +195,7 @@ MeasureObjectNeighbors:[module_num:12|svn_version:'Unknown'|variable_revision_nu
     Name the output image:PercentTouching
     Select colormap:Oranges
 
-MeasureObjectNeighbors:[module_num:13|svn_version:'Unknown'|variable_revision_number:3|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+MeasureObjectNeighbors:[module_num:13|svn_version:'Unknown'|variable_revision_number:3|show_window:False|notes:['This measures adjacent cell neighbors (would be the same as cytoplasm so there is no module for that object).']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select objects to measure:Cells
     Select neighboring objects to measure:Cells
     Method to determine neighbors:Adjacent
@@ -208,7 +208,7 @@ MeasureObjectNeighbors:[module_num:13|svn_version:'Unknown'|variable_revision_nu
     Name the output image:PercentTouching
     Select colormap:Oranges
 
-MeasureObjectIntensityDistribution:[module_num:14|svn_version:'Unknown'|variable_revision_number:6|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+MeasureObjectIntensityDistribution:[module_num:14|svn_version:'Unknown'|variable_revision_number:6|show_window:False|notes:['This module measures the intensity distribution within the objects using the center x,y coordinates for each object (not using the other options as it seems better to measure within the whole objects unlike what happens in the other options).']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select images to measure:Actin, ER, Golgi, Hoechst, Mitochondria
     Hidden:3
     Hidden:1
@@ -228,20 +228,20 @@ MeasureObjectIntensityDistribution:[module_num:14|svn_version:'Unknown'|variable
     Number of bins:4
     Maximum radius:100
 
-MeasureObjectSizeShape:[module_num:15|svn_version:'Unknown'|variable_revision_number:3|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+MeasureObjectSizeShape:[module_num:15|svn_version:'Unknown'|variable_revision_number:3|show_window:False|notes:['This measures the size and shape (among other measurements) for the objects.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select object sets to measure:Cells, Cytoplasm, Nuclei
     Calculate the Zernike features?:Yes
     Calculate the advanced features?:No
 
-MeasureTexture:[module_num:16|svn_version:'Unknown'|variable_revision_number:7|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+MeasureTexture:[module_num:16|svn_version:'Unknown'|variable_revision_number:7|show_window:False|notes:['This module will measure the texture within the objects and whole images.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select images to measure:Actin, ER, Golgi, Hoechst, Mitochondria
     Select objects to measure:Cells, Cytoplasm, Nuclei
     Enter how many gray levels to measure the texture at:256
     Hidden:1
-    Measure whole images or objects?:Objects
+    Measure whole images or objects?:Both
     Texture scale to measure:3
 
-MeasureImageQuality:[module_num:17|svn_version:'Unknown'|variable_revision_number:6|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+MeasureImageQuality:[module_num:17|svn_version:'Unknown'|variable_revision_number:6|show_window:False|notes:['This module is only measuring the blur within all loaded images (every channel) as we have noticed issues with blur in this dataset.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Calculate metrics for which images?:All loaded images
     Image count:1
     Scale count:1
@@ -260,7 +260,7 @@ MeasureImageQuality:[module_num:17|svn_version:'Unknown'|variable_revision_numbe
     Minimize the weighted variance or the entropy?:Weighted variance
     Assign pixels in the middle intensity class to the foreground or the background?:Foreground
 
-ExportToDatabase:[module_num:18|svn_version:'Unknown'|variable_revision_number:28|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+ExportToDatabase:[module_num:18|svn_version:'Unknown'|variable_revision_number:28|show_window:False|notes:['This module outputs an sqlite file with all of the image and object features. The name is set to CFReT.sqlite since it needs a name to run, but this is changed post-run for each plate to be named {plate}.sqlite.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Database type:SQLite
     Database name:DefaultDB
     Add a prefix to table names?:No
