@@ -11,6 +11,7 @@ lm_output_file <- file.path(input_dir, paste0(plate, "_linear_model_cp_features_
 output_fig_dir <- "figures"
 lm_fig <- file.path(output_fig_dir, paste0(plate, "_linear_model_cp_features.png"))
 lm_facet_fig <- file.path(output_fig_dir, paste0(plate, "_linear_model_cp_features_bygroup.png"))
+lm_coef_fig <- file.path(output_fig_dir, paste0(plate, "_linear_model_cp_features_coefficients.png"))
 
 # Load and process linear model data
 lm_df <- readr::read_tsv(
@@ -38,7 +39,7 @@ lm_df <- lm_df %>%
     dplyr::arrange(desc(abs(treatment_dose_coef)))
 
 lm_df$channel_cleaned <- dplyr::recode(lm_df$channel_cleaned,
-    "Hoechst" = "Nucleus",
+    "Hoechst" = "DNA",
     "ER" = "ER",
     "Actin" = "Actin",
     "Mitochondria" = "Mito",
@@ -104,3 +105,49 @@ lm_facet_fig_gg <- (
 ggsave(lm_facet_fig, lm_facet_fig_gg, height = 6, width = 8, dpi = 500)
 
 lm_facet_fig_gg
+
+channels <- c(
+    "Mitochondria" = "Mito",
+    "Hoechst" = "DNA",
+    "Golgi" = "Golgi",
+    "ER" = "ER",
+    "Actin" = "Actin"
+)
+
+lm_cleaned_df <- lm_df %>%
+    dplyr::filter(channel %in% names(channels)) %>%
+    dplyr::group_by(feature_group, channel_cleaned, compartment) %>%
+    dplyr::slice_max(order_by = treatment_dose_coef, n = 1)
+
+head(lm_cleaned_df, 3)
+
+coef_gg <- (
+    ggplot(lm_cleaned_df, aes(x = channel_cleaned, y = feature_group))
+    + geom_point(aes(fill = abs(treatment_dose_coef)), pch = 22, size = 5)
+    + facet_wrap("~compartment", ncol = 1)
+    + theme_bw()
+    + scale_fill_gradient(
+        name="Top Abs. val\ntreatment\nlinear model\ncoefficient",
+        low = "darkblue",
+        high = "yellow"
+    )
+    + xlab("Channel")
+    + ylab("Feature")
+    + theme(
+        axis.text = element_text(size = 7),
+        axis.text.x = element_text(angle = 90, size = 7),
+        axis.title = element_text(size = 10),
+        legend.text = element_text(size = 9),
+        legend.title = element_text(size = 10),
+        strip.text = element_text(size = 8),
+        strip.background = element_rect(
+            colour = "black",
+            fill = "#fdfff4"
+        )
+    )
+)
+
+# Save figure
+ggsave(lm_coef_fig, coef_gg, height = 5, width = 3.5, dpi = 500)
+
+coef_gg
