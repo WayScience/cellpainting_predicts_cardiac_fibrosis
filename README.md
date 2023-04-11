@@ -26,8 +26,6 @@ We applied this modified Cell Painting assay using the following plate design fo
 
 ![treatment_dose_platemap.png](4.analyze_data/platemap_figures/treatment_dose_platemap.png)
 
-See our [platemaps](3.process-cfret-features/metadata/) for more details.
-
 For the third plate, we are using the following plate design:
 
 - Plate 3 = **localhost230405150001**
@@ -35,6 +33,8 @@ For the third plate, we are using the following plate design:
 ![plate3_CFReT.png](example_figs/plate3_CFReT.png)
 
 In this plate, there are only two different patients, one with a healthy heart and one that had a failing heart. 
+
+See our [platemaps](metadata/) for more details.
 
 ## Goals
 
