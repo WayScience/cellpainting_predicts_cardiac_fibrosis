@@ -19,9 +19,12 @@ In this modified Cell Painting, there are five channels:
 We applied this modified Cell Painting assay using the following plate design for the first two plates:
 
 - Plate 1 = **localhost220512140003_KK22-05-198**
+
+![plate3_CFReT.png](example_figs/plate1_CFReT.png)
+
 - Plate 2 = **localhost220513100001_KK22-05-198_FactinAdjusted**
 
-![treatment_dose_platemap.png](4.analyze-data/platemap_figures/treatment_dose_platemap.png)
+![treatment_dose_platemap.png](4.analyze_data/platemap_figures/treatment_dose_platemap.png)
 
 See our [platemaps](3.process-cfret-features/metadata/) for more details.
 
