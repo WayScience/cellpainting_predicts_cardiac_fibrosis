@@ -16,11 +16,22 @@ In this modified Cell Painting, there are five channels:
 
 ## Plate maps
 
-We applied this modified Cell Painting assay using the following plate design:
+We applied this modified Cell Painting assay using the following plate design for the first two plates:
+
+- Plate 1 = **localhost220512140003_KK22-05-198**
+- Plate 2 = **localhost220513100001_KK22-05-198_FactinAdjusted**
 
 ![treatment_dose_platemap.png](4.analyze-data/platemap_figures/treatment_dose_platemap.png)
 
 See our [platemaps](3.process-cfret-features/metadata/) for more details.
+
+For the third plate, we are using the following plate design:
+
+- Plate 3 = **localhost230405150001**
+
+![plate3_CFReT.png](example_figs/plate3_CFReT.png)
+
+In this plate, there are only two different patients, one with a healthy heart and one that had a failing heart. 
 
 ## Goals
 
@@ -32,8 +43,8 @@ The goals of this project are:
 
 | Module | Purpose | Description |
 | :---- | :----- | :---------- |
-| [0.download-data](0.download-data/) | Download CFReT pilot data | Download pilot images for the CFReT project |
-| [1.preprocessing-data](1.preprocessing-data/) | Perform Illumination Correction (IC) | Use `BaSiCPy` to perform IC on images per channel |
+| [0.download_data](0.download_data/) | Download CFReT pilot data | Download pilot images for the CFReT project |
+| [1.preprocessing_data](1.preprocessing_data/) | Perform Illumination Correction (IC) | Use `BaSiCPy` to perform IC on images per channel |
 | [2.cellprofiler_processing](2_cellprofiler_processing/) | Apply feature extraction pipeline | Extract hundreds of morphology features per imaging channel |
-| [3.process-cfret-features](3.process-cfret-features/) | Get morphology features analysis ready | Apply `pycytominer` to perform single cell normalization and feature selection |
-| [4.analyze-data](4.analyze-data/) | Analyze the single cell profiles to achieve goals listed above | Several independent analyses to describe data and test hypotheses |
+| [3.process_cfret_features](3.process_cfret_features/) | Get morphology features analysis ready | Apply `pycytominer` to perform single cell normalization and feature selection |
+| [4.analyze_data](4.analyze_data/) | Analyze the single cell profiles to achieve goals listed above | Several independent analyses to describe data and test hypotheses |
