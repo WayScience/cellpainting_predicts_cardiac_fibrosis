@@ -5,7 +5,7 @@ In this module, we present our pipeline for preprocessing the CFReT pilot data.
 ## Illumination Correction
 
 To correct for illumination issues within the CFReT pilot data, we use the BaSiC method that was established in an article by [Peng et al.](https://doi.org/10.1038/ncomms14836).
-We specifically use the Python implementation of this method, called [PyBaSiC](https://github.com/peng-lab/BaSiCPy).
+We specifically use the Python implementation of this method (now an older version of the same package), previously called [PyBaSiC](https://github.com/peng-lab/BaSiCPy).
 
 Illumination correction is an important step in cell image analysis pipelines as it helps with downstream processes like segmentation (more accuracy in segmenting shape and identifying objects to segment) and feature extraction (accurate measurements in intensity, texture, etc.).
 
@@ -31,23 +31,22 @@ By brightening the images through, there is a noticable difference in illuminati
 
 ## Step 1: Install PyBaSiC
 
-Clone the repository into 1_preprocess_data/ with 
+Clone the repository into the [1.preprocessing_data](1.preprocessing_data)/ module:
 
-```console
-git clone https://github.com/peng-lab/PyBaSiC.git
-git checkout f3fcf1987db47c4a29506d240d0f69f117c82d2b
+```bash
+# clone specific hash prior to newest version 
+git clone https://github.com/peng-lab/BaSiCPy/tree/f3fcf1987db47c4a29506d240d0f69f117c82d2b
 ```
 
-**Note:** This implementation does not have package support which means that it can not be imported as you normally would. 
-To correct for this, we use a line of code within the "Importing Libraries" cell to be able to use the functions within the 
-[notebook](1.preprocessing-data/illumcorrect-data.ipynb).
+Instead of pip installation, we use the functions from the PyBaSiC repo cloned above. 
+We call these functions to use in the [ICutils.py file](../utils/ICutils.py).
 
 ## Step 2: Run IC on CFReT data
 
-To perform illumination correction on the CFReT data, you will need to run the [illumcorrect-data.ipynb notebook](illumcorrect-data.ipynb).
-Remember that you can update the `data_path` and `save_path` if needed.
+To perform illumination correction on the CFReT data, you will need to run the [illumcorrect_data.ipynb notebook](illumcorrect_data.ipynb) using the code block below:
 
 ```bash
-# Run this script in terminal to segment NF1 data
-bash 1.illumcorrect-data.sh
+cd 1.preprocessing_data
+# perform illumination corrections on each plate
+source illumcorrect_data.sh
 ```
