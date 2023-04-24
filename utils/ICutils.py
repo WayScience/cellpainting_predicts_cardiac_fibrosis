@@ -3,6 +3,7 @@ The collection of functions will load in the raw images and save their names int
 and saved into a directory for further analysis. 
 """
 
+import logging
 import sys
 import numpy as np
 import pathlib
@@ -12,7 +13,7 @@ import os
 import skimage
 
 # explicit import to PyBaSiC due to not having package support
-sys.path.append("./PyBaSiC/")
+sys.path.append("../1.preprocessing_data/PyBaSiC/")
 import pybasic
 
 
@@ -64,8 +65,8 @@ def load_pybasic_data(
     # This for loop will run through the paths to the images for the specified channel and load in the images to be used to illumination correction
     # This code was sampled from the `load_data` function in PyBaSiC
     for i, image_file in enumerate(image_files):
-        if verbosity and (i % 10 == 0):
-            print(i, "/", len(image_files))
+        # if verbosity and (i % 10 == 0):
+        #     print(i, "/", len(image_files))
         images.append(skimage.io.imread(image_file))
 
     return images, image_names
@@ -79,6 +80,7 @@ def run_illum_correct(
     output_calc: bool = False,
     file_extension: str = ".tif",
     overwrite: bool = False,
+    verbosity: bool = False,
 ):
     """Calculates flatfield, darkfield, performs illumination correction on channel images, coverts to 8-bit and saves images into designated folder
 
@@ -90,63 +92,70 @@ def run_illum_correct(
         output_calc (bool): Outputs plots of the flatfield and darkfield function for visual review if set to 'True' (default = False)
         file_extension (str): Sets the file_extension for the images
         overwrite (bool): Will save over existing images if set to 'True' (default = False)
+        verbosity (bool): Will output print statements from the load_pybasic_data function
     """
     # Loads in the variables returned from "load_pybasic_data" function
     images, image_names = load_pybasic_data(
-        data_path=data_path, plate=plate, channel=channel, file_extension=file_extension
+        data_path=data_path, plate=plate, channel=channel, file_extension=file_extension, verbosity=verbosity,
     )
 
     print("Correcting", {channel})
 
-    flatfield, darkfield = pybasic.basic(images, darkfield=True)
+    try: 
+        flatfield, darkfield = pybasic.basic(images, darkfield=True)
 
-    # Optional output that displays the plots for the flatfield and darkfield calculations if set to True (default is False)
-    if output_calc == True:
-        plt.title("Flatfield")
-        plt.imshow(flatfield)
-        plt.colorbar()
-        plt.show()
-        plt.title("Darkfield")
-        plt.imshow(darkfield)
-        plt.colorbar()
-        plt.show()
+        # Optional output that displays the plots for the flatfield and darkfield calculations if set to True (default is False)
+        if output_calc == True:
+            plt.title("Flatfield")
+            plt.imshow(flatfield)
+            plt.colorbar()
+            plt.show()
+            plt.title("Darkfield")
+            plt.imshow(darkfield)
+            plt.colorbar()
+            plt.show()
 
-    # Run PyBaSiC illumination correction function on loaded in images
-    channel_images_corrected = pybasic.correct_illumination(
-        images_list=images,
-        flatfield=flatfield,
-        darkfield=darkfield,
-    )
-
-    # Covert illum corrected images to uint8 for downstream analysis
-    corrected_images_coverted = np.array(channel_images_corrected)
-    # Makes the negatives 0
-    corrected_images_coverted[corrected_images_coverted < 0] = 0
-    # Normalizes the data to 0 - 1
-    corrected_images_coverted = corrected_images_coverted / np.max(
-        corrected_images_coverted
-    )
-    # Scale by 255
-    corrected_images_coverted = 255 * corrected_images_coverted
-    # Convert images from 16-bit to 8-bit
-    corrected_images = corrected_images_coverted.astype(np.uint8)
-
-    # Correlate the image names to the respective image and save the images with the file name suffix '_IllumCorrect.tif'
-    for i, image in enumerate(corrected_images):
-        orig_file = pathlib.Path(image_names[i])
-        orig_file_name = orig_file.name
-        new_filename = pathlib.Path(
-            f"{save_path}/{plate}/{orig_file_name}_IllumCorrect.tif"
+        # Run PyBaSiC illumination correction function on loaded in images
+        channel_images_corrected = pybasic.correct_illumination(
+            images_list=images,
+            flatfield=flatfield,
+            darkfield=darkfield,
         )
 
-        # If set to 'True', images will be saved regardless of if the image already exists in the directory
-        if overwrite == True:
-            skimage.io.imsave(new_filename, image)
+        # # Covert illum corrected images to uint8 for downstream analysis
+        # corrected_images_coverted = np.array(channel_images_corrected)
+        # # Makes the negatives 0
+        # corrected_images_coverted[corrected_images_coverted < 0] = 0
+        # # Normalizes the data to 0 - 1
+        # corrected_images_coverted = corrected_images_coverted / np.max(
+        #     corrected_images_coverted
+        # )
+        # # Scale by 255
+        # corrected_images_coverted = 255 * corrected_images_coverted
+        # # Convert images from 16-bit to 8-bit
+        # corrected_images = corrected_images_coverted.astype(np.uint8)
 
-        # If set to 'False', and the image has not been corrected yet, then the function will save the image. If the image exists, it will skip saving.
-        if overwrite == False:
-            if not new_filename.is_file():
+        # Correlate the image names to the respective image and save the images with the file name suffix '_IllumCorrect.tif'
+        for i, image in enumerate(channel_images_corrected):
+            orig_file = pathlib.Path(image_names[i])
+            orig_file_name = orig_file.name
+            new_filename = pathlib.Path(
+                f"{save_path}/{plate}/{orig_file_name}_IllumCorrect.tif"
+            )
+
+            # If set to 'True', images will be saved regardless of if the image already exists in the directory
+            if overwrite == True:
                 skimage.io.imsave(new_filename, image)
 
-            else:
-                print(f"{new_filename.name} already exists!")
+            # If set to 'False', and the image has not been corrected yet, then the function will save the image. If the image exists, it will skip saving.
+            if overwrite == False:
+                if not new_filename.is_file():
+                    skimage.io.imsave(new_filename, image)
+
+                else:
+                    print(f"{new_filename.name} already exists!")
+        print(
+            f"All images in channel {channel} in {plate} plate have been corrected and saved"
+        )
+    except IndexError:
+        print(f"Make sure that {data_path} is correct. This error might be occuring because the function can not access the images.")
