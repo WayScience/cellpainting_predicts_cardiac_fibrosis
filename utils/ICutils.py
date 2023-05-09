@@ -121,22 +121,26 @@ def run_illum_correct(
             flatfield=flatfield,
             darkfield=darkfield,
         )
+        # Convert illum corrected images to uint16 for downstream analysis
+        corrected_images_converted = np.array(channel_images_corrected)
+        # Makes the negatives 0
+        corrected_images_converted[corrected_images_converted < 0] = 0
+        # Normalize the data to 0 - 1
+        corrected_images_converted = corrected_images_converted / np.max(
+            corrected_images_converted
+        )
+        # Scale by 65535 (16-bit)
+        corrected_images_converted = 65535 * corrected_images_converted
+        # Convert images to 16-bit
+        corrected_images = corrected_images_converted.astype(np.uint16)
 
-        # # Covert illum corrected images to uint8 for downstream analysis
-        # corrected_images_coverted = np.array(channel_images_corrected)
-        # # Makes the negatives 0
-        # corrected_images_coverted[corrected_images_coverted < 0] = 0
-        # # Normalizes the data to 0 - 1
-        # corrected_images_coverted = corrected_images_coverted / np.max(
-        #     corrected_images_coverted
-        # )
-        # # Scale by 255
-        # corrected_images_coverted = 255 * corrected_images_coverted
-        # # Convert images from 16-bit to 8-bit
-        # corrected_images = corrected_images_coverted.astype(np.uint8)
+        # make directory for images to be saved to if the directory does not already exist
+        plate_directory = pathlib.Path(f"{save_path}/{plate}")
+        if not os.path.exists(plate_directory):
+            os.mkdir(plate_directory)
 
         # Correlate the image names to the respective image and save the images with the file name suffix '_IllumCorrect.tif'
-        for i, image in enumerate(channel_images_corrected):
+        for i, image in enumerate(corrected_images):
             orig_file = pathlib.Path(image_names[i])
             orig_file_name = orig_file.name
             new_filename = pathlib.Path(
