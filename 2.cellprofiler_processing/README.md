@@ -41,7 +41,7 @@ Specifically, this module is set to create one table per object type, which is t
 --- 
 ## Run CellProfiler analysis on each plate
 
-To run CellProfiler analysis on each plate, run the [cp_analysis.ipynb notebook](cp_analysis.ipynb) using the code below:
+To run CellProfiler analysis on each plate, run the [example_cp.ipynb notebook](example_cp.ipynb) using the code below:
 
 ```bash
 # Run this script in terminal
