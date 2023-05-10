@@ -12,11 +12,9 @@ PyBaSiC
 example.csv
 issue_testing.ipynb
 
-# ignore folders that are not needed
-IC_Corrected_Images
-Old_IC_Images
+# ignore image folders as the size is too large for GitHub
+Corrected_Images
 Images
-Old_Images
 
 # ignore all .tif files since there are too many images per plate for GitHub to handle
 *.tif
@@ -42,3 +40,6 @@ depricated_feature_outputs
 
 # ignore OS-specific files
 .DS_Store
+
+# ignore log files
+logs

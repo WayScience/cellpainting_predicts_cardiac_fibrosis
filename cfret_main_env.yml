@@ -1,0 +1,30 @@
+name: cfret_data
+
+channels:
+- conda-forge
+
+dependencies:
+# this is restricted to Python 3.8 at this time due to other conflicts
+- conda-forge::python=3.8
+- conda-forge::ipykernel
+- conda-forge::nbconvert=6.4.4
+- conda-forge::pip
+- conda-forge::numpy
+- conda-forge::matplotlib
+- conda-forge::pandas
+# this package must be hardcoded to work with Mac 
+- conda-forge::mysqlclient=1.4.6
+- conda-forge::openjdk
+# must specifiy scikit-image to avoid error in MeasureGranularity
+- conda-forge::scikit-image=0.19.3
+- conda-forge::scikit-learn
+- conda-forge::mahotas
+- conda-forge::gtk2
+- conda-forge::typing-extensions
+# these are strict because that is how it is on the CellProfiler wiki (Jinja updated for nbconvert)
+- conda-forge::Jinja2=3.0.3
+- conda-forge::inflect=5.3.0
+- conda-forge::wxpython=4.1.0
+- conda-forge::sentry-sdk=0.18.0
+- pip:
+    - cellprofiler==4.2.4

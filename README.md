@@ -51,3 +51,20 @@ The goals of this project are:
 | [2.cellprofiler_processing](2_cellprofiler_processing/) | Apply feature extraction pipeline | Extract hundreds of morphology features per imaging channel |
 | [3.process_cfret_features](3.process_cfret_features/) | Get morphology features analysis ready | Apply `pycytominer` to perform single cell normalization and feature selection |
 | [4.analyze_data](4.analyze_data/) | Analyze the single cell profiles to achieve goals listed above | Several independent analyses to describe data and test hypotheses |
+
+## Create main CFReT conda environment
+
+For all modules, we use one main environment for the repository, which includes all packages needed including installing CellProfiler v4.2.4 among other packages.
+
+To create the environment, run the below code block:
+
+```bash
+# Run this command in terminal to create the conda environment
+conda env create -f cfret_main_env.yml
+```
+
+**Make sure that the conda environment is activated before running notebooks or scripts:**
+
+```bash
+conda activate cfret_data
+```
