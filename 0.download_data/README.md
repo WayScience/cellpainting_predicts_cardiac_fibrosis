@@ -1,6 +1,7 @@
 # Download CFReT data
 
-In this module, we will present how we download the images for the CFReT project. Currently, the images are stored in a shared DropBox and we include all plates in an `Images` folder within this module.
+In this module, we will present how we download the images for the CFReT project. 
+Currently, the images are stored in a shared DropBox and we include all plates in an `Images` folder within this module.
 
 ## Metadata
 

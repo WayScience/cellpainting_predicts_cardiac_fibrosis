@@ -4,7 +4,7 @@ In this module, we present our pipeline for preprocessing the CFReT pilot data.
 
 ## Illumination Correction (IC)
 
-To correct for illumination issues within the CFReT pilot data, we use the Background method for all plates from the [CellProfiler illumination correction modules](https://cellprofiler-manual.s3.amazonaws.com/CellProfiler-4.2.4/modules/imageprocessing.html?highlight=illumination+correction#correctilluminationapply).
+To correct for illumination issues within the CFReT pilot data, we use the Background method for all plates from the [CellProfiler illumination correction modules](https://cellprofiler-manual.s3.amazonaws.com/CellProfiler-4.2.4/modules/imageprocessing.html#correctilluminationapply).
 
 To confirm that IC was working on the images, we adjusted the brightness/contrast in CellProfiler to see if the contrast between objects and background increased and the illumination looked more even. 
 
@@ -13,6 +13,8 @@ To confirm that IC was working on the images, we adjusted the brightness/contras
 To perform illumination correction and save the corrected images, you will need to:
 
 ### Step 1: Open the CellProfiler GUI
+
+To open the CellProfiler GUI, run the code block below:
 
 ```bash
 # activate the conda env for the repo
