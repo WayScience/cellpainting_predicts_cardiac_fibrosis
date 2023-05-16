@@ -41,11 +41,19 @@ Specifically, this module is set to create one table per object type, which is t
 --- 
 ## Run CellProfiler analysis on each plate
 
-To run CellProfiler analysis on each plate, run the [example_cp.ipynb notebook](example_cp.ipynb) using the code below:
+To run CellProfiler analysis on each plate, run the [cp_analysis.ipynb notebook](cp_analysis.ipynb) using the code below:
 
 ```bash
+# change directory to the module with the bash script
+cd 2.cellprofiler_processing/
 # Run this script in terminal
-bash cellprofiler_feature_seg.sh
+source cfret_analysis.sh
 ```
 
-CellProfiler runs on CPU, and it took approximately 10 hours to run plate `localhost220512140003_KK22-05-198` and approximately 5 hours to run plate `localhost220513100001_KK22-05-198_FactinAdjusted`. 
+CellProfiler runs on CPU in sequential order, and it took approximately:
+- ~14 hours to run plate 1 (`localhost220512140003_KK22-05-198`) 
+- ~8 hours to run plate 2 (`localhost220513100001_KK22-05-198_FactinAdjusted`)
+- ~10 hours to run on plate 3 (`localhost230405150001`)
+
+This totals to **32 hours** to run all plates.
+The analysis was run on a Linux-based machine running Pop_OS! LTS 22.04 with an AMD Ryzen 7 3700X 8-Core Processor.
