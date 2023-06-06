@@ -25,7 +25,7 @@ def rename_sqlite_file(sqlite_dir_path: pathlib.Path, name: str):
     """
     try:
         # CellProfiler requires a name to be set in to pipeline, so regardless of plate or method, all sqlite files name are hardcoded
-        sqlite_file_path = pathlib.Path(f"{sqlite_dir_path}/NF1_data.sqlite")
+        sqlite_file_path = pathlib.Path(f"{sqlite_dir_path}/CFReT_data.sqlite")
 
         new_file_name = str(sqlite_file_path).replace(
             sqlite_file_path.name, f"{name}.sqlite"
