@@ -25,6 +25,7 @@ import extraction_utils as extract_utils
 # 
 # 1) localhost220512140003_KK22-05-198 - contains images from well columns 1-8 (only wells that did not have phalloidin blow out)
 # 2) localhost220513100001_KK22-05-198_FactinAdjusted - contains images from well columns 9-12 (wells that were adjusted for the phalloidin blow out)
+# 3) localhost230405150001 - contains images of two different patient heart cells, healthy and unhealthy, that have been explored with three different types of treatments
 # 
 # These two plates images together make a full 384-well plate, but they are kept in their separate plates in case there are any batch effects.
 
@@ -51,7 +52,7 @@ sc_output_file2 = pathlib.Path(f"{output_dir}/localhost220513100001_KK22-05-198_
 sc_norm_output_file2 = pathlib.Path(f"{output_dir}/localhost220513100001_KK22-05-198_FactinAdjusted_sc_norm_cellprofiler.csv.gz")
 sc_norm_fs_output_file2 = pathlib.Path(f"{output_dir}/localhost220513100001_KK22-05-198_FactinAdjusted_sc_norm_fs_cellprofiler.csv.gz")
 
-# Set paths for plate localhost220513100001_KK22-05-198_FactinAdjusted
+# Set paths for plate localhost230405150001
 sql_file3 = "localhost230405150001.sqlite"
 single_cell_file3 = f"sqlite:///{cp_dir}/CellProfiler_output/{sql_file3}"
 platemap_file3 = "../metadata/plate_3_CFReT.csv"
