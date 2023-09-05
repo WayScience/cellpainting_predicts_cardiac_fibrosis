@@ -5,7 +5,7 @@
 # 
 # We aim to determine which features are significantly impacted by the drug treatment, adjusted by cell count.
 # 
-# We are using normalized and feature selected data.
+# We use normalized and feature selected data.
 
 # In[1]:
 
@@ -54,7 +54,7 @@ cell_count_df = pd.DataFrame(
 cell_count_df.columns = ["Metadata_Well", "Metadata_cell_count_per_well"]
 cp_df = cell_count_df.merge(cp_df, on=["Metadata_Well"])
 
-# # Clean the dose column to extract numeric value
+# # Only for plates 1, 2, and 3: Clean the dose column to extract numeric value
 # cp_df = cp_df.assign(Metadata_dose_numeric=cp_df.Metadata_dose.str.strip("uM").astype(float))
 
 # Define CellProfiler features

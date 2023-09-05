@@ -9,8 +9,6 @@ dependencies:
   - conda-forge::r-irkernel
   - conda-forge::nb_conda_kernels
   - conda-forge::widgetsnbextension
-  # commented out due to error when creating environment 
-  # - conda-forge::jupyter_contrib_nbextensions
   - conda-forge::r-base=4.2.2
   - conda-forge::r-dplyr=1.0.10
   - conda-forge::r-tidyr
