@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ## Fit a linear model on cell morphology features
-# 
-# We aim to determine which features are significantly impacted by the drug treatment, adjusted by cell count.
-# 
-# We use normalized and feature selected data.
+# # Stratify to perform linear modeling on certain data
 
 # In[1]:
 
@@ -28,21 +24,32 @@ file_suffix = "_sc_norm_fs_cellprofiler.csv.gz"
 
 data_dir = pathlib.Path("../../../3.process_cfret_features/data/")
 
-cp_file = pathlib.Path(data_dir, f"{plate}{file_suffix}")
+data_df = pd.read_csv(pathlib.Path(data_dir, f"{plate}{file_suffix}"))
 
 output_dir = pathlib.Path("results")
-output_cp_file = pathlib.Path(output_dir, f"{plate}_linear_model_TGFRi_drug.tsv")
+output_cp_file = pathlib.Path(output_dir, f"{plate}_linear_model_DMSO_failing_healthy.tsv")
 
+print(data_df.shape)
+data_df.head()
+
+
+# ## Stratify data
 
 # In[3]:
 
 
-# Load data
-cp_df = pd.read_csv(cp_file)
+# Filter by failing hearts and specific treatments
+specific_type = ["DMSO"]
+specific_cell_types = ["failing", "healthy"]
+
+filtered_df = data_df[
+    (data_df['Metadata_treatment'].isin(specific_type)) &
+    (data_df['Metadata_cell_type'].isin(specific_cell_types))
+]
 
 # Drop NA columns
 cp_df = feature_select(
-    cp_df,
+    filtered_df,
     operation="drop_na_columns",
     na_cutoff=0
 )
@@ -53,9 +60,6 @@ cell_count_df = pd.DataFrame(
 ).reset_index()
 cell_count_df.columns = ["Metadata_Well", "Metadata_cell_count_per_well"]
 cp_df = cell_count_df.merge(cp_df, on=["Metadata_Well"])
-
-# # Only for plates 1, 2, and 3: Clean the dose column to extract numeric value
-# cp_df = cp_df.assign(Metadata_dose_numeric=cp_df.Metadata_dose.str.strip("uM").astype(float))
 
 # Define CellProfiler features
 cp_features = infer_cp_features(cp_df)
@@ -70,8 +74,8 @@ cp_df.head()
 # In[4]:
 
 
-# Setup linear modeling framework -> in plate 3 we are looking at the treatments
-variables = ["Metadata_cell_count_per_well", "Metadata_treatment"]
+# Setup linear modeling framework -> in plate 3 we are looking at the treatments or cell type
+variables = ["Metadata_cell_count_per_well", "Metadata_cell_type"]
 X = cp_df.loc[:, variables]
 
 print(X.shape)
@@ -82,20 +86,20 @@ X.head()
 
 
 # Assuming cp_df is your DataFrame
-variables = ["Metadata_cell_count_per_well", "Metadata_treatment"]
-treatments_to_select = ["drug_x", "TGFRi"]
+variables = ["Metadata_cell_count_per_well", "Metadata_cell_type"]
+treatments_to_select = ["failing", "healthy"]
 
 # Select rows with specific treatment values
-selected_rows = X[X["Metadata_treatment"].isin(treatments_to_select)]
+selected_rows = X[X["Metadata_cell_type"].isin(treatments_to_select)]
 
 # Create dummy variables
-dummies = pd.get_dummies(selected_rows["Metadata_treatment"])
+dummies = pd.get_dummies(selected_rows["Metadata_cell_type"])
 
 # Concatenate dummies with the selected rows DataFrame
 X = pd.concat([selected_rows, dummies], axis=1)
 
 # Drop the original treatment column
-X.drop("Metadata_treatment", axis=1, inplace=True)
+X.drop("Metadata_cell_type", axis=1, inplace=True)
 
 print(X.shape)
 X.head()
@@ -108,7 +112,7 @@ X.head()
 lm_results = []
 for cp_feature in cp_features:
     # Create a boolean mask to filter rows with the specified treatments
-    mask = cp_df["Metadata_treatment"].isin(treatments_to_select)
+    mask = cp_df["Metadata_cell_type"].isin(treatments_to_select)
 
     # Apply the mask to Subset CP data to each individual feature (univariate test)
     cp_subset_df = cp_df.loc[mask, cp_feature]
@@ -130,7 +134,7 @@ for cp_feature in cp_features:
 # Convert results to a pandas DataFrame
 lm_results = pd.DataFrame(
     lm_results,
-    columns=["feature", "r2_score", "cell_count_coef", "TGFRi_coef", "drug_x_coef"]
+    columns=["feature", "r2_score", "cell_count_coef", "failing_coef", "healthy_coef"]
 )
 
 # Output file
