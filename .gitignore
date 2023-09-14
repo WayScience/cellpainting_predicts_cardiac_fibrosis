@@ -46,3 +46,6 @@ logs
 
 # ignore test notebooks
 2.cellprofiler_processing/cp_analysis_parallel.ipynb
+
+# ignore runinfo outputed from cytotable
+runinfo
