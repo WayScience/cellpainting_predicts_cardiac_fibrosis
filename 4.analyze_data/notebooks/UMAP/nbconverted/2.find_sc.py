@@ -70,6 +70,8 @@ else:
 
 
 # ## Read in `yaml` file with settings for each single cell type
+# 
+# There is a `yaml` file called *image_settings.yaml* that holds the dictionary for all of the different UMAP single cells that we want to crop.
 
 # In[3]:
 
@@ -127,6 +129,9 @@ for crop_cell, info in cell_info_dictionary.items():
     # Assign the direction to the UMAP_direction column for the last added row
     df.at[df.index[-1], "UMAP_direction"] = crop_cell.split('-')[2]
 
+    # Drop any duplicate rows that occur when rerunning this code
+    df.drop_duplicates(inplace=True)
+
     # Save the updated DataFrame to the CSV file
     df.to_csv(csv_file_path, index=False)
 
@@ -154,7 +159,7 @@ for crop_cell, info in cell_info_dictionary.items():
     green_channel = []
     red_channel = []
 
-    # Iterate over files in the directory
+    # Iterate through channels from the random well/site and assign the correct file names with the color channel
     for file_path in file_paths:
         filename = pathlib.Path(file_path).name
         if 'd0' in filename:
@@ -177,7 +182,7 @@ for crop_cell, info in cell_info_dictionary.items():
     green_channel_stack = (green_channel_stack / np.max(green_channel_stack) * 65535).astype(np.uint16)
     red_channel_stack = (red_channel_stack / np.max(red_channel_stack) * 65535).astype(np.uint16)
 
-    # Create the RGB image by merging the channels
+    # Create the RGB numpy array by merging the channels
     composite_image = cv2.merge((red_channel_stack, green_channel_stack, blue_channel_stack)).astype(np.uint16)
 
     # Path for saving comp images
@@ -186,14 +191,14 @@ for crop_cell, info in cell_info_dictionary.items():
     # Save the composite 16-bit RGB tiff image
     tf.imwrite(comp_path, composite_image)
 
-    # Load the composite image
+    # Load the composite image from the save path as an Image object instead of numpy array
     composite_image = Image.open(comp_path)
 
     # Assuming you have a DataFrame called "filtered_df" with center coordinates
     center_x = random_row["Metadata_Cells_Location_Center_X"]
     center_y = random_row["Metadata_Cells_Location_Center_Y"]
 
-    # Define the size of the cropping box (128x128 pixels)
+    # Define the size of the cropping box (250x250 pixels)
     box_size = 250
 
     # Paths for saving cropped images
