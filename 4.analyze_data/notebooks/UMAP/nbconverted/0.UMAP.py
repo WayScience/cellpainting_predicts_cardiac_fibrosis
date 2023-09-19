@@ -23,16 +23,17 @@ umap_random_seed = 1234
 umap_n_components = 2
 
 output_dir = pathlib.Path("results")
+output_dir.mkdir(parents=True, exist_ok=True)
 
 
 # In[3]:
 
 
 # Set input paths
-data_dir = pathlib.Path("..", "..", "..", "3.process-cfret-features", "data")
+data_dir = pathlib.Path("..", "..", "..", "3.process_cfret_features", "data", "single_cell_profiles")
 
 # Select only the feature selected files
-file_suffix = "*sc_norm_fs_cellprofiler.csv.gz"
+file_suffix = "*sc_feature_selected.parquet"
 
 # Obtain file paths for all feature selected plates
 fs_files = glob.glob(f"{data_dir}/{file_suffix}")
@@ -43,7 +44,7 @@ fs_files
 
 
 # Load feature data into a dictionary, keyed on plate name
-cp_dfs = {x.split("/")[-1]: pd.read_csv(x) for x in fs_files}
+cp_dfs = {x.split("/")[-1]: pd.read_parquet(x) for x in fs_files}
 
 # Print out useful information about each dataset
 print(cp_dfs.keys())
@@ -54,7 +55,8 @@ print(cp_dfs.keys())
 
 
 # Fit UMAP features per dataset and save
-for plate_name in cp_dfs:
+for plate in cp_dfs:
+    plate_name = pathlib.Path(plate).stem
     # Make sure to reinitialize UMAP instance per plate
     umap_fit = umap.UMAP(
         random_state=umap_random_seed,
@@ -62,7 +64,7 @@ for plate_name in cp_dfs:
     )
     
     # Remove NA columns
-    cp_df = cp_dfs[plate_name]
+    cp_df = cp_dfs[plate]
     cp_df = feature_select(
         cp_df,
         operation="drop_na_columns",
