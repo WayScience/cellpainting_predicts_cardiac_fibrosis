@@ -20,14 +20,14 @@ from pycytominer.cyto_utils import infer_cp_features
 
 # Define inputs and outputs
 plate = "localhost230405150001"  # Focusing on plate 3
-file_suffix = "_sc_norm_fs_cellprofiler.csv.gz"
+file_suffix = "_sc_feature_selected.parquet"
 
-data_dir = pathlib.Path("../../../3.process_cfret_features/data/")
+data_dir = pathlib.Path("../../../3.process_cfret_features/data/single_cell_profiles")
 
-data_df = pd.read_csv(pathlib.Path(data_dir, f"{plate}{file_suffix}"))
+data_df = pd.read_parquet(pathlib.Path(data_dir, f"{plate}{file_suffix}"))
 
 output_dir = pathlib.Path("results")
-output_cp_file = pathlib.Path(output_dir, f"{plate}_linear_model_DMSO_failing_healthy.tsv")
+output_cp_file = pathlib.Path(output_dir, f"{plate}_linear_model_healthy_DMSO_failing_drug.tsv")
 
 print(data_df.shape)
 data_df.head()
@@ -38,14 +38,28 @@ data_df.head()
 # In[3]:
 
 
-# Filter by failing hearts and specific treatments
-specific_type = ["DMSO"]
-specific_cell_types = ["failing", "healthy"]
+# # Filter by failing hearts and specific treatments
+# specific_type = ["DMSO"]
+# specific_cell_types = ["failing", "healthy"]
 
-filtered_df = data_df[
-    (data_df['Metadata_treatment'].isin(specific_type)) &
-    (data_df['Metadata_cell_type'].isin(specific_cell_types))
-]
+# filtered_df = data_df[
+#     (data_df['Metadata_treatment'].isin(specific_type)) &
+#     (data_df['Metadata_cell_type'].isin(specific_cell_types))
+# ]
+
+# Filter by failing hearts and specific treatments
+DMSO_healthy = ["DMSO", "healthy"]
+drug_x_failing = ["drug_x", "failing"]
+
+
+# Create a condition string for query
+condition = (
+    f"(Metadata_treatment == '{DMSO_healthy[0]}' and Metadata_cell_type == '{DMSO_healthy[1]}') "
+    f"or (Metadata_treatment == '{drug_x_failing[0]}' and Metadata_cell_type == '{drug_x_failing[1]}')"
+)
+
+# Filter cp_df based on the condition
+filtered_df = data_df.query(condition)
 
 # Drop NA columns
 cp_df = feature_select(
@@ -69,9 +83,28 @@ print(cp_df.shape)
 cp_df.head()
 
 
+# In[4]:
+
+
+# Create a condition to check for the undesired combinations
+undesired_condition = (
+    "(Metadata_treatment == 'DMSO' and Metadata_cell_type == 'failing') "
+    "or (Metadata_treatment == 'drug_x' and Metadata_cell_type == 'healthy')"
+)
+
+# Check if any rows match the undesired combinations
+undesired_rows = cp_df.query(undesired_condition)
+
+if not undesired_rows.empty:
+    print("There are rows with undesired combinations 'DMSO' + 'failing' and 'drug_x' + 'healthy'.")
+    # You can also print or further investigate these rows if needed.
+else:
+    print("No rows have the undesired combinations.")
+
+
 # ## Fit linear model
 
-# In[4]:
+# In[5]:
 
 
 # Setup linear modeling framework -> in plate 3 we are looking at the treatments or cell type
@@ -82,7 +115,7 @@ print(X.shape)
 X.head()
 
 
-# In[5]:
+# In[6]:
 
 
 # Assuming cp_df is your DataFrame
@@ -105,7 +138,7 @@ print(X.shape)
 X.head()
 
 
-# In[6]:
+# In[7]:
 
 
 # Fit linear model for each feature
