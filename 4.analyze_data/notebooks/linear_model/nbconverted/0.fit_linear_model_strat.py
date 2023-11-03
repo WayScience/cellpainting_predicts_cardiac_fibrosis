@@ -27,7 +27,7 @@ data_dir = pathlib.Path("../../../3.process_cfret_features/data/single_cell_prof
 data_df = pd.read_parquet(pathlib.Path(data_dir, f"{plate}{file_suffix}"))
 
 output_dir = pathlib.Path("results")
-output_cp_file = pathlib.Path(output_dir, f"{plate}_linear_model_healthy_DMSO_failing_drug.tsv")
+output_cp_file = pathlib.Path(output_dir, f"{plate}_linear_model_DMSO_failing_healthy.tsv")
 
 print(data_df.shape)
 data_df.head()
@@ -38,28 +38,14 @@ data_df.head()
 # In[3]:
 
 
-# # Filter by failing hearts and specific treatments
-# specific_type = ["DMSO"]
-# specific_cell_types = ["failing", "healthy"]
-
-# filtered_df = data_df[
-#     (data_df['Metadata_treatment'].isin(specific_type)) &
-#     (data_df['Metadata_cell_type'].isin(specific_cell_types))
-# ]
-
 # Filter by failing hearts and specific treatments
-DMSO_healthy = ["DMSO", "healthy"]
-drug_x_failing = ["drug_x", "failing"]
+specific_type = ["DMSO"]
+specific_cell_types = ["failing", "healthy"]
 
-
-# Create a condition string for query
-condition = (
-    f"(Metadata_treatment == '{DMSO_healthy[0]}' and Metadata_cell_type == '{DMSO_healthy[1]}') "
-    f"or (Metadata_treatment == '{drug_x_failing[0]}' and Metadata_cell_type == '{drug_x_failing[1]}')"
-)
-
-# Filter cp_df based on the condition
-filtered_df = data_df.query(condition)
+filtered_df = data_df[
+    (data_df['Metadata_treatment'].isin(specific_type)) &
+    (data_df['Metadata_cell_type'].isin(specific_cell_types))
+]
 
 # Drop NA columns
 cp_df = feature_select(
@@ -83,25 +69,6 @@ print(cp_df.shape)
 cp_df.head()
 
 
-# In[4]:
-
-
-# Create a condition to check for the undesired combinations
-undesired_condition = (
-    "(Metadata_treatment == 'DMSO' and Metadata_cell_type == 'failing') "
-    "or (Metadata_treatment == 'drug_x' and Metadata_cell_type == 'healthy')"
-)
-
-# Check if any rows match the undesired combinations
-undesired_rows = cp_df.query(undesired_condition)
-
-if not undesired_rows.empty:
-    print("There are rows with undesired combinations 'DMSO' + 'failing' and 'drug_x' + 'healthy'.")
-    # You can also print or further investigate these rows if needed.
-else:
-    print("No rows have the undesired combinations.")
-
-
 # ## Fit linear model
 
 # In[5]:
@@ -118,7 +85,7 @@ X.head()
 # In[6]:
 
 
-# Assuming cp_df is your DataFrame
+# Set the variables and treatments used for LM
 variables = ["Metadata_cell_count_per_well", "Metadata_cell_type"]
 treatments_to_select = ["failing", "healthy"]
 
@@ -151,7 +118,7 @@ for cp_feature in cp_features:
     cp_subset_df = cp_df.loc[mask, cp_feature]
 
     # Fit linear model
-    lm = LinearRegression(fit_intercept=True)
+    lm = LinearRegression()
     lm_result = lm.fit(X=X, y=cp_subset_df)
     
     # Extract Beta coefficients
