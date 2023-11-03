@@ -34,6 +34,9 @@ Images
 2.cellprofiler_processing/CellProfiler_input/CFReT_project_copy.cpproj
 2.cellprofiler_processing/runcellpose_test_discard_nuclei.py
 
+# ignore any single cell images as these can be generated through the notebook
+4.analyze_data/notebooks/UMAP/images
+
 # ignore all old feature files
 depricated_feature_outputs
 *bak

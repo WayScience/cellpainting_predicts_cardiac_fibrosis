@@ -1,0 +1,56 @@
+failing-drug_x-left:
+  UMAP0: [-1, 0]
+  UMAP1: [6.25, 7.5]
+  Random state: 30
+  composite_save_path: composite_image_failing_drug_x_left.tiff
+  crop_save_path: cell_cropped_failing_drug_x_left.tiff
+
+failing-drug_x-left1:
+  UMAP0: [-1, 0]
+  UMAP1: [6.25, 7.5]
+  Random state: 8
+  composite_save_path: composite_image_failing_drug_x_left1.tiff
+  crop_save_path: cell_cropped_failing_drug_x_left1.tiff
+
+failing-drug_x-left2:
+  UMAP0: [-1, 0]
+  UMAP1: [6.25, 7.5]
+  Random state: 75
+  composite_save_path: composite_image_failing_drug_x_left2.tiff
+  crop_save_path: cell_cropped_failing_drug_x_left2.tiff
+
+failing-drug_x-left3:
+  UMAP0: [-1, 0]
+  UMAP1: [6.25, 7.5]
+  Random state: 62
+  composite_save_path: composite_image_failing_drug_x-left3.tiff
+  crop_save_path: cell_cropped_failing_drug_x-left3.tiff
+
+failing-drug_x-left4:
+  UMAP0: [-1, 0]
+  UMAP1: [6.25, 7.5]
+  Random state: 17
+  composite_save_path: composite_image_failing_drug_x-left4.tiff
+  crop_save_path: cell_cropped_failing_drug_x-left4.tiff
+
+failing-drug_x-left5:
+  UMAP0: [-1, 0]
+  UMAP1: [6.25, 7.5]
+  Random state: 93
+  composite_save_path: composite_image_failing_drug_x-left5.tiff
+  crop_save_path: cell_cropped_failing_drug_x-left5.tiff
+
+failing-drug_x-left6:
+  UMAP0: [-1, 0]
+  UMAP1: [6.25, 7.5]
+  Random state: 50
+  composite_save_path: composite_image_failing_drug_x-left6.tiff
+  crop_save_path: cell_cropped_failing_drug_x-left6.tiff
+
+failing-drug_x-left7:
+  UMAP0: [-1, 0]
+  UMAP1: [6.25, 7.5]
+  Random state: 79
+  composite_save_path: composite_image_failing_drug_x-left7.tiff
+  crop_save_path: cell_cropped_failing_drug_x-left7.tiff
+

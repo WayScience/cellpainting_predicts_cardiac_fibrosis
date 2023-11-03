@@ -1,0 +1,83 @@
+failing-drug_x-right:
+  UMAP0: [6, 7.5]
+  UMAP1: [3.5, 5]
+  Random state: 12
+  composite_save_path: composite_image_failing_drug_x_right.tiff
+  crop_save_path: cell_cropped_failing_drug_x_right.tiff
+
+failing-drug_x-right2:
+  UMAP0: [6, 7.5]
+  UMAP1: [3.5, 5]
+  Random state: 46
+  composite_save_path: composite_image_failing_drug_x_right2.tiff
+  crop_save_path: cell_cropped_failing_drug_x_right2.tiff
+
+failing-drug_x-right3:
+  UMAP0: [6, 7.5]
+  UMAP1: [3.5, 5]
+  Random state: 22
+  composite_save_path: composite_image_failing_drug_x_right3.tiff
+  crop_save_path: cell_cropped_failing_drug_x_right3.tiff
+
+failing-drug_x-right4:
+  UMAP0: [6, 7.5]
+  UMAP1: [3.5, 5]
+  Random state: 68
+  composite_save_path: composite_image_failing_drug_x_right4.tiff
+  crop_save_path: cell_cropped_failing_drug_x_right4.tiff
+
+healthy-DMSO-right:
+  UMAP0: [6, 7.5]
+  UMAP1: [3.5, 5]
+  Random state: 25
+  composite_save_path: composite_image_healthy_DMSO_right.tiff
+  crop_save_path: cell_cropped_healthy_DMSO_right.tiff
+
+healthy-DMSO-right2:
+  UMAP0: [6, 7.5]
+  UMAP1: [3.5, 5]
+  Random state: 32
+  composite_save_path: composite_image_healthy_DMSO_right2.tiff
+  crop_save_path: cell_cropped_healthy_DMSO_right2.tiff
+
+healthy-DMSO-right3:
+  UMAP0: [6, 7.5]
+  UMAP1: [3.5, 5]
+  Random state: 48
+  composite_save_path: composite_image_healthy_DMSO_right3.tiff
+  crop_save_path: cell_cropped_healthy_DMSO_right3.tiff
+
+healthy-DMSO-right4:
+  UMAP0: [6, 7.5]
+  UMAP1: [3.5, 5]
+  Random state: 72
+  composite_save_path: composite_image_healthy_DMSO_right4.tiff
+  crop_save_path: cell_cropped_healthy_DMSO_right4.tiff
+
+failing-DMSO-right:
+  UMAP0: [6, 7]
+  UMAP1: [3.5, 5]
+  Random state: 30
+  composite_save_path: composite_image_failing_DMSO_right.tiff
+  crop_save_path: cell_cropped_failing_DMSO_right.tiff
+
+failing-DMSO-right2:
+  UMAP0: [6, 7]
+  UMAP1: [3.5, 5]
+  Random state: 14
+  composite_save_path: composite_image_failing_DMSO_right2.tiff
+  crop_save_path: cell_cropped_failing_DMSO_right2.tiff
+
+failing-DMSO-right3:
+  UMAP0: [6, 7]
+  UMAP1: [3.5, 5]
+  Random state: 56
+  composite_save_path: composite_image_failing_DMSO_right3.tiff
+  crop_save_path: cell_cropped_failing_DMSO_right3.tiff
+
+failing-DMSO-right4:
+  UMAP0: [6, 7]
+  UMAP1: [3.5, 5]
+  Random state: 83
+  composite_save_path: composite_image_failing_DMSO_right4.tiff
+  crop_save_path: cell_cropped_failing_DMSO_right4.tiff
