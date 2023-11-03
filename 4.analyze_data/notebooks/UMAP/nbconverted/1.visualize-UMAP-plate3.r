@@ -54,6 +54,7 @@ cell_count_df <- df %>%
 umap_cp_df <- df %>%
     dplyr::left_join(cell_count_df, by = "Metadata_Well")
 
+
 # Generating UMAPs 
 options(repr.plot.width = 12, repr.plot.height = 10)  # Adjust width and height as desired
 output_file <- paste0(output_umap_file, "_treatment.png")
@@ -70,6 +71,7 @@ treatment_gg <- ggplot(umap_cp_df, aes(x = UMAP0, y = UMAP1)) +
 ggsave(output_file, treatment_gg, dpi = 500, height = 7, width = 10)
 
 print(treatment_gg)
+
 
 # Generating UMAP comparing failing and healthy with DMSO and Drug_X
 options(repr.plot.width = 12, repr.plot.height = 10)  # Adjust width and height as desired
@@ -92,14 +94,17 @@ ggsave(output_file, treatment_gg, dpi = 500, height = 7, width = 10)
 
 print(treatment_gg)
 
+
 # Filter the data frames
 failing_drug_x_df <- umap_cp_df %>% filter(Metadata_cell_type == "failing" & Metadata_treatment == "drug_x")
 failing_DMSO_df <- umap_cp_df %>% filter(Metadata_cell_type == "failing" & Metadata_treatment == "DMSO")
 healthy_DMSO_df <- umap_cp_df %>% filter(Metadata_cell_type == "healthy" & Metadata_treatment == "DMSO")
 
+
 print(paste0("failing", " + ", "drug_x"))
 print(paste0("failing", "+", "DMSO"))
 print(paste0("healthy", " + ", "DMSO"))
+
 
 # UMAP Plot healthy w/ DMSO and failing w/ treatment
 # plot 1 -> failing w/ Drug_X
@@ -138,6 +143,7 @@ merged_plot <- grid.arrange(
 
 # saving image
 ggsave(output_file, merged_plot, dpi = 500, height = 12, width = 10)
+
 
 # Set the size of each plot
 # UMAP Plot healthy w/ DMSO and failing w/ treatment
@@ -181,17 +187,67 @@ combined_df <- rbind(
 # Plot the combined data without facets
 merged_plot <- ggplot(combined_df, aes(x = UMAP0, y = UMAP1, color = Group)) +
   geom_point(size = 1.0 , alpha = 0.5) +  # Adjust alpha value to make points more transparent
-  theme_bw(base_size = 15) +  # Set the base font size to 12
+  labs(title = "UMAP of single-cells demonstrating a shift from failing to\nhealthy cells after failing cells are treated with drug_x") + 
+  theme_bw(base_size = 22) +  # Set the base font size to 12
   scale_color_manual(
     name = "Group",
     values = c("failing + drug_x" = "#69DC9E", "failing + DMSO" = "#BA5A31", "healthy + DMSO" = "#8269dc")
   ) +
   guides(colour = guide_legend(override.aes = list(size = 4))) +
-  ylim(min(umap_cp_df$UMAP1), max(umap_cp_df$UMAP1))  # Set the same y-axis limits as umap_cp_df
+  ylim(min(umap_cp_df$UMAP1), max(umap_cp_df$UMAP1)) +  # Set the same y-axis limits as umap_cp_df
+  theme(
+    legend.position = c(0.15, 0.88),  # Adjust the legend position (x, y)
+    legend.background = element_rect(fill = "white", color = "black"),  # Add a white background to the legend
+    legend.key = element_rect(color = "white"),  # Make legend key (color boxes) white
 
+  )
 # print and save plot
 print(merged_plot)
 ggsave(output_file, merged_plot, dpi = 500, height = 12, width = 12)
+
+
+# UMAP merged plots (from above)
+output_file <- paste0(output_umap_file, "_failing_DMSO_and_DrugX_w_healthy_DMSO_Merged_remove_edge.png")
+
+# Define the edge buffer size
+edge_buffer <- 250
+
+# Create a combined data frame with the "Group" column
+combined_df <- rbind(
+failing_drug_x_df %>% mutate(Group = "failing + drug_x"),
+healthy_DMSO_df %>% mutate(Group = "healthy + DMSO"),
+failing_DMSO_df %>% mutate(Group = "failing + DMSO")
+)
+
+# Filter rows that are not close to the image edges
+combined_df <- combined_df %>%
+filter(
+Metadata_Cells_Location_Center_X > edge_buffer,
+Metadata_Cells_Location_Center_X < (1104 - edge_buffer),  
+Metadata_Cells_Location_Center_Y > edge_buffer,
+Metadata_Cells_Location_Center_Y < (1105 - edge_buffer) 
+)
+
+# Plot the combined data without facets
+merged_plot <- ggplot(combined_df, aes(x = UMAP0, y = UMAP1, color = Group)) +
+geom_point(size = 1.0, alpha = 0.5) +
+labs(title = "UMAP of single-cells demonstrating a shift from failing to\nhealthy cells after failing cells are treated with drug_x") + 
+theme_bw(base_size = 22) +
+scale_color_manual(
+name = "Group",
+values = c("failing + drug_x" = "#69DC9E", "failing + DMSO" = "#BA5A31", "healthy + DMSO" = "#8269dc")
+) +
+guides(colour = guide_legend(override.aes = list(size = 4))) +
+ylim(min(umap_cp_df$UMAP1), max(umap_cp_df$UMAP1)) +
+theme(
+legend.position = c(0.15, 0.88),
+legend.background = element_rect(fill = "white", color = "black"),
+legend.key = element_rect(color = "white")
+)
+# print and save plot
+print(merged_plot)
+ggsave(output_file, merged_plot, dpi = 500, height = 12, width = 12)
+
 
 # Only extracting DMSO only entries
 dmso_df <- subset(umap_cp_df, Metadata_treatment == "DMSO")
@@ -219,6 +275,7 @@ ggsave(output_file, treatment_gg, dpi = 500, height = 7, width = 10)
 
 
 print(treatment_gg)
+
 
 # plotting UMAP failing and non-failing DMSO only 
 options(repr.plot.width = 12, repr.plot.height = 10)  # Adjust width and height as desired

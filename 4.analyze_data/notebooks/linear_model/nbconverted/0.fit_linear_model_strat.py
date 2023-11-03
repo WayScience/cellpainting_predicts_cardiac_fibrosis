@@ -20,11 +20,11 @@ from pycytominer.cyto_utils import infer_cp_features
 
 # Define inputs and outputs
 plate = "localhost230405150001"  # Focusing on plate 3
-file_suffix = "_sc_norm_fs_cellprofiler.csv.gz"
+file_suffix = "_sc_feature_selected.parquet"
 
-data_dir = pathlib.Path("../../../3.process_cfret_features/data/")
+data_dir = pathlib.Path("../../../3.process_cfret_features/data/single_cell_profiles")
 
-data_df = pd.read_csv(pathlib.Path(data_dir, f"{plate}{file_suffix}"))
+data_df = pd.read_parquet(pathlib.Path(data_dir, f"{plate}{file_suffix}"))
 
 output_dir = pathlib.Path("results")
 output_cp_file = pathlib.Path(output_dir, f"{plate}_linear_model_DMSO_failing_healthy.tsv")
@@ -71,7 +71,7 @@ cp_df.head()
 
 # ## Fit linear model
 
-# In[4]:
+# In[5]:
 
 
 # Setup linear modeling framework -> in plate 3 we are looking at the treatments or cell type
@@ -82,10 +82,10 @@ print(X.shape)
 X.head()
 
 
-# In[5]:
+# In[6]:
 
 
-# Assuming cp_df is your DataFrame
+# Set the variables and treatments used for LM
 variables = ["Metadata_cell_count_per_well", "Metadata_cell_type"]
 treatments_to_select = ["failing", "healthy"]
 
@@ -105,7 +105,7 @@ print(X.shape)
 X.head()
 
 
-# In[6]:
+# In[7]:
 
 
 # Fit linear model for each feature
@@ -118,7 +118,7 @@ for cp_feature in cp_features:
     cp_subset_df = cp_df.loc[mask, cp_feature]
 
     # Fit linear model
-    lm = LinearRegression(fit_intercept=True)
+    lm = LinearRegression()
     lm_result = lm.fit(X=X, y=cp_subset_df)
     
     # Extract Beta coefficients
