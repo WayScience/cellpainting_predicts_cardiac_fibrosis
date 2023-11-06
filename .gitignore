@@ -1,6 +1,9 @@
 # ignore pycache
 __pycache__
 
+# ignore .vscode specific files
+.vscode
+
 # ignore jupyter notebook extras
 .ipynb_checkpoints/
 
