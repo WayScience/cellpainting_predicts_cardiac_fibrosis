@@ -1,0 +1,55 @@
+healthy-DMSO-top:
+  UMAP0: [0.5, 2]
+  UMAP1: [8.5, 9]
+  Random state: 15
+  composite_save_path: composite_image_healthy_DMSO_top.tiff
+  crop_save_path: cell_cropped_healthy_DMSO_top.tiff
+
+healthy-DMSO-top1:
+  UMAP0: [0.5, 2]
+  UMAP1: [8.5, 9]
+  Random state: 37  
+  composite_save_path: composite_image_healthy_DMSO_top1.tiff
+  crop_save_path: cell_cropped_healthy_DMSO_top1.tiff
+
+healthy-DMSO-top2:
+  UMAP0: [0.5, 2]
+  UMAP1: [8.5, 9]
+  Random state: 56 
+  composite_save_path: composite_image_healthy_DMSO_top2.tiff
+  crop_save_path: cell_cropped_healthy_DMSO_top2.tiff
+
+healthy-DMSO-top3:
+  UMAP0: [0.5, 2]
+  UMAP1: [8.5, 9]
+  Random state: 42
+  composite_save_path: composite_image_healthy_DMSO_top3.tiff
+  crop_save_path: cell_cropped_healthy_DMSO_top3.tiff
+
+healthy-DMSO-top4:
+  UMAP0: [0.5, 2]
+  UMAP1: [8.5, 9]
+  Random state: 71
+  composite_save_path: composite_image_healthy_DMSO_top4.tiff
+  crop_save_path: cell_cropped_healthy_DMSO_top4.tiff
+
+healthy-DMSO-top5:
+  UMAP0: [0.5, 2]
+  UMAP1: [8.5, 9]
+  Random state: 29
+  composite_save_path: composite_image_healthy_DMSO_top5.tiff
+  crop_save_path: cell_cropped_healthy_DMSO_top5.tiff
+
+healthy-DMSO-top6:
+  UMAP0: [0.5, 2]
+  UMAP1: [8.5, 9]
+  Random state: 88
+  composite_save_path: composite_image_healthy_DMSO_top6.tiff
+  crop_save_path: cell_cropped_healthy_DMSO_top6.tiff
+
+healthy-DMSO-top7:
+  UMAP0: [0.5, 2]
+  UMAP1: [8.5, 9]
+  Random state: 63
+  composite_save_path: composite_image_healthy_DMSO_top7.tiff
+  crop_save_path: cell_cropped_healthy_DMSO_top7.tiff

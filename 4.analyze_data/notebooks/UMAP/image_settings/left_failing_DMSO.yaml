@@ -1,0 +1,56 @@
+failing-DMSO-left:
+  UMAP0: [-3, 0]
+  UMAP1: [2.5, 5]
+  Random state: 30
+  composite_save_path: composite_image_failing_DMSO_left.tiff
+  crop_save_path: cell_cropped_failing_DMSO_left.tiff
+
+failing-DMSO-left1:
+  UMAP0: [-3, 0]
+  UMAP1: [2.5, 5]
+  Random state: 65
+  composite_save_path: composite_image_failing_DMSO_left1.tiff
+  crop_save_path: cell_cropped_failing_DMSO_left1.tiff
+
+failing-DMSO-left2:
+  UMAP0: [-3, 0]
+  UMAP1: [2.5, 5]
+  Random state: 12
+  composite_save_path: composite_image_failing_DMSO_left2.tiff
+  crop_save_path: cell_cropped_failing_DMSO_left2.tiff
+
+failing-DMSO-left3:
+  UMAP0: [-3, 0]
+  UMAP1: [2.5, 5]
+  Random state: 42
+  composite_save_path: composite_image_failing_DMSO-left3.tiff
+  crop_save_path: cell_cropped_failing_DMSO-left3.tiff
+
+failing-DMSO-left4:
+  UMAP0: [-3, 0]
+  UMAP1: [2.5, 5]
+  Random state: 88
+  composite_save_path: composite_image_failing_DMSO-left4.tiff
+  crop_save_path: cell_cropped_failing_DMSO-left4.tiff
+
+failing-DMSO-left5:
+  UMAP0: [-3, 0]
+  UMAP1: [2.5, 5]
+  Random state: 56
+  composite_save_path: composite_image_failing_DMSO-left5.tiff
+  crop_save_path: cell_cropped_failing_DMSO-left5.tiff
+
+failing-DMSO-left6:
+  UMAP0: [-3, 0]
+  UMAP1: [2.5, 5]
+  Random state: 29
+  composite_save_path: composite_image_failing_DMSO-left6.tiff
+  crop_save_path: cell_cropped_failing_DMSO-left6.tiff
+
+failing-DMSO-left7:
+  UMAP0: [-3, 0]
+  UMAP1: [2.5, 5]
+  Random state: 73
+  composite_save_path: composite_image_failing_DMSO-left7.tiff
+  crop_save_path: cell_cropped_failing_DMSO-left7.tiff
+

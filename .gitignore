@@ -1,6 +1,9 @@
 # ignore pycache
 __pycache__
 
+# ignore .vscode specific files
+.vscode
+
 # ignore jupyter notebook extras
 .ipynb_checkpoints/
 
@@ -33,6 +36,9 @@ Images
 # ignore plugin for cellprofiler
 2.cellprofiler_processing/CellProfiler_input/CFReT_project_copy.cpproj
 2.cellprofiler_processing/runcellpose_test_discard_nuclei.py
+
+# ignore any single cell images as these can be generated through the notebook
+4.analyze_data/notebooks/UMAP/images
 
 # ignore all old feature files
 depricated_feature_outputs

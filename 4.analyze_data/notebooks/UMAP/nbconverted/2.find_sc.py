@@ -12,7 +12,6 @@ import pathlib
 import pandas as pd
 from PIL import Image
 import cv2
-import os
 import numpy as np
 import tifffile as tf
 import yaml
@@ -35,38 +34,18 @@ images_dir = pathlib.Path(
     "../../../1.preprocessing_data/Corrected_Images/localhost230405150001/"
 ).resolve(strict=True)
 
+# Directory with settings for each group on UMAP
+settings_dir = pathlib.Path("./image_settings/")
+
 # Output dir for composite and cropped images
 output_img_dir = pathlib.Path("./images")
 output_img_dir.mkdir(exist_ok=True)
 
 # Output dirs 
-comp_dir = pathlib.Path("./images/composite_imgs")
+comp_dir = pathlib.Path("./images/composite_imgs/right_cluster")
 comp_dir.mkdir(exist_ok=True)
-crop_dir = pathlib.Path("./images/cropped_imgs")
+crop_dir = pathlib.Path("./images/cropped_imgs/right_cluster")
 crop_dir.mkdir(exist_ok=True)
-
-# CSV file path to store the data
-csv_file_path = "random_rows_for_UMAP.csv"
-
-# Check if the CSV file already exists
-if os.path.isfile(csv_file_path):
-    # Load the existing CSV into a DataFrame
-    df = pd.read_csv(csv_file_path)
-else:
-    # Create a new DataFrame if the CSV doesn't exist
-    df = pd.DataFrame(
-        columns=[
-            "Metadata_cell_type",
-            "Metadata_treatment",
-            "Metadata_Plate",
-            "Metadata_Well",
-            "Metadata_Site",
-            "Metadata_Cells_Location_Center_X",
-            "Metadata_Cells_Location_Center_Y",
-            "UMAP0",
-            "UMAP1",
-        ]
-    )
 
 
 # ## Read in `yaml` file with settings for each single cell type
@@ -77,7 +56,7 @@ else:
 
 
 # load in plate information
-dictionary_path = pathlib.Path("./image_settings.yaml")
+dictionary_path = pathlib.Path(f"{settings_dir}/right_cluster.yaml")
 with open(dictionary_path) as file:
     cell_info_dictionary = yaml.load(file, Loader=yaml.FullLoader)
 
@@ -122,18 +101,6 @@ for crop_cell, info in cell_info_dictionary.items():
 
     # Randomly select a row
     random_row = filtered_df.sample(n=1, random_state=info["Random state"])  
-
-    # Add the selected row to the DataFrame
-    df = df.append(random_row, ignore_index=True)
-
-    # Assign the direction to the UMAP_direction column for the last added row
-    df.at[df.index[-1], "UMAP_direction"] = crop_cell.split('-')[2]
-
-    # Drop any duplicate rows that occur when rerunning this code
-    df.drop_duplicates(inplace=True)
-
-    # Save the updated DataFrame to the CSV file
-    df.to_csv(csv_file_path, index=False)
 
     # Create a filename based on Metadata_Plate, Metadata_Well, Metadata_Site
     plate = random_row['Metadata_Plate'].values[0]
