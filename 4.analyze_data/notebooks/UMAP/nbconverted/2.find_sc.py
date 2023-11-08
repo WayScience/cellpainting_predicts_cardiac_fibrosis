@@ -15,7 +15,7 @@ import cv2
 import numpy as np
 import tifffile as tf
 import yaml
-import pprint
+from pprint import pprint
 
 
 # ## Set variables and paths
@@ -41,16 +41,19 @@ settings_dir = pathlib.Path("./image_settings/")
 output_img_dir = pathlib.Path("./images")
 output_img_dir.mkdir(exist_ok=True)
 
-# Output dirs 
-comp_dir = pathlib.Path("./images/composite_imgs/right_cluster")
-comp_dir.mkdir(exist_ok=True)
-crop_dir = pathlib.Path("./images/cropped_imgs/right_cluster")
-crop_dir.mkdir(exist_ok=True)
-
 
 # ## Read in `yaml` file with settings for each single cell type
 # 
 # There is a `yaml` file called *image_settings.yaml* that holds the dictionary for all of the different UMAP single cells that we want to crop.
+# 
+# There are 4 variables per single cell:
+# - **Random state** -> number used to select the random row from the filtered UMAP data frame using the ranges set for the UMAP
+# - **UMAP0** -> range of values on the x-axis corresponding to a cluster
+# - **UMAP1** -> range of values on the y-axis corresponding to a cluster
+# - **composite_save_path** -> path to save full RGB composite image
+# - **crop_save_path** -> path to save cropped single cell RGB image
+# 
+# `UMAP0` and `UMAP1` variables are used to filter the UMAP data frame to only find single cells from specific clusters.
 
 # In[3]:
 
@@ -60,8 +63,14 @@ dictionary_path = pathlib.Path(f"{settings_dir}/right_cluster.yaml")
 with open(dictionary_path) as file:
     cell_info_dictionary = yaml.load(file, Loader=yaml.FullLoader)
 
-# view the dictionary to assess that all info is added correctly
-pprint.pprint(cell_info_dictionary, indent=4)
+# Set output dirs based on the dictionary loaded in
+comp_dir = pathlib.Path(f"./images/composite_imgs/{dictionary_path.stem}")
+comp_dir.mkdir(exist_ok=True)
+crop_dir = pathlib.Path(f"./images/cropped_imgs/{dictionary_path.stem}")
+crop_dir.mkdir(exist_ok=True)
+
+# Display the first two nested dictionaries to make sure the dictionary looks correct
+pprint(list(cell_info_dictionary.items())[:2], indent=4)
 
 
 # ## Find single cells from each cell type and treatment from UMAP (plate 3)
@@ -78,14 +87,8 @@ for crop_cell, info in cell_info_dictionary.items():
         (UMAP_plate3_df['UMAP1'].between(info["UMAP1"][0], info["UMAP1"][1]))
     ))
 
-    # Apply the filter
-    filtered_df = UMAP_plate3_df[condition]
-
-    # Apply the filter
-    filtered_df = UMAP_plate3_df[condition]
-
-    # Select and display only the specific columns
-    selected_columns = [
+    # Apply the filter and select only the specific columns
+    filtered_df = UMAP_plate3_df[condition][[
         'Metadata_cell_type',
         'Metadata_treatment',
         'Metadata_Plate',
@@ -95,11 +98,9 @@ for crop_cell, info in cell_info_dictionary.items():
         'Metadata_Cells_Location_Center_Y',
         'UMAP0',
         'UMAP1'
-    ]
+    ]]
 
-    filtered_df = filtered_df[selected_columns]
-
-    # Randomly select a row
+    # Randomly select a row using the random state parameter
     random_row = filtered_df.sample(n=1, random_state=info["Random state"])  
 
     # Create a filename based on Metadata_Plate, Metadata_Well, Metadata_Site
@@ -159,31 +160,28 @@ for crop_cell, info in cell_info_dictionary.items():
     tf.imwrite(comp_path, composite_image)
 
     # Load the composite image from the save path as an Image object instead of numpy array
-    composite_image = Image.open(comp_path)
+    with Image.open(comp_path) as composite_image:
 
-    # Assuming you have a DataFrame called "filtered_df" with center coordinates
-    center_x = random_row["Metadata_Cells_Location_Center_X"]
-    center_y = random_row["Metadata_Cells_Location_Center_Y"]
+        # Assuming you have a DataFrame called "filtered_df" with center coordinates
+        center_x = random_row["Metadata_Cells_Location_Center_X"]
+        center_y = random_row["Metadata_Cells_Location_Center_Y"]
 
-    # Define the size of the cropping box (250x250 pixels)
-    box_size = 250
+        # Define the size of the cropping box (250x250 pixels)
+        box_size = 250
 
-    # Paths for saving cropped images
-    crop_path = pathlib.Path(f"{crop_dir}/{info['crop_save_path']}")
+        # Paths for saving cropped images
+        crop_path = pathlib.Path(f"{crop_dir}/{info['crop_save_path']}")
 
-    # Iterate through the center coordinates and crop each cell
-    for x, y in zip(center_x, center_y):
-        left = x - box_size // 2
-        top = y - box_size // 2
-        right = x + box_size // 2
-        bottom = y + box_size // 2
+        # Iterate through the center coordinates and crop each cell
+        for x, y in zip(center_x, center_y):
+            left = x - box_size // 2
+            top = y - box_size // 2
+            right = x + box_size // 2
+            bottom = y + box_size // 2
 
-        # Crop the cell
-        cell_image = composite_image.crop((left, top, right, bottom))
+            # Crop the cell
+            cell_image = composite_image.crop((left, top, right, bottom))
 
-        # Save the cropped cell image with a unique name, you can use the cell's ID or index
-        cell_image.save(crop_path)
-
-    # Close the composite image
-    composite_image.close()
+            # Save the cropped cell image with a unique name, you can use the cell's ID or index
+            cell_image.save(crop_path)
 
