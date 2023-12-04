@@ -10,30 +10,14 @@ To confirm that IC was working on the images, we adjusted the brightness/contras
 
 ## Calculate and save corrected images for all plates
 
-To perform illumination correction and save the corrected images, you will need to:
-
-### Step 1: Open the CellProfiler GUI
-
-To open the CellProfiler GUI, run the code block below:
+To perform illumination correction and save the corrected images, run the [cfret_ic.sh](./cfret_ic.sh) file using the below command:
 
 ```bash
 # activate the conda env for the repo
 conda activate cfret_data
-# call CellProfiler to start the GUI
-cellprofiler
+# start the parallelized IC run
+source cfret_ic.sh
 ```
 
-### Step 2: Open the pipeline in the GUI
-
-Drag the `illum.cppipe` file into the GUI to open the pipeline.
-Once the pipeline is open, go to the `Images` module and clear the file list.
-Since Cellprofiler needs absolute paths, you will need to drag the "Images" folder from your local machine in this module to make sure Cellprofiler can find the plates with the images.
-
-### Step 3: Start pipeline run
-
-Once the `Images` path is correct, you can press `Start Analysis` to run the pipeline on all plates simultaneously.
-
-For my computer which is a Pop_OS LTS 22.04 system with an AMD Ryzen 7 3700X 8-Core Processor, it took this pipeline about 1 hour to run a total of 11,280 images (between three plates).
-
-
+For my computer which is a Pop_OS LTS 22.04 system with an AMD Ryzen 7 3700X 8-Core Processor, it took this pipeline about 50 minutes to process all 4 plates parallel.
 

@@ -25,7 +25,7 @@ def rename_sqlite_file(sqlite_dir_path: pathlib.Path, name: str):
     """
     try:
         # CellProfiler requires a name to be set in to pipeline, so regardless of plate or method, all sqlite files name are hardcoded
-        sqlite_file_path = pathlib.Path(f"{sqlite_dir_path}/CFReT_data.sqlite")
+        sqlite_file_path = pathlib.Path(f"{sqlite_dir_path}/NF1_data.sqlite")
 
         new_file_name = str(sqlite_file_path).replace(
             sqlite_file_path.name, f"{name}.sqlite"
@@ -52,9 +52,6 @@ def run_cellprofiler(
     """Run CellProfiler on data. It can be used for either a illumination correction pipeline (default) and analysis pipeline (when
     parameter is set to True).
 
-    For information about the CLI commands and flags, go to the CellProfiler wiki page:
-    (https://github.com/CellProfiler/CellProfiler/wiki/Getting-started-using-CellProfiler-from-the-command-line)
-
     Args:
         path_to_pipeline (str): path to the CellProfiler .cppipe file with the segmentation and feature measurement modules
         path_to_output (str): path to the output folder
@@ -64,17 +61,17 @@ def run_cellprofiler(
         analysis_run (bool, optional): will use functions to complete an analysis pipeline (default is False)
     """
     # check to make sure paths to pipeline and directory of images are correct before running the pipeline
-    if not pathlib.Path(path_to_pipeline).resolve(strict=True):
+    if not pathlib.Path(path_to_pipeline):
         raise FileNotFoundError(f"The file '{pathlib.Path(path_to_pipeline).name}' does not exist")
     if not pathlib.Path(path_to_images).is_dir():
         raise FileNotFoundError(f"Directory '{pathlib.Path(path_to_images).name}' does not exist or is not a directory")
 
     # make logs directory
     log_dir = pathlib.Path("./logs")
-    log_dir.mkdir(exist_ok=True)
+    os.makedirs(log_dir, exist_ok=True)
 
     # make output directory if it is not already created
-    pathlib.Path(path_to_output).mkdir(exist_ok=True)
+    os.makedirs(path_to_output, exist_ok=True)
 
     # run CellProfiler illumination correction pipeline
     if not analysis_run:

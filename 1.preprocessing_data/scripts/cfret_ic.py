@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # CellProfiler Segmentation and Feature Extraction of CFReT data
+# # Run illumination correction (IC) pipeline on CFReT data 
 
 # ## Import libraries
 
@@ -10,10 +10,11 @@
 
 import pathlib
 import pprint
+
 import sys
 
-sys.path.append("../utils/")
-import cp_parallel as cp
+sys.path.append("../utils")
+import cp_parallel
 
 
 # ## Set paths and variables
@@ -22,21 +23,20 @@ import cp_parallel as cp
 
 
 # set the run type for the parallelization
-run_name = "analysis"
+run_name = "illum_correction"
 
-# path to analysis pipeline
-path_to_pipeline = pathlib.Path("./pipeline/CFReT_project_CL.cppipe").resolve(strict=True)
+# set path for pipeline for illumination correction
+path_to_pipeline = pathlib.Path("./illum.cppipe").resolve(strict=True)
 
-# path to output for SQLite database files per plate folder (create if does not already exist)
-output_dir = pathlib.Path("./cp_output/")
+# set main output dir for all plates if it doesn't exist
+output_dir = pathlib.Path("./Corrected_Images")
 output_dir.mkdir(exist_ok=True)
 
-# Directory where all images are separated by folder per plate
-images_dir = pathlib.Path("../0.download_data/Images").resolve(strict=True)
+# directory where images are located within folders
+images_dir = pathlib.Path("../0.download_data/Images")
 
 # list for plate names based on folders to use to create dictionary
 plate_names = []
-
 # iterate through 0.download_data and append plate names from folder names that contain image data from that plate
 for file_path in images_dir.iterdir():
     plate_names.append(str(file_path.stem))
@@ -46,7 +46,7 @@ for plate in plate_names:
     print(plate)
 
 
-# ## Create dictionary with all of the necessary paths to run CellProfiler analysis
+# ## Create dictionary to process all plates
 
 # In[3]:
 
@@ -68,14 +68,14 @@ plate_info_dictionary = {
 pprint.pprint(plate_info_dictionary, indent=4)
 
 
-# ## Run CellProfiler analysis on all plates
+# ## Perform IC on all plates
 # 
-# **Note:** This code cell will not be run in this notebook due to the instability of jupyter notebooks compared to running as a python script. All CellProfiler SQLite outputs will have the same name but outputted into their respective plate folder (due to parallelization).
+# Note: This code cell was not ran as we prefer to perform CellProfiler processing tasks via `sh` file (bash script) which is more stable.
 
 # In[ ]:
 
 
-cp.run_cellprofiler_parallel(
+cp_parallel.run_cellprofiler_parallel(
     plate_info_dictionary=plate_info_dictionary, run_name=run_name
 )
 

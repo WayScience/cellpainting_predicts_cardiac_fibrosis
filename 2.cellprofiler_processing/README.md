@@ -50,10 +50,16 @@ cd 2.cellprofiler_processing/
 source cfret_analysis.sh
 ```
 
-CellProfiler runs on CPU in sequential order, and it took approximately:
+All analysis is run on a Linux-based machine running Pop_OS! LTS 22.04 with an AMD Ryzen 7 3700X 8-Core Processor.
+
+We currently run all plates parallel, which at this time, it took **a total of 25 hours to process 4 plates**.
+Across the 4 plates, there were a total of 16,080 images or 3,216 image sets to process.
+
+When originally running CellProfiler on CPU in sequential order, and it took approximately:
 - ~14 hours to run plate 1 (`localhost220512140003_KK22-05-198`) 
 - ~8 hours to run plate 2 (`localhost220513100001_KK22-05-198_FactinAdjusted`)
 - ~10 hours to run on plate 3 (`localhost230405150001`)
 
-This totals to **32 hours** to run all plates.
-The analysis was run on a Linux-based machine running Pop_OS! LTS 22.04 with an AMD Ryzen 7 3700X 8-Core Processor.
+This totals to **32 hours** to run all plates sequentially.
+
+Comparing the methods of running CellProfiler pipelines, parallelization improves the processing time significantly. 

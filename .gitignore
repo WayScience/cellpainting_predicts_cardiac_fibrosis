@@ -55,3 +55,6 @@ logs
 
 # ignore runinfo outputed from cytotable
 runinfo
+
+# ignore CellProfiler SQLite output due to size (~500-800MB)
+2.cellprofiler_processing/cp_output
