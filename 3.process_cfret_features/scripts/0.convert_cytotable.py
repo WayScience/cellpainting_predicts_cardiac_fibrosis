@@ -38,7 +38,7 @@ joins = presets.config["cellprofiler_sqlite_pycytominer"]["CONFIG_JOINS"].replac
 dest_datatype = "parquet"
 
 # set path to directory with SQLite files
-sqlite_dir = pathlib.Path("../2.cellprofiler_processing/CellProfiler_output")
+sqlite_dir = pathlib.Path("../2.cellprofiler_processing/cp_output")
 
 # directory for processed data
 output_dir = pathlib.Path("data")
@@ -78,7 +78,7 @@ print("All plates have been converted with cytotable!")
 
 # # Load in converted profiles to update
 
-# In[7]:
+# In[4]:
 
 
 # Directory with converted profiles
@@ -106,7 +106,7 @@ for file_path in converted_dir.iterdir():
 # 
 # To confirm the number of single cells is correct, please use any database browser software to see if the number of rows in the "Per_Cells" compartment matches the number of rows in the data frame.
 
-# In[8]:
+# In[5]:
 
 
 converted_df = pd.read_parquet("./data/converted_profiles/localhost220512140003_KK22-05-198_converted.parquet")
