@@ -19,5 +19,4 @@ conda activate cfret_data
 source cfret_ic.sh
 ```
 
-For my computer which is a Pop_OS LTS 22.04 system with an AMD Ryzen 7 3700X 8-Core Processor, it took this pipeline about 50 minutes to process all 4 plates parallel.
-
+The pipeline was tested on a Pop_OS LTS 22.04 system with an AMD Ryzen 7 3700X 8-Core Processor taking ~50 minutes to process all 4 plates parallel.

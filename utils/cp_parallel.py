@@ -4,6 +4,7 @@ for each process.
 """
 
 import multiprocessing
+import logging
 from typing import List
 import os
 import subprocess
@@ -32,9 +33,13 @@ def results_to_log(
         # set log file name as plate name from command
         log_file_path = pathlib.Path(f"{log_dir}/{plate_name}_{run_name}_run.log")
         # print output to a log file for each plate to view after the run
-        with open(log_file_path, "w") as log_file:
-            log_file.write(plate_name + "\n")
-            log_file.write(output_string + "\n")
+        # set up logging configuration
+        log_format = '[%(asctime)s] [Process ID: %(process)d] %(message)s'
+        logging.basicConfig(filename=log_file_path, level=logging.INFO, format=log_format)
+
+        # log plate name and output string
+        logging.info(f'Plate Name: {plate_name}')
+        logging.info(f'Output String: {output_string}')
 
 
 def run_cellprofiler_parallel(
@@ -119,7 +124,7 @@ def run_cellprofiler_parallel(
 
     print("All processes have been completed!")
 
-    # for each process, confirm that the process completed succesfully and return a log file
+    # for each process, confirm that the process completed successfully and return a log file
     for result in results:
         plate_name = result.args[6].name
         # convert the results into log files
