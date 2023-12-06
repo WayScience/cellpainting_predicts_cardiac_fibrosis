@@ -5,7 +5,7 @@ GitHash:
 ModuleCount:17
 HasImagePlaneDetails:False
 
-Images:[module_num:1|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['Paths to images (must be absolute and changed for different machines).']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+Images:[module_num:1|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['Add images into this section when using the GUI to test segmentation parameters. Remove prior to exporting as a cppipe file and before using in command line.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     :
     Filter images?:Images only
     Select the rule criteria:and (extension does isimage) (directory doesnot containregexp "[\\\\/]\\.")
@@ -262,7 +262,7 @@ ExportToDatabase:[module_num:17|svn_version:'Unknown'|variable_revision_number:2
     Database host:
     Username:
     Password:
-    Name the SQLite database file:CFReT_data.sqlite
+    Name the SQLite database file:cfret_features.sqlite
     Calculate the per-image mean values of object measurements?:No
     Calculate the per-image median values of object measurements?:No
     Calculate the per-image standard deviation values of object measurements?:No
