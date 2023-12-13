@@ -18,7 +18,7 @@ from pycytominer.cyto_utils import infer_cp_features
 # In[2]:
 
 
-# Set constants
+# Set constants (previously set prior, normally use 0 but the change in coordinates will impact already generated single-cell crops)
 umap_random_seed = 1234
 umap_n_components = 2
 
@@ -88,7 +88,7 @@ for plate in cp_dfs:
         embeddings
     ], axis=1)
     
-    # Generate output file and save
+    # Generate output file, drop unnamed column, and save 
     output_umap_file = pathlib.Path(output_dir, f"UMAP_{plate_name}.tsv.gz")
     cp_umap_with_metadata_df.to_csv(output_umap_file, index=False, sep="\t")
 

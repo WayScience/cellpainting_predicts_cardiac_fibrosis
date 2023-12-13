@@ -19,7 +19,7 @@ from pycytominer.cyto_utils import infer_cp_features
 
 
 # Define inputs and outputs
-plate = "localhost230405150001"  # Focusing on plate 3
+plate = "localhost231120090001"  # Focusing on plate 4
 file_suffix = "_sc_feature_selected.parquet"
 
 data_dir = pathlib.Path("../../../3.process_cfret_features/data/single_cell_profiles")
@@ -27,7 +27,13 @@ data_dir = pathlib.Path("../../../3.process_cfret_features/data/single_cell_prof
 data_df = pd.read_parquet(pathlib.Path(data_dir, f"{plate}{file_suffix}"))
 
 output_dir = pathlib.Path("results")
-output_cp_file = pathlib.Path(output_dir, f"{plate}_linear_model_DMSO_failing_healthy.tsv")
+output_cp_file = pathlib.Path(output_dir, f"{plate}_linear_model_heart7_DMSO_none.tsv")
+
+# Replace NA values with "None"
+data_df['Metadata_treatment'].fillna('None', inplace=True)
+
+# Add cell count per well as a column
+data_df['Metadata_Cell_Count'] = data_df.groupby('Metadata_Well')['Metadata_Well'].transform('count')
 
 print(data_df.shape)
 data_df.head()
@@ -38,13 +44,13 @@ data_df.head()
 # In[3]:
 
 
-# Filter by failing hearts and specific treatments
-specific_type = ["DMSO"]
-specific_cell_types = ["failing", "healthy"]
+# Filter by cell type and only cells without DMSO treatment
+specific_type = [7]
+# specific_cell_types = ["Failing", "Healthy"]
 
 filtered_df = data_df[
-    (data_df['Metadata_treatment'].isin(specific_type)) &
-    (data_df['Metadata_cell_type'].isin(specific_cell_types))
+    (data_df['Metadata_heart_number'].isin(specific_type))
+    # (data_df['Metadata_cell_type'].isin(specific_cell_types))
 ]
 
 # Drop NA columns
@@ -54,7 +60,7 @@ cp_df = feature_select(
     na_cutoff=0
 )
 
-# Count number of cells per well and add to dataframe as metadata
+# Count number of cells per well and add to data frame as metadata
 cell_count_df = pd.DataFrame(
     cp_df.groupby("Metadata_Well").count()["Metadata_treatment"]
 ).reset_index()
@@ -71,12 +77,35 @@ cp_df.head()
 
 # ## Fit linear model
 
+# In[4]:
+
+
+# Setup linear modeling framework -> in plate 4 we are looking at the treatments or cell type
+variables = ["Metadata_cell_count_per_well", "Metadata_treatment"]
+X = cp_df.loc[:, variables]
+
+print(X.shape)
+X.head()
+
+
 # In[5]:
 
 
-# Setup linear modeling framework -> in plate 3 we are looking at the treatments or cell type
-variables = ["Metadata_cell_count_per_well", "Metadata_cell_type"]
-X = cp_df.loc[:, variables]
+# Set the variables and treatments used for LM
+variables = ["Metadata_cell_count_per_well", "Metadata_treatment"]
+treatments_to_select = ["DMSO", "None"]
+
+# Select rows with specific treatment values
+selected_rows = X[X["Metadata_treatment"].isin(treatments_to_select)]
+
+# Create dummy variables
+dummies = pd.get_dummies(selected_rows["Metadata_treatment"])
+
+# Concatenate dummies with the selected rows DataFrame
+X = pd.concat([selected_rows, dummies], axis=1)
+
+# Drop the original treatment column
+X.drop("Metadata_treatment", axis=1, inplace=True)
 
 print(X.shape)
 X.head()
@@ -85,34 +114,11 @@ X.head()
 # In[6]:
 
 
-# Set the variables and treatments used for LM
-variables = ["Metadata_cell_count_per_well", "Metadata_cell_type"]
-treatments_to_select = ["failing", "healthy"]
-
-# Select rows with specific treatment values
-selected_rows = X[X["Metadata_cell_type"].isin(treatments_to_select)]
-
-# Create dummy variables
-dummies = pd.get_dummies(selected_rows["Metadata_cell_type"])
-
-# Concatenate dummies with the selected rows DataFrame
-X = pd.concat([selected_rows, dummies], axis=1)
-
-# Drop the original treatment column
-X.drop("Metadata_cell_type", axis=1, inplace=True)
-
-print(X.shape)
-X.head()
-
-
-# In[7]:
-
-
 # Fit linear model for each feature
 lm_results = []
 for cp_feature in cp_features:
     # Create a boolean mask to filter rows with the specified treatments
-    mask = cp_df["Metadata_cell_type"].isin(treatments_to_select)
+    mask = cp_df["Metadata_treatment"].isin(treatments_to_select)
 
     # Apply the mask to Subset CP data to each individual feature (univariate test)
     cp_subset_df = cp_df.loc[mask, cp_feature]
@@ -134,7 +140,7 @@ for cp_feature in cp_features:
 # Convert results to a pandas DataFrame
 lm_results = pd.DataFrame(
     lm_results,
-    columns=["feature", "r2_score", "cell_count_coef", "failing_coef", "healthy_coef"]
+    columns=["feature", "r2_score", "cell_count_coef", "DMSO_coef", "none_coef"]
 )
 
 # Output file
