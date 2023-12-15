@@ -27,7 +27,7 @@ data_dir = pathlib.Path("../../../3.process_cfret_features/data/single_cell_prof
 data_df = pd.read_parquet(pathlib.Path(data_dir, f"{plate}{file_suffix}"))
 
 output_dir = pathlib.Path("results")
-output_cp_file = pathlib.Path(output_dir, f"{plate}_linear_model_heart7_DMSO_none.tsv")
+output_cp_file = pathlib.Path(output_dir, f"{plate}_linear_model_failing_healthy_no_treatment.tsv")
 
 # Replace NA values with "None"
 data_df['Metadata_treatment'].fillna('None', inplace=True)
@@ -45,12 +45,12 @@ data_df.head()
 
 
 # Filter by cell type and only cells without DMSO treatment
-specific_type = [7]
-# specific_cell_types = ["Failing", "Healthy"]
+specific_type = ["None"]
+specific_cell_types = ["Failing", "Healthy"]
 
 filtered_df = data_df[
-    (data_df['Metadata_heart_number'].isin(specific_type))
-    # (data_df['Metadata_cell_type'].isin(specific_cell_types))
+    (data_df['Metadata_treatment'].isin(specific_type)) &
+    (data_df['Metadata_cell_type'].isin(specific_cell_types))
 ]
 
 # Drop NA columns
@@ -81,7 +81,7 @@ cp_df.head()
 
 
 # Setup linear modeling framework -> in plate 4 we are looking at the treatments or cell type
-variables = ["Metadata_cell_count_per_well", "Metadata_treatment"]
+variables = ["Metadata_cell_count_per_well", "Metadata_cell_type"]
 X = cp_df.loc[:, variables]
 
 print(X.shape)
@@ -92,20 +92,20 @@ X.head()
 
 
 # Set the variables and treatments used for LM
-variables = ["Metadata_cell_count_per_well", "Metadata_treatment"]
-treatments_to_select = ["DMSO", "None"]
+variables = ["Metadata_cell_count_per_well", "Metadata_cell_type"]
+treatments_to_select = ["Failing", "Healthy"]
 
 # Select rows with specific treatment values
-selected_rows = X[X["Metadata_treatment"].isin(treatments_to_select)]
+selected_rows = X[X["Metadata_cell_type"].isin(treatments_to_select)]
 
 # Create dummy variables
-dummies = pd.get_dummies(selected_rows["Metadata_treatment"])
+dummies = pd.get_dummies(selected_rows["Metadata_cell_type"])
 
 # Concatenate dummies with the selected rows DataFrame
 X = pd.concat([selected_rows, dummies], axis=1)
 
 # Drop the original treatment column
-X.drop("Metadata_treatment", axis=1, inplace=True)
+X.drop("Metadata_cell_type", axis=1, inplace=True)
 
 print(X.shape)
 X.head()
@@ -118,7 +118,7 @@ X.head()
 lm_results = []
 for cp_feature in cp_features:
     # Create a boolean mask to filter rows with the specified treatments
-    mask = cp_df["Metadata_treatment"].isin(treatments_to_select)
+    mask = cp_df["Metadata_cell_type"].isin(treatments_to_select)
 
     # Apply the mask to Subset CP data to each individual feature (univariate test)
     cp_subset_df = cp_df.loc[mask, cp_feature]
@@ -140,7 +140,7 @@ for cp_feature in cp_features:
 # Convert results to a pandas DataFrame
 lm_results = pd.DataFrame(
     lm_results,
-    columns=["feature", "r2_score", "cell_count_coef", "DMSO_coef", "none_coef"]
+    columns=["feature", "r2_score", "cell_count_coef", "failing_coef", "healthy_coef"]
 )
 
 # Output file

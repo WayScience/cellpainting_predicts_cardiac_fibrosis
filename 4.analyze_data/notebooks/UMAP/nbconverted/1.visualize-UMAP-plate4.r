@@ -139,4 +139,30 @@ ggsave(output_file, umap_treatment_figure, dpi = 500, height = 10, width = 10)
 
 print(umap_treatment_figure)
 
+umap_cell_type_figure <- 
+  ggplot(umap_cp_df, aes(x = UMAP0, y = UMAP1)) +
+  geom_point(aes(color = Metadata_cell_type), alpha = 0.3) +
+  scale_color_manual(values = c("Failing" = "magenta", "Healthy" = "darkgreen")) +
+  theme_bw() +
+  labs(title = "UMAP of Plate 4 Morphology Space Comparing\nBetween Cell Types", x = "UMAP0", y = "UMAP1") +
+  theme(
+    # Increase title size
+    plot.title = element_text(size = 20),
+    
+    # Increase axis text size
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12),
+    
+    # Increase legend size
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 14),
+  )
+
+# saving image
+output_file <- paste0(output_umap_file, "_cell_types.png")
+ggsave(output_file, umap_cell_type_figure, dpi = 500, height = 10, width = 10)
+
+
+print(umap_cell_type_figure)
+
 

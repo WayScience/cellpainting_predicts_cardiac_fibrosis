@@ -10,12 +10,12 @@ input_dir <- "results"
 output_fig_dir <- "figures"
 
 # Path to file with LM coefficients to plot
-lm_file <- file.path(input_dir, paste0(plate, "_linear_model_failing_healthy_no_treatment.tsv"))
+lm_file <- file.path(input_dir, paste0(plate, "_linear_model_heart7_DMSO_none.tsv"))
 
 # Paths for each figure output
-lm_fig <- file.path(output_fig_dir, paste0(plate, "_linear_model_failing_healthy_no_treatment.png"))
-lm_group_fig <- file.path(output_fig_dir, paste0(plate, "_linear_model_failing_healthy_no_treatment_bygroup.png"))
-lm_coef_fig <- file.path(output_fig_dir, paste0(plate, "_linear_model_failing_healthy_no_treatment_coefficients.png"))
+lm_fig <- file.path(output_fig_dir, paste0(plate, "_linear_model_heart7_DMSO_none.png"))
+lm_group_fig <- file.path(output_fig_dir, paste0(plate, "_linear_model_heart7_DMSO_none_bygroup.png"))
+lm_coef_fig <- file.path(output_fig_dir, paste0(plate, "_linear_model_heart7_DMSO_none_coefficients.png"))
 
 
 # Load and process linear model data
@@ -35,7 +35,7 @@ lm_df <- readr::read_tsv(
 # Arrange by absolute value coefficient
 # Split out components of feature name for visualization
 lm_df <- lm_df %>%
-    dplyr::arrange(desc(abs(failing_coef))) %>%
+    dplyr::arrange(desc(abs(DMSO_coef))) %>%
     tidyr::separate(
         feature,
         into = c(
@@ -67,7 +67,7 @@ head(lm_df, 3)
 
 
 lm_fig_gg <- (
-    ggplot(lm_df, aes(x = cell_count_coef, y = failing_coef))
+    ggplot(lm_df, aes(x = cell_count_coef, y = DMSO_coef))
     + geom_point(aes(size = r2_score, color = channel_cleaned), alpha = 0.7)
     + geom_vline(xintercept = 0, linetype = "dashed", color = "red")
     + geom_density2d(color="black", show.legend = FALSE)
@@ -76,9 +76,9 @@ lm_fig_gg <- (
         color = guide_legend(title = "Channel\n(if applicable)", order = 1),
         size = guide_legend(title = "R2 score")
     )
-    + ylab("Failing cell type contribution (LM beta coefficient)")
+    + ylab("DMSO treatment contribution (LM beta coefficient)")
     + xlab("Cell count contribution (LM beta coefficient)")
-    + ggtitle("How CellProfiler features from only non-treated cells\ncontribute to healthy versus failing cell type and cell density")
+    + ggtitle("How CellProfiler features from only heart #7 cells\ncontribute to DMSO versus no treatment and cell density")
 )
 
 # Output figure
@@ -88,7 +88,7 @@ lm_fig_gg
 
 
 lm_group_fig_gg <- (
-    ggplot(lm_df, aes(x = cell_count_coef, y = failing_coef))
+    ggplot(lm_df, aes(x = cell_count_coef, y = DMSO_coef))
     + geom_point(aes(size = r2_score, color = feature_group), alpha = 0.7)
     + facet_wrap("~channel_cleaned")
     + geom_vline(xintercept = 0, linetype = "dashed", color = "red")
@@ -97,9 +97,9 @@ lm_group_fig_gg <- (
         color = guide_legend(title = "Feature group\n(if applicable)", order = 1),
         size = guide_legend(title = "R2 score")
     )
-    + ylab("Failing cell type contribution (LM beta coefficient)")
+    + ylab("DMSO treatment contribution (LM beta coefficient)")
     + xlab("Cell count contribution (LM beta coefficient)")
-    + ggtitle("How CellProfiler features (by group) contribute to healthy versus failing cell type and\ncell density in non-treated cells")
+    + ggtitle("How CellProfiler features (by group) contribute to DMSO versus no treatment and\ncell density in heart #7 cells")
     + scale_color_brewer(palette="Dark2")
     + theme(
         axis.text = element_text(size = 7),
@@ -131,18 +131,18 @@ channels <- c(
 lm_cleaned_df <- lm_df %>%
     dplyr::filter(channel %in% names(channels)) %>%
     dplyr::group_by(feature_group, channel_cleaned, compartment) %>%
-    dplyr::slice_max(order_by = failing_coef, n = 1)
+    dplyr::slice_max(order_by = DMSO_coef, n = 1)
 
 head(lm_cleaned_df, 2)
 
 
 coef_gg <- (
     ggplot(lm_cleaned_df, aes(x = channel_cleaned, y = feature_group))
-    + geom_point(aes(fill = abs(failing_coef)), pch = 22, size = 5)
+    + geom_point(aes(fill = abs(DMSO_coef)), pch = 22, size = 5)
     + facet_wrap("~compartment", ncol = 1)
     + theme_bw()
     + scale_fill_gradient(
-        name="Top Abs. val\nfailing cell type\nlinear model\ncoefficient",
+        name="Top Abs. val\nDMSO treatment\nlinear model\ncoefficient",
         low = "darkblue",
         high = "yellow"
     )
