@@ -19,7 +19,7 @@ from pycytominer.cyto_utils import infer_cp_features
 
 
 # Define inputs and outputs
-plate = "localhost230405150001"  # Focusing on plate 3
+plate = "localhost231120090001"  # Focusing on plate 4
 file_suffix = "_sc_feature_selected.parquet"
 
 data_dir = pathlib.Path("../../../3.process_cfret_features/data/single_cell_profiles")
@@ -27,7 +27,13 @@ data_dir = pathlib.Path("../../../3.process_cfret_features/data/single_cell_prof
 data_df = pd.read_parquet(pathlib.Path(data_dir, f"{plate}{file_suffix}"))
 
 output_dir = pathlib.Path("results")
-output_cp_file = pathlib.Path(output_dir, f"{plate}_linear_model_DMSO_failing_healthy.tsv")
+output_cp_file = pathlib.Path(output_dir, f"{plate}_linear_model_failing_healthy_no_treatment.tsv")
+
+# Replace NA values with "None"
+data_df['Metadata_treatment'].fillna('None', inplace=True)
+
+# Add cell count per well as a column
+data_df['Metadata_Cell_Count'] = data_df.groupby('Metadata_Well')['Metadata_Well'].transform('count')
 
 print(data_df.shape)
 data_df.head()
@@ -38,9 +44,9 @@ data_df.head()
 # In[3]:
 
 
-# Filter by failing hearts and specific treatments
-specific_type = ["DMSO"]
-specific_cell_types = ["failing", "healthy"]
+# Filter by cell type and only cells without DMSO treatment
+specific_type = ["None"]
+specific_cell_types = ["Failing", "Healthy"]
 
 filtered_df = data_df[
     (data_df['Metadata_treatment'].isin(specific_type)) &
@@ -54,7 +60,7 @@ cp_df = feature_select(
     na_cutoff=0
 )
 
-# Count number of cells per well and add to dataframe as metadata
+# Count number of cells per well and add to data frame as metadata
 cell_count_df = pd.DataFrame(
     cp_df.groupby("Metadata_Well").count()["Metadata_treatment"]
 ).reset_index()
@@ -71,10 +77,10 @@ cp_df.head()
 
 # ## Fit linear model
 
-# In[5]:
+# In[4]:
 
 
-# Setup linear modeling framework -> in plate 3 we are looking at the treatments or cell type
+# Setup linear modeling framework -> in plate 4 we are looking at the treatments or cell type
 variables = ["Metadata_cell_count_per_well", "Metadata_cell_type"]
 X = cp_df.loc[:, variables]
 
@@ -82,12 +88,12 @@ print(X.shape)
 X.head()
 
 
-# In[6]:
+# In[5]:
 
 
 # Set the variables and treatments used for LM
 variables = ["Metadata_cell_count_per_well", "Metadata_cell_type"]
-treatments_to_select = ["failing", "healthy"]
+treatments_to_select = ["Failing", "Healthy"]
 
 # Select rows with specific treatment values
 selected_rows = X[X["Metadata_cell_type"].isin(treatments_to_select)]
@@ -105,7 +111,7 @@ print(X.shape)
 X.head()
 
 
-# In[7]:
+# In[6]:
 
 
 # Fit linear model for each feature

@@ -2,20 +2,20 @@ suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(dplyr))
 
 
-# Focusing on plate 3
-plate <- "localhost230405150001"
+# Focusing on plate 4
+plate <- "localhost231120090001"
 
 # Set directories
 input_dir <- "results"
 output_fig_dir <- "figures"
 
 # Path to file with LM coefficients to plot
-lm_file <- file.path(input_dir, paste0(plate, "_linear_model_failing_DMSO_TGFRi.tsv"))
+lm_file <- file.path(input_dir, paste0(plate, "_linear_model_heart7_DMSO_none.tsv"))
 
 # Paths for each figure output
-lm_fig <- file.path(output_fig_dir, paste0(plate, "_linear_model_failing_DMSO_TGFRi.png"))
-lm_group_fig <- file.path(output_fig_dir, paste0(plate, "_linear_model_failing_DMSO_TGFRi_bygroup.png"))
-lm_coef_fig <- file.path(output_fig_dir, paste0(plate, "_linear_model_failing_DMSO_TGFRi_coefficients.png"))
+lm_fig <- file.path(output_fig_dir, paste0(plate, "_linear_model_heart7_DMSO_none.png"))
+lm_group_fig <- file.path(output_fig_dir, paste0(plate, "_linear_model_heart7_DMSO_none_bygroup.png"))
+lm_coef_fig <- file.path(output_fig_dir, paste0(plate, "_linear_model_heart7_DMSO_none_coefficients.png"))
 
 
 # Load and process linear model data
@@ -76,9 +76,9 @@ lm_fig_gg <- (
         color = guide_legend(title = "Channel\n(if applicable)", order = 1),
         size = guide_legend(title = "R2 score")
     )
-    + ylab("Failing treatment contribution (LM beta coefficient)")
+    + ylab("DMSO treatment contribution (LM beta coefficient)")
     + xlab("Cell count contribution (LM beta coefficient)")
-    + ggtitle("How CellProfiler features from only failing cells contribute\nto DMSO versus TGFRi treatment and cell density")
+    + ggtitle("How CellProfiler features from only heart #7 cells\ncontribute to DMSO versus no treatment and cell density")
 )
 
 # Output figure
@@ -99,7 +99,7 @@ lm_group_fig_gg <- (
     )
     + ylab("DMSO treatment contribution (LM beta coefficient)")
     + xlab("Cell count contribution (LM beta coefficient)")
-    + ggtitle("How CellProfiler features (by group) contribute to DMSO versus TGFRi treatment and\ncell density in only failing cells")
+    + ggtitle("How CellProfiler features (by group) contribute to DMSO versus no treatment and\ncell density in heart #7 cells")
     + scale_color_brewer(palette="Dark2")
     + theme(
         axis.text = element_text(size = 7),

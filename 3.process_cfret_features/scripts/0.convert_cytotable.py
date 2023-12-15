@@ -109,7 +109,7 @@ for file_path in converted_dir.iterdir():
 # In[5]:
 
 
-converted_df = pd.read_parquet("./data/converted_profiles/localhost220512140003_KK22-05-198_converted.parquet")
+converted_df = pd.read_parquet("./data/converted_profiles/localhost231120090001_converted.parquet")
 
 print(converted_df.shape)
 converted_df.head()
