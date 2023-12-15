@@ -96,12 +96,12 @@ for plate, info in plate_info_dictionary.items():
     # Save the modified DataFrame back to the same location
     annotated_df.to_parquet(output_annotated_file, index=False)
     
+    # set default for samples to use in normalization
+    samples = "all"
+     
     # Only for Plate 4, we want to normalize to the DMSO treatments
     if plate == "localhost231120090001":
         samples = "Metadata_heart_number == 7 and Metadata_treatment == 'DMSO'"
-    # For all other plates, use the default
-    else:
-        samples = "all"
 
     # Step 2: Normalization
     normalized_df = normalize(
