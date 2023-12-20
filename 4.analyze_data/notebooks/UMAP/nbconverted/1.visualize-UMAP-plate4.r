@@ -1,5 +1,6 @@
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(arrow))
 
 # Set directory and file structure
 umap_dir <- file.path("results")
@@ -74,7 +75,7 @@ umap_heart_num_figure <-
   facet_wrap(Metadata_treatment ~ Metadata_cell_type)
 
 # saving image
-output_file <- paste0(output_umap_file, "_heart_number.png")
+output_file <- file.path(paste0(output_umap_file, "_heart_number.png"))
 ggsave(output_file, umap_heart_num_figure, dpi = 500, height = 10, width = 14)
 
 print(umap_heart_num_figure)
@@ -104,7 +105,7 @@ umap_cell_count_figure <-
   coord_fixed(1.1)
 
 # saving image
-output_file <- paste0(output_umap_file, "_well_cell_count.png")
+output_file <- file.path(paste0(output_umap_file, "_well_cell_count.png"))
 ggsave(output_file, umap_cell_count_figure, dpi = 500, height = 10, width = 12)
 
 
@@ -133,7 +134,7 @@ umap_treatment_figure <-
   )
 
 # saving image
-output_file <- paste0(output_umap_file, "_treatment.png")
+output_file <- file.path(paste0(output_umap_file, "_treatment.png"))
 ggsave(output_file, umap_treatment_figure, dpi = 500, height = 10, width = 10)
 
 
@@ -159,10 +160,65 @@ umap_cell_type_figure <-
   )
 
 # saving image
-output_file <- paste0(output_umap_file, "_cell_types.png")
+output_file <- file.path(paste0(output_umap_file, "_cell_types.png"))
 ggsave(output_file, umap_cell_type_figure, dpi = 500, height = 10, width = 10)
 
 
 print(umap_cell_type_figure)
 
+# Remove decimal from nuclei object number to avoid issues with merging
+umap_cp_df <- umap_cp_df %>%
+  mutate(Metadata_Nuclei_Number_Object_Number = gsub("\\.0", "", as.character(Metadata_Nuclei_Number_Object_Number)))
+
+# Load in parquet file with nearest neighbors per single cell (not normalized)
+neighbors_df <- arrow::read_parquet(
+    "../../../3.process_cfret_features/data/single_cell_profiles/localhost231120090001_sc_annotated.parquet"
+)
+
+desired_columns <- c("Cells_Neighbors_NumberOfNeighbors_Adjacent", 
+                     "Metadata_Well", 
+                     "Metadata_Site", 
+                     "Metadata_Nuclei_Number_Object_Number")
+
+neighbors_df <- neighbors_df[, desired_columns]
+
+neighbors_df <- neighbors_df %>%
+  mutate(Metadata_Nuclei_Number_Object_Number = as.character(Metadata_Nuclei_Number_Object_Number))
+
+# Assuming you want to merge based on the specified columns
+merge_columns <- c("Metadata_Well", "Metadata_Site", "Metadata_Nuclei_Number_Object_Number")
+
+# Merge number of neighbors based on cell to umap dataframe
+merged_data <- merge(neighbors_df, umap_cp_df, by = merge_columns)
+
+umap_cell_neighbors_figure <- 
+  ggplot(merged_data, aes(x = UMAP0, y = UMAP1)) +
+  geom_point(aes(color = Cells_Neighbors_NumberOfNeighbors_Adjacent), alpha = 0.5) +
+  theme_bw() +
+  scale_color_continuous(
+    name = "Number of Cell Neighbors", 
+    low = "light blue",
+    high = "blue"
+  ) +
+  labs(title = "UMAP of Plate 4 Morphology Space Comparing\nBetween Number of Neighbors per Cell", x = "UMAP0", y = "UMAP1") +
+  theme(
+    # Increase title size
+    plot.title = element_text(size = 20),
+    
+    # Increase axis text size
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12),
+    
+    # Increase legend size
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 14),
+  ) +
+  coord_fixed(1.1)
+
+# saving image
+output_file <- file.path(paste0(output_umap_file, "_number_neighbors_cells.png"))
+ggsave(output_file, umap_cell_neighbors_figure, dpi = 500, height = 10, width = 12)
+
+
+print(umap_cell_neighbors_figure)
 

@@ -1,0 +1,4 @@
+,Metadata_WellRow,Metadata_WellCol,Metadata_heart_number,Metadata_cell_type,Metadata_heart_failure_type,Metadata_treatment,Metadata_Cells_Location_Center_X,Metadata_Cells_Location_Center_Y,Metadata_Image_Count_Cells,Metadata_ImageNumber,Metadata_Plate,Metadata_Well,Metadata_Cells_Number_Object_Number,Metadata_Cytoplasm_Parent_Cells,Metadata_Cytoplasm_Parent_Nuclei,Metadata_Nuclei_Number_Object_Number,Metadata_Site,UMAP0,UMAP1
+13960,E,9,19,Failing,Dilated_Cardiomyopathy,,446.26708497127305,630.2033565164802,28,595.0,,E09,14.0,14.0,18.0,18.0,f02,0.41742006,5.0911694
+14289,E,10,7,Healthy,,DMSO,159.21351689612015,590.307634543179,29,620.0,,E10,12.0,12.0,15.0,15.0,f11,1.0932457,4.331332
+20602,G,8,4,Failing,Dilated_Cardiomyopathy,,164.53567586948728,90.50639416756304,38,908.0,,G08,2.0,2.0,5.0,5.0,f11,0.24830326,4.1006474
