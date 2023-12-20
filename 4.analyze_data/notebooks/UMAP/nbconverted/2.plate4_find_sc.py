@@ -35,6 +35,8 @@ output_img_dir.mkdir(exist_ok=True)
 
 # ## Find single-cells per cluster
 # 
+# Here are the boundaries used for each cluster of the current plate 4 UMAP:
+# 
 # - right_cluster
 #   - x_min, x_max = 7.5, 10 
 #   - y_min, y_max = 2.5, 4 
@@ -65,7 +67,7 @@ filtered_df = umap_df[
     (umap_df['UMAP1'] >= y_min) & (umap_df['UMAP1'] <= y_max)
 ]
 
-# Randomly sample 3 rows from the filtered dataframe
+# Randomly sample 3 rows from the filtered data frame
 random_sample = filtered_df.sample(n=3, random_state=0) 
 
 # Save random sample df for each cluster to review later

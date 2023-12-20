@@ -75,7 +75,7 @@ umap_heart_num_figure <-
   facet_wrap(Metadata_treatment ~ Metadata_cell_type)
 
 # saving image
-output_file <- paste0(output_umap_file, "_heart_number.png")
+output_file <- file.path(paste0(output_umap_file, "_heart_number.png"))
 ggsave(output_file, umap_heart_num_figure, dpi = 500, height = 10, width = 14)
 
 print(umap_heart_num_figure)
@@ -105,7 +105,7 @@ umap_cell_count_figure <-
   coord_fixed(1.1)
 
 # saving image
-output_file <- paste0(output_umap_file, "_well_cell_count.png")
+output_file <- file.path(paste0(output_umap_file, "_well_cell_count.png"))
 ggsave(output_file, umap_cell_count_figure, dpi = 500, height = 10, width = 12)
 
 
@@ -134,7 +134,7 @@ umap_treatment_figure <-
   )
 
 # saving image
-output_file <- paste0(output_umap_file, "_treatment.png")
+output_file <- file.path(paste0(output_umap_file, "_treatment.png"))
 ggsave(output_file, umap_treatment_figure, dpi = 500, height = 10, width = 10)
 
 
@@ -160,7 +160,7 @@ umap_cell_type_figure <-
   )
 
 # saving image
-output_file <- paste0(output_umap_file, "_cell_types.png")
+output_file <- file.path(paste0(output_umap_file, "_cell_types.png"))
 ggsave(output_file, umap_cell_type_figure, dpi = 500, height = 10, width = 10)
 
 
@@ -216,7 +216,7 @@ umap_cell_neighbors_figure <-
   coord_fixed(1.1)
 
 # saving image
-output_file <- paste0(output_umap_file, "_number_neighbors_cells.png")
+output_file <- file.path(paste0(output_umap_file, "_number_neighbors_cells.png"))
 ggsave(output_file, umap_cell_neighbors_figure, dpi = 500, height = 10, width = 12)
 
 
