@@ -53,7 +53,7 @@ sns.histplot(
     multiple="dodge",
     binwidth=0.5
 )
-plt.title(f"Histogram of number of cell neighbors per heart for Plate 4")
+plt.title(f"Histogram of cell neighbor count per heart for Plate 4")
 plt.xlabel("Cells_Neighbors_NumberOfNeighbors_Adjacent")
 plt.ylabel("Count")
 
@@ -81,7 +81,7 @@ sns.histplot(
     multiple="dodge",
     binwidth=0.5
 )
-plt.title(f"Histogram of number of cell neighbors per healthy heart for Plate 4")
+plt.title(f"Histogram of cell neighbor count per healthy heart for Plate 4")
 plt.xlabel("Cells_Neighbors_NumberOfNeighbors_Adjacent")
 plt.ylabel("Count")
 
@@ -109,7 +109,7 @@ sns.histplot(
     multiple="dodge",
     binwidth=0.5
 )
-plt.title(f"Histogram of number of cell neighbors per failing heart for Plate 4")
+plt.title(f"Histogram of cell neighbor count per failing heart for Plate 4")
 plt.xlabel("Cells_Neighbors_NumberOfNeighbors_Adjacent")
 plt.ylabel("Count")
 
