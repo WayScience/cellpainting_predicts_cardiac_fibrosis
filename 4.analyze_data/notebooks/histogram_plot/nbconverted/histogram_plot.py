@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # Generate density plots using the number of neighbors using the whole cell segmentation 
+# # Generate histogram plots using the number of neighbors using the whole cell segmentation 
 
 # ## Import libraries
 
@@ -45,19 +45,17 @@ annotated_df.head()
 
 
 sns.set_style("whitegrid")
-sns.kdeplot(
+sns.histplot(
     data=annotated_df,
     x="Cells_Neighbors_NumberOfNeighbors_Adjacent",
-    hue="Metadata_heart_number",
+    hue='Metadata_heart_number',
     palette=["#00FF00", "#FF00FF", "#0000FF", "#FFA500", "#FF0000", "#800080"],
-    fill=True,
-    common_norm=False,
+    multiple="dodge",
+    binwidth=0.5
 )
-# Set threshold line for neighbors at 4 as it is approximately when single-cells are considered "large clusters"
-plt.axvline(x=4, color="red", linestyle="--", label="Number of Neighbors = 4")
-plt.title(f"Density plots per heart for Plate 4")
+plt.title(f"Histogram of number of cell neighbors per heart for Plate 4")
 plt.xlabel("Cells_Neighbors_NumberOfNeighbors_Adjacent")
-plt.ylabel("Density")
+plt.ylabel("Count")
 
 plt.tight_layout()
 plt.savefig(
@@ -75,19 +73,17 @@ plt.show()
 filtered_df = annotated_df[annotated_df['Metadata_cell_type'] == 'Healthy']
 
 sns.set_style("whitegrid")
-sns.kdeplot(
+sns.histplot(
     data=filtered_df,
     x="Cells_Neighbors_NumberOfNeighbors_Adjacent",
-    hue="Metadata_heart_number",
+    hue='Metadata_heart_number',
     palette=["#00FF00", "#0000FF"],
-    fill=True,
-    common_norm=False,
+    multiple="dodge",
+    binwidth=0.5
 )
-# Set threshold line for neighbors at 4 as it is approximately when single-cells are considered "large clusters"
-plt.axvline(x=4, color="red", linestyle="--", label="Number of Neighbors = 4")
-plt.title(f"Density plots for only healthy hearts in Plate 4")
+plt.title(f"Histogram of number of cell neighbors per healthy heart for Plate 4")
 plt.xlabel("Cells_Neighbors_NumberOfNeighbors_Adjacent")
-plt.ylabel("Density")
+plt.ylabel("Count")
 
 plt.tight_layout()
 plt.savefig(
@@ -105,19 +101,17 @@ plt.show()
 filtered_df = annotated_df[annotated_df['Metadata_cell_type'] == 'Failing']
 
 sns.set_style("whitegrid")
-sns.kdeplot(
+sns.histplot(
     data=filtered_df,
     x="Cells_Neighbors_NumberOfNeighbors_Adjacent",
-    hue="Metadata_heart_number",
+    hue='Metadata_heart_number',
     palette=["#FF00FF", "#FFA500", "#FF0000", "#800080"],
-    fill=True,
-    common_norm=False,
+    multiple="dodge",
+    binwidth=0.5
 )
-# Set threshold line for neighbors at 4 as it is approximately when single-cells are considered "large clusters"
-plt.axvline(x=4, color="red", linestyle="--", label="Number of Neighbors = 4")
-plt.title(f"Density plots for only failing hearts in Plate 4")
+plt.title(f"Histogram of number of cell neighbors per failing heart for Plate 4")
 plt.xlabel("Cells_Neighbors_NumberOfNeighbors_Adjacent")
-plt.ylabel("Density")
+plt.ylabel("Count")
 
 plt.tight_layout()
 plt.savefig(

@@ -8,7 +8,7 @@ In the [notebooks folder](./notebooks/), we have two different folders for analy
 
 - [UMAP](./notebooks/UMAP/): Generate UMAPs labeling different metadata per plate to assess if there is any clustering of morphology features.
 
-- [density_plot](./notebooks/density_plot/): Generate density plot comparing the number of neighbors adjacent to each single-cell per heart number to view the distribution of neighbors across hearts.
+- [histogram_plot](./notebooks/histogram_plot/): Generate histogram plot comparing the number of neighbors adjacent to each single-cell per heart number to view the distribution of neighbors across hearts.
 
 ## Linear Model (LM)
 
@@ -50,9 +50,9 @@ We label the points with different metadata based on the plate.
 In the `2` notebooks, we generate random single-cell crops per cluster of the UMAP, in which the UMAP data frame is stratified based on the range of coordinates of the cluster.
 One notebook is meant for plate 3 data and the other is for plate 4 data.
 
-## Density plot
+## Histogram plot
 
-In this folder, there is only one notebook that is used to load in the annotated data frame from plate 4, and then create a density plot with all heart number distributions on it to compare.
+In this folder, there is only one notebook that is used to load in the annotated data frame from plate 4, and then create a histogram plot with all heart number distributions on it to compare.
 
 ## Create environments
 
