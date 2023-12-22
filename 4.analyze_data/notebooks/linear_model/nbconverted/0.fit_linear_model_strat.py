@@ -27,13 +27,10 @@ data_dir = pathlib.Path("../../../3.process_cfret_features/data/single_cell_prof
 data_df = pd.read_parquet(pathlib.Path(data_dir, f"{plate}{file_suffix}"))
 
 output_dir = pathlib.Path("results")
-output_cp_file = pathlib.Path(output_dir, f"{plate}_linear_model_failing_healthy_no_treatment.tsv")
+output_cp_file = pathlib.Path(output_dir, f"{plate}_linear_model_failing_healthy_no_treatment_neighbors.tsv")
 
 # Replace NA values with "None"
 data_df['Metadata_treatment'].fillna('None', inplace=True)
-
-# Add cell count per well as a column
-data_df['Metadata_Cell_Count'] = data_df.groupby('Metadata_Well')['Metadata_Well'].transform('count')
 
 print(data_df.shape)
 data_df.head()
@@ -49,16 +46,12 @@ specific_type = ["None"]
 specific_cell_types = ["Failing", "Healthy"]
 
 filtered_df = data_df[
-    (data_df['Metadata_treatment'].isin(specific_type)) &
-    (data_df['Metadata_cell_type'].isin(specific_cell_types))
+    (data_df["Metadata_treatment"].isin(specific_type))
+    & (data_df["Metadata_cell_type"].isin(specific_cell_types))
 ]
 
 # Drop NA columns
-cp_df = feature_select(
-    filtered_df,
-    operation="drop_na_columns",
-    na_cutoff=0
-)
+cp_df = feature_select(filtered_df, operation="drop_na_columns", na_cutoff=0)
 
 # Count number of cells per well and add to data frame as metadata
 cell_count_df = pd.DataFrame(
@@ -66,6 +59,38 @@ cell_count_df = pd.DataFrame(
 ).reset_index()
 cell_count_df.columns = ["Metadata_Well", "Metadata_cell_count_per_well"]
 cp_df = cell_count_df.merge(cp_df, on=["Metadata_Well"])
+
+# Add cell neighbors per single-cell to use as co-variate
+neighbors_df = pd.read_parquet(
+    pathlib.Path(
+        "../../../3.process_cfret_features/data/single_cell_profiles/localhost231120090001_sc_annotated.parquet"
+    )
+)
+
+# Selecting the only the joining columns and cell neighbors column
+neighbors_subset = neighbors_df[
+    [
+        "Cells_Neighbors_NumberOfNeighbors_Adjacent",
+        "Metadata_Well",
+        "Metadata_Site",
+        "Metadata_Nuclei_Number_Object_Number",
+    ]
+]
+
+# Merging the cell neighbors column to the cp_df
+cp_df = pd.merge(
+    cp_df,
+    neighbors_subset,
+    on=["Metadata_Well", "Metadata_Site", "Metadata_Nuclei_Number_Object_Number"],
+    how="inner",
+)
+
+# Rename the neighbors column so it isn't considered a CellProfiler feature
+cp_df = cp_df.rename(
+    columns={
+        "Cells_Neighbors_NumberOfNeighbors_Adjacent": "Metadata_Cells_Neighbors_NumberOfNeighbors_Adjacent"
+    }
+)
 
 # Define CellProfiler features
 cp_features = infer_cp_features(cp_df)
@@ -81,7 +106,7 @@ cp_df.head()
 
 
 # Setup linear modeling framework -> in plate 4 we are looking at the treatments or cell type
-variables = ["Metadata_cell_count_per_well", "Metadata_cell_type"]
+variables = ["Metadata_Cells_Neighbors_NumberOfNeighbors_Adjacent", "Metadata_cell_type"]
 X = cp_df.loc[:, variables]
 
 print(X.shape)
@@ -92,7 +117,7 @@ X.head()
 
 
 # Set the variables and treatments used for LM
-variables = ["Metadata_cell_count_per_well", "Metadata_cell_type"]
+variables = ["Metadata_Cells_Neighbors_NumberOfNeighbors_Adjacent", "Metadata_cell_type"]
 treatments_to_select = ["Failing", "Healthy"]
 
 # Select rows with specific treatment values
@@ -128,7 +153,7 @@ for cp_feature in cp_features:
     lm_result = lm.fit(X=X, y=cp_subset_df)
     
     # Extract Beta coefficients
-    # (contribution of feature to X covariates)
+    # (contribution of feature to X co-variates)
     coef = lm_result.coef_
     
     # Estimate fit (R^2)
@@ -140,7 +165,7 @@ for cp_feature in cp_features:
 # Convert results to a pandas DataFrame
 lm_results = pd.DataFrame(
     lm_results,
-    columns=["feature", "r2_score", "cell_count_coef", "failing_coef", "healthy_coef"]
+    columns=["feature", "r2_score", "cell_neighbors_coef", "failing_coef", "healthy_coef"]
 )
 
 # Output file
