@@ -26,7 +26,7 @@ import cp_parallel
 run_name = "illum_correction"
 
 # set path for pipeline for illumination correction
-path_to_pipeline = pathlib.Path("./illum.cppipe").resolve(strict=True)
+path_to_pipeline = pathlib.Path("./pipelines/illum.cppipe").resolve(strict=True)
 
 # set main output dir for all plates if it doesn't exist
 output_dir = pathlib.Path("./Corrected_Images")
@@ -61,7 +61,7 @@ plate_info_dictionary = {
         "path_to_pipeline": path_to_pipeline,
 
     }
-    for name in plate_names
+    for name in plate_names if name == 'localhost231120090001'
 }
 
 # view the dictionary to assess that all info is added correctly

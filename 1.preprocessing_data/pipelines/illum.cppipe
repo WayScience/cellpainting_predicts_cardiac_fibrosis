@@ -2,7 +2,7 @@ CellProfiler Pipeline: http://www.cellprofiler.org
 Version:5
 DateRevision:424
 GitHash:
-ModuleCount:17
+ModuleCount:19
 HasImagePlaneDetails:False
 
 Images:[module_num:1|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['Add the plate images to view when testing parameters. If not, make sure it is blank prior to processing the images via the notebook.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
@@ -77,7 +77,57 @@ Groups:[module_num:4|svn_version:'Unknown'|variable_revision_number:2|show_windo
     grouping metadata count:1
     Metadata category:Plate
 
-CorrectIlluminationCalculate:[module_num:5|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['The DNA channel parameters seems to work for all CFReT plates.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+MeasureImageQuality:[module_num:5|svn_version:'Unknown'|variable_revision_number:6|show_window:False|notes:['Only calculate the saturation metrics as the PercentMaximal metric is currently the only QC needed as blur does not seem to be a factor.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Calculate metrics for which images?:All loaded images
+    Image count:1
+    Scale count:1
+    Threshold count:1
+    Select the images to measure:
+    Include the image rescaling value?:No
+    Calculate blur metrics?:No
+    Spatial scale for blur measurements:20
+    Calculate saturation metrics?:Yes
+    Calculate intensity metrics?:No
+    Calculate thresholds?:No
+    Use all thresholding methods?:No
+    Select a thresholding method:Otsu
+    Typical fraction of the image covered by objects:0.1
+    Two-class or three-class thresholding?:Two classes
+    Minimize the weighted variance or the entropy?:Weighted variance
+    Assign pixels in the middle intensity class to the foreground or the background?:Foreground
+
+FlagImage:[module_num:6|svn_version:'Unknown'|variable_revision_number:5|show_window:False|notes:['We will only be flagging images from the DNA and PM channels as those are what most impact the segmentation.', '', 'DNA -> contains large artifacts/smudges', 'PM -> large overlapping cells have highest saturation measured which can be seen in Actin channel']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Hidden:1
+    Hidden:2
+    Name the flag's category:Saturation_QC
+    Name the flag:Saturation_Flag
+    How should measurements be linked?:Flag if any fail
+    Skip image set if flagged?:Yes
+    Flag is based on:Whole-image measurement
+    Select the object to be used for flagging:None
+    Which measurement?:ImageQuality_PercentMaximal_OrigDNA
+    Flag images based on low values?:No
+    Minimum value:0.0
+    Flag images based on high values?:Yes
+    Maximum value:0.28
+    Rules file location:Elsewhere...|
+    Rules file name:rules.txt
+    Class number:
+    Allow fuzzy feature matching?:No
+    Flag is based on:Whole-image measurement
+    Select the object to be used for flagging:None
+    Which measurement?:ImageQuality_PercentMaximal_OrigPM
+    Flag images based on low values?:No
+    Minimum value:0.0
+    Flag images based on high values?:Yes
+    Maximum value:0.28
+    Rules file location:Elsewhere...|
+    Rules file name:rules.txt
+    Class number:
+    Allow fuzzy feature matching?:No
+    Ignore flag skips on last cycle?:No
+
+CorrectIlluminationCalculate:[module_num:7|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['The DNA channel parameters seems to work for all CFReT plates.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:OrigDNA
     Name the output image:IllumDNA
     Select how the illumination function is calculated:Background
@@ -102,7 +152,7 @@ CorrectIlluminationCalculate:[module_num:5|svn_version:'Unknown'|variable_revisi
     Maximum number of iterations:40
     Residual value for convergence:0.001
 
-CorrectIlluminationCalculate:[module_num:6|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['The ER channels seems to suffer from slight overcorrection for all plates (less in the first one -> not F-actin adjusted). But, this overcorrection using the "Background" method is better than the increased noise that occurs when I use the "Regular" method.', '', 'If there is any issues occuring in the analysis, then this IC method could be a cause, but it is the best parameters I have for all plates.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+CorrectIlluminationCalculate:[module_num:8|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['The ER channels seems to suffer from slight overcorrection for all plates (less in the first one -> not F-actin adjusted). But, this overcorrection using the "Background" method is better than the increased noise that occurs when I use the "Regular" method.', '', 'If there is any issues occuring in the analysis, then this IC method could be a cause, but it is the best parameters I have for all plates.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:OrigER
     Name the output image:IllumER
     Select how the illumination function is calculated:Background
@@ -127,7 +177,7 @@ CorrectIlluminationCalculate:[module_num:6|svn_version:'Unknown'|variable_revisi
     Maximum number of iterations:40
     Residual value for convergence:0.001
 
-CorrectIlluminationCalculate:[module_num:7|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['The plasma membrane channel also suffers from the slight overcorrection, but again it is better than the added noise.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+CorrectIlluminationCalculate:[module_num:9|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['The plasma membrane channel also suffers from the slight overcorrection, but again it is better than the added noise.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:OrigPM
     Name the output image:IllumPM
     Select how the illumination function is calculated:Background
@@ -152,7 +202,7 @@ CorrectIlluminationCalculate:[module_num:7|svn_version:'Unknown'|variable_revisi
     Maximum number of iterations:40
     Residual value for convergence:0.001
 
-CorrectIlluminationCalculate:[module_num:8|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['The mito channel as well sees what seems to be over correction but the actual biology looks to still be clear. ']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+CorrectIlluminationCalculate:[module_num:10|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['The mito channel as well sees what seems to be over correction but the actual biology looks to still be clear. ']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:OrigMito
     Name the output image:IllumMito
     Select how the illumination function is calculated:Background
@@ -177,7 +227,7 @@ CorrectIlluminationCalculate:[module_num:8|svn_version:'Unknown'|variable_revisi
     Maximum number of iterations:40
     Residual value for convergence:0.001
 
-CorrectIlluminationCalculate:[module_num:9|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['The actin channel looks to suffer from overcorrection in the third plate, which might be caused by the high cell counts in each FOV. This overcorrection is still better than the added noise or what looked to be over saturation.', '', 'In most cases, it looks to make the actin sharper and better contrast.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+CorrectIlluminationCalculate:[module_num:11|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['The actin channel looks to suffer from overcorrection in the third plate, which might be caused by the high cell counts in each FOV. This overcorrection is still better than the added noise or what looked to be over saturation.', '', 'In most cases, it looks to make the actin sharper and better contrast.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:OrigActin
     Name the output image:IllumActin
     Select how the illumination function is calculated:Background
@@ -202,7 +252,7 @@ CorrectIlluminationCalculate:[module_num:9|svn_version:'Unknown'|variable_revisi
     Maximum number of iterations:40
     Residual value for convergence:0.001
 
-CorrectIlluminationApply:[module_num:10|svn_version:'Unknown'|variable_revision_number:5|show_window:False|notes:['The Apply modules are separated for visualization purposes.', '', 'This works the same as if I had all of the Apply modules as one.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+CorrectIlluminationApply:[module_num:12|svn_version:'Unknown'|variable_revision_number:5|show_window:False|notes:['The Apply modules are separated for visualization purposes.', '', 'This works the same as if I had all of the Apply modules as one.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:OrigDNA
     Name the output image:CorrDNA
     Select the illumination function:IllumDNA
@@ -214,7 +264,7 @@ CorrectIlluminationApply:[module_num:10|svn_version:'Unknown'|variable_revision_
     Set output image values less than 0 equal to 0?:Yes
     Set output image values greater than 1 equal to 1?:Yes
 
-CorrectIlluminationApply:[module_num:11|svn_version:'Unknown'|variable_revision_number:5|show_window:False|notes:['The Apply modules are separated for visualization purposes.', '', 'This works the same as if I had all of the Apply modules as one.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+CorrectIlluminationApply:[module_num:13|svn_version:'Unknown'|variable_revision_number:5|show_window:False|notes:['The Apply modules are separated for visualization purposes.', '', 'This works the same as if I had all of the Apply modules as one.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:OrigPM
     Name the output image:CorrPM
     Select the illumination function:IllumPM
@@ -226,7 +276,7 @@ CorrectIlluminationApply:[module_num:11|svn_version:'Unknown'|variable_revision_
     Set output image values less than 0 equal to 0?:Yes
     Set output image values greater than 1 equal to 1?:Yes
 
-CorrectIlluminationApply:[module_num:12|svn_version:'Unknown'|variable_revision_number:5|show_window:False|notes:['The Apply modules are separated for visualization purposes.', '', 'This works the same as if I had all of the Apply modules as one.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+CorrectIlluminationApply:[module_num:14|svn_version:'Unknown'|variable_revision_number:5|show_window:False|notes:['The Apply modules are separated for visualization purposes.', '', 'This works the same as if I had all of the Apply modules as one.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:OrigActin
     Name the output image:CorrActin
     Select the illumination function:IllumActin
@@ -234,7 +284,7 @@ CorrectIlluminationApply:[module_num:12|svn_version:'Unknown'|variable_revision_
     Set output image values less than 0 equal to 0?:Yes
     Set output image values greater than 1 equal to 1?:Yes
 
-SaveImages:[module_num:13|svn_version:'Unknown'|variable_revision_number:16|show_window:False|notes:['Save images as same bit-depth as original']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+SaveImages:[module_num:15|svn_version:'Unknown'|variable_revision_number:16|show_window:False|notes:['Save images as same bit-depth as original']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the type of image to save:Image
     Select the image to save:CorrDNA
     Select method for constructing file names:From image filename
@@ -254,7 +304,7 @@ SaveImages:[module_num:13|svn_version:'Unknown'|variable_revision_number:16|show
     How to save the series:T (Time)
     Save with lossless compression?:Yes
 
-SaveImages:[module_num:14|svn_version:'Unknown'|variable_revision_number:16|show_window:False|notes:['Save images as same bit-depth as original']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+SaveImages:[module_num:16|svn_version:'Unknown'|variable_revision_number:16|show_window:False|notes:['Save images as same bit-depth as original']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the type of image to save:Image
     Select the image to save:CorrER
     Select method for constructing file names:From image filename
@@ -274,7 +324,7 @@ SaveImages:[module_num:14|svn_version:'Unknown'|variable_revision_number:16|show
     How to save the series:T (Time)
     Save with lossless compression?:Yes
 
-SaveImages:[module_num:15|svn_version:'Unknown'|variable_revision_number:16|show_window:False|notes:['Save images as same bit-depth as original']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+SaveImages:[module_num:17|svn_version:'Unknown'|variable_revision_number:16|show_window:False|notes:['Save images as same bit-depth as original']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the type of image to save:Image
     Select the image to save:CorrPM
     Select method for constructing file names:From image filename
@@ -294,7 +344,7 @@ SaveImages:[module_num:15|svn_version:'Unknown'|variable_revision_number:16|show
     How to save the series:T (Time)
     Save with lossless compression?:Yes
 
-SaveImages:[module_num:16|svn_version:'Unknown'|variable_revision_number:16|show_window:False|notes:['Save images as same bit-depth as original']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+SaveImages:[module_num:18|svn_version:'Unknown'|variable_revision_number:16|show_window:False|notes:['Save images as same bit-depth as original']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the type of image to save:Image
     Select the image to save:CorrMito
     Select method for constructing file names:From image filename
@@ -314,7 +364,7 @@ SaveImages:[module_num:16|svn_version:'Unknown'|variable_revision_number:16|show
     How to save the series:T (Time)
     Save with lossless compression?:Yes
 
-SaveImages:[module_num:17|svn_version:'Unknown'|variable_revision_number:16|show_window:False|notes:['Save images as same bit-depth as original']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+SaveImages:[module_num:19|svn_version:'Unknown'|variable_revision_number:16|show_window:False|notes:['Save images as same bit-depth as original']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the type of image to save:Image
     Select the image to save:CorrActin
     Select method for constructing file names:From image filename

@@ -9,4 +9,4 @@ conda activate cfret_data_env
 jupyter nbconvert --to python --output-dir=scripts/ *.ipynb
 
 # run Python script for IC processing 
-python scripts/cfret_ic.py
+python scripts/2.cfret_ic.py
