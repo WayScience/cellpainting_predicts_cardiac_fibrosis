@@ -3,6 +3,8 @@
 
 # # Process single cell profiles
 
+# ## Import libraries
+
 # In[1]:
 
 
@@ -14,18 +16,20 @@ import pandas as pd
 from pycytominer import annotate, normalize, feature_select
 
 
+# ## Set paths and variables
+
 # In[2]:
 
 
-# Path to dir with nuclei feature files
-converted_dir = pathlib.Path("./data/converted_profiles")
+# Path to dir with cleaned data from single-cell QC
+converted_dir = pathlib.Path("./data/cleaned_profiles")
 
-# output path for single cell profiles 
+# output path for single-cell profiles 
 output_dir = pathlib.Path("./data/single_cell_profiles")
 output_dir.mkdir(parents=True, exist_ok=True)  
 
 # Extract the plate names from the file name
-plate_names = [file.stem.replace("_converted", "") for file in converted_dir.glob("*.parquet")]
+plate_names = [file.stem.replace("_cleaned", "") for file in converted_dir.glob("*.parquet")]
 
 # path for platemap directory
 platemap_dir = pathlib.Path("../metadata/")
@@ -38,6 +42,8 @@ feature_select_ops = [
 ]
 
 
+# ## Set dictionary with plates to process
+
 # In[3]:
 
 
@@ -45,7 +51,7 @@ feature_select_ops = [
 plate_info_dictionary = {
     name: {
         "profile_path": str(
-            pathlib.Path(list(converted_dir.rglob(f"{name}_converted.parquet"))[0]).resolve(
+            pathlib.Path(list(converted_dir.rglob(f"{name}_cleaned.parquet"))[0]).resolve(
                 strict=True
             )
         ),
@@ -55,12 +61,14 @@ plate_info_dictionary = {
             )
         ),
     }
-    for name in plate_names
+    for name in plate_names if name == 'localhost231120090001'
 }
 
 # view the dictionary to assess that all info is added correctly
 pprint.pprint(plate_info_dictionary, indent=4)
 
+
+# ## Process data with pycytominer
 
 # In[4]:
 
