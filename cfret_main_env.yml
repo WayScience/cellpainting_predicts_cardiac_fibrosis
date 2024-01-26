@@ -11,6 +11,7 @@ dependencies:
 - conda-forge::pip
 - conda-forge::numpy
 - conda-forge::matplotlib
+- conda-forge::seaborn=0.12.2
 - conda-forge::pandas
 # this package must be hardcoded to work with Mac 
 - conda-forge::mysqlclient=1.4.6
@@ -28,6 +29,6 @@ dependencies:
 - conda-forge::sentry-sdk=0.18.0
 - pip:
     - cellprofiler==4.2.4
-    - git+https://github.com/cytomining/CytoTable@a0f1c24b3f054880a028cbecaa6969b52d649234
-    - git+https://github.com/cytomining/pycytominer@c4de0a9a4fecbf1ad11872bb14c18d24d1b1851e
+    - Cytotable
+    - pycytominer
 
