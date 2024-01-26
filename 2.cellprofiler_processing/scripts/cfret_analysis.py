@@ -32,7 +32,7 @@ output_dir = pathlib.Path("./cp_output/")
 output_dir.mkdir(exist_ok=True)
 
 # Directory where all images are separated by folder per plate
-images_dir = pathlib.Path("../0.download_data/Images").resolve(strict=True)
+images_dir = pathlib.Path("../1.preprocessing_data/Corrected_Images").resolve(strict=True)
 
 # list for plate names based on folders to use to create dictionary
 plate_names = []
@@ -61,7 +61,7 @@ plate_info_dictionary = {
         "path_to_pipeline": path_to_pipeline,
 
     }
-    for name in plate_names
+    for name in plate_names if name == 'localhost231120090001'
 }
 
 # view the dictionary to assess that all info is added correctly
