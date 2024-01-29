@@ -22,14 +22,14 @@ from pycytominer import annotate, normalize, feature_select
 
 
 # Path to dir with cleaned data from single-cell QC
-converted_dir = pathlib.Path("./data/cleaned_profiles")
+converted_dir = pathlib.Path("./data/converted_profiles")
 
 # output path for single-cell profiles 
 output_dir = pathlib.Path("./data/single_cell_profiles")
 output_dir.mkdir(parents=True, exist_ok=True)  
 
 # Extract the plate names from the file name
-plate_names = [file.stem.replace("_cleaned", "") for file in converted_dir.glob("*.parquet")]
+plate_names = [file.stem.replace("_converted", "") for file in converted_dir.glob("*.parquet")]
 
 # path for platemap directory
 platemap_dir = pathlib.Path("../metadata/")
@@ -51,7 +51,7 @@ feature_select_ops = [
 plate_info_dictionary = {
     name: {
         "profile_path": str(
-            pathlib.Path(list(converted_dir.rglob(f"{name}_cleaned.parquet"))[0]).resolve(
+            pathlib.Path(list(converted_dir.rglob(f"{name}_converted.parquet"))[0]).resolve(
                 strict=True
             )
         ),
@@ -61,7 +61,7 @@ plate_info_dictionary = {
             )
         ),
     }
-    for name in plate_names if name == 'localhost231120090001'
+    for name in plate_names
 }
 
 # view the dictionary to assess that all info is added correctly
