@@ -11,6 +11,27 @@ In our method we are implementing (temporarily dubbed Jenna's QC method) for who
 After running the pipeline, we evaluate the QC metrics for blur and saturation to determine necessary thresholds.
 Those thresholds are then added into the illumination correction pipeline to flag images that of poor quality.
 
+### Blur metric: PowerLogLogSlope
+
+To assess if there significant impact on the image set from blur, we use the PowerLogLogSlope metric calculated for each channel. 
+The definition of this metric can be found in the [CellProfiler manual](https://cellprofiler-manual.s3.amazonaws.com/CellProfiler-4.2.6/modules/measurement.html#id8), but we have found that it is not easily interpretable.
+
+Our definition of the metric is as follows:
+
+> A blurry image will have a PowerLogLogSlope value closer to 0 (less negative) while good quality images will have a more negative value. The range of values when outputted straight from CellProfiler can range from any values less than 0 (negative values).
+
+To evaluate if blur is impacting the dataset, we look at the distribution of values per channel as a density plot. 
+We expect to see a bump in the distribution near 0 if there is a significant portion of images with blur.
+So far in CFReT, blur is not impacting the dataset.
+
+### Saturation metric: PercentMaximal
+
+To assess if there significant impact on the image set from large and highly saturated smudges/artifacts, we use the PercentMaximal metric calculated for each channel. 
+The definition of this metric can be found in the [CellProfiler manual](https://cellprofiler-manual.s3.amazonaws.com/CellProfiler-4.2.6/modules/measurement.html#id8).
+
+Due to the significantly skewed distribution of variables, we currently do not have a visualization of this metric.
+We use z-scoring to identify outliers that are 2 standard deviations above the mean since we are looking for abnormally saturated images.
+
 ### Assess QC metrics and create QC report for whole images
 
 Separate to performing IC, you can run the QC pipeline, assess the metrics, and create a whole image QC report by running the command below:

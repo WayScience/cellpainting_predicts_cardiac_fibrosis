@@ -4,9 +4,17 @@ suppressPackageStartupMessages(library(platetools))
 suppressPackageStartupMessages(library(stringr))
 suppressPackageStartupMessages(library(RColorBrewer))
 
+# Paths to CSV files to generate QC report
 path_to_outlier_results <- file.path("./qc_results/qc_outliers.csv")
 path_to_cp_qc_results <- file.path("./qc_results/localhost231120090001/Image.csv")
 
+# Output path for bar chart
+barchart_output_file <- file.path(paste0("./qc_figures/localhost231120090001_fov_per_well_chart.png"))
+
+# Output path for platemap
+platemap_output_file <- file.path(paste0("./qc_figures/localhost231120090001_platemap_fov_per_well.png"))
+
+# Read in CSV files
 outlier_df <- read.csv(path_to_outlier_results)
 qc_df <- read.csv(path_to_cp_qc_results)
 
@@ -42,9 +50,6 @@ counts_per_well$Color <- color_dict[substr(counts_per_well$Metadata_Well, 1, 1)]
 # Increase the figure size to extend the chart horizontally
 options(repr.plot.width=14, repr.plot.height=6)
 
-# Output path for bar chart
-output_file <- "./qc_figures/localhost231120090001_fov_per_well_chart.png"
-
 # Create a bar chart using ggplot2 with the 'Color' column for colors
 fov_chart <- ggplot(counts_per_well, aes(x = Metadata_Well, y = count, fill = Color)) +
   geom_bar(stat = 'identity') +
@@ -55,7 +60,7 @@ fov_chart <- ggplot(counts_per_well, aes(x = Metadata_Well, y = count, fill = Co
 
 # Save plot to qc_figures
 ggsave(
-        output_file,
+        barchart_output_file,
         fov_chart,
         dpi = 500,
         height = 6,
@@ -65,9 +70,6 @@ ggsave(
 # Display the plot in the notebook
 print(fov_chart)
 
-
-# Output path for platemap
-output_file <- "./qc_figures/localhost231120090001_platemap_fov_per_well.png"
 
 fov_platemap <- platetools::raw_map(
     data = as.character(counts_per_well$count),
@@ -84,7 +86,7 @@ fov_platemap <- platetools::raw_map(
   )
 
     ggsave(
-    output_file,
+    platemap_output_file,
     fov_platemap,
     dpi = 500,
     height = 3.5,

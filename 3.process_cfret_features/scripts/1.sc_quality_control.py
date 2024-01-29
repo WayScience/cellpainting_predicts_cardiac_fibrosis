@@ -150,7 +150,7 @@ plt.show()
 # Calculate Z-scores for the Cells Area
 z_scores = zscore(plate_4_df['Cells_AreaShape_Area'])
 
-# Set a threshold for Z-scores to find outliers below the mean (number of standard deviations away from the mean)
+# Set a threshold for Z-scores to find outliers that are 1 standard deviation BELOW the mean (which is why it is negative) 
 threshold_z = -1
 
 # Identify outlier rows based on Z-scores greater than the mean

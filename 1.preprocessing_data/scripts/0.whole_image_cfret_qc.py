@@ -36,6 +36,9 @@ output_dir.mkdir(exist_ok=True)
 # directory where images are located within folders
 images_dir = pathlib.Path("../0.download_data/Images")
 
+# assign the plate of focus for developing QC metrics (which is plate 4)
+name = 'localhost231120090001'
+
 # list for plate names based on folders to use to create dictionary
 plate_names = []
 # iterate through 0.download_data and append plate names from folder names that contain image data from that plate
@@ -52,7 +55,7 @@ for plate in plate_names:
 # In[3]:
 
 
-# create plate info dictionary with all parts of the CellProfiler CLI command to run in parallel
+# create plate info dictionary with all parts of the CellProfiler CLI command
 plate_info_dictionary = {
     name: {
         "path_to_images": pathlib.Path(list(images_dir.rglob(name))[0]).resolve(
@@ -62,7 +65,6 @@ plate_info_dictionary = {
         "path_to_pipeline": path_to_pipeline,
 
     }
-    for name in plate_names if name=='localhost231120090001' #only focus on Plate 4 for QC
 }
 
 # view the dictionary to assess that all info is added correctly
