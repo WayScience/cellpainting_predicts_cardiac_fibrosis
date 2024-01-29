@@ -8,6 +8,13 @@ The processed features are saved into `parquet` files, which are used for analys
 We use [CytoTable] to convert the CellProfiler SQLite outputs into merged single-cell parquet files, where features from each compartment (e.g., nuclei, cells, and cytoplasm) are combined into one row per single-cell.
 The exact function we used is called `convert`, which you can find more info on in the [documentation](https://cytomining.github.io/CytoTable/python-api.html#module-cytotable.convert).
 
+## Single-cell Quality Control (QC)
+
+Based on current research, the method of quality control for whole images involves some sort of manually annotation.
+Manual annotations take a lot of time and is hard to implement with the large scale of images per plate.
+
+In our method we are implementing (temporarily dubbed Jenna's QC method) for single-cell QC involves using some of the extracted morphology features to determine and remove single-cells with poor segmentation due to high confluence.
+
 ## Pycytominer
 
 We use [pycytominer](https://github.com/cytomining/pycytominer) to perform the aggregation, merging, and normalization of the CFReT single cell features.

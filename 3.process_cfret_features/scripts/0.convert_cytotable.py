@@ -87,17 +87,17 @@ converted_dir = pathlib.Path(f"{output_dir}/converted_profiles")
 for file_path in converted_dir.iterdir():
     # Load the DataFrame from the Parquet file
     df = pd.read_parquet(file_path)
-    
-    # Drop rows where "Metadata_ImageNumber" is NaN (artifact of cytotable)
+
+    # If any, drop rows where "Metadata_ImageNumber" is NaN (artifact of cytotable)
     df = df.dropna(subset=["Metadata_ImageNumber"])
-    
+
     # Columns to move to the front
-    columns_to_move = ['Cells_Location_Center_X', 'Cells_Location_Center_Y', "Image_Count_Cells"]
-    
+    columns_to_move = ['Nuclei_Location_Center_X', 'Nuclei_Location_Center_Y', 'Cells_Location_Center_X', 'Cells_Location_Center_Y', "Image_Count_Cells"]
+
     # Rearrange columns and add "Metadata" prefix in one line
     df = (df[columns_to_move + [col for col in df.columns if col not in columns_to_move]]
-                  .rename(columns=lambda col: 'Metadata_' + col if col in columns_to_move else col))
-    
+                .rename(columns=lambda col: 'Metadata_' + col if col in columns_to_move else col))
+
     # Save the processed DataFrame as Parquet in the same path
     df.to_parquet(file_path, index=False)
 
