@@ -5,11 +5,11 @@ running an analysis pipeline.
 
 # must use the annotations import as CellProfiler is restricted to Python 3.8 at this time so Optional
 # by itself only works in Python 3.10
+import os
+import pathlib
+import subprocess
 from __future__ import annotations
 from typing import Optional
-import os
-import subprocess
-import pathlib
 
 
 def rename_sqlite_file(sqlite_dir_path: pathlib.Path, name: str):
@@ -62,9 +62,13 @@ def run_cellprofiler(
     """
     # check to make sure paths to pipeline and directory of images are correct before running the pipeline
     if not pathlib.Path(path_to_pipeline):
-        raise FileNotFoundError(f"The file '{pathlib.Path(path_to_pipeline).name}' does not exist")
+        raise FileNotFoundError(
+            f"The file '{pathlib.Path(path_to_pipeline).name}' does not exist"
+        )
     if not pathlib.Path(path_to_images).is_dir():
-        raise FileNotFoundError(f"Directory '{pathlib.Path(path_to_images).name}' does not exist or is not a directory")
+        raise FileNotFoundError(
+            f"Directory '{pathlib.Path(path_to_images).name}' does not exist or is not a directory"
+        )
 
     # make logs directory
     log_dir = pathlib.Path("./logs")

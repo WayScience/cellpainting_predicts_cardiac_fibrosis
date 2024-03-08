@@ -2,15 +2,19 @@
 This utility file contains the function to load in training data as final or shuffled to be used in training a machine learning model.
 """
 
-import pathlib
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pathlib
 from typing import Tuple
+
 
 # set numpy seed to make random operations (shuffling data) reproducible
 np.random.seed(0)
 
-def get_X_y_data(df: pd.DataFrame, label: str, shuffle: bool = False) -> Tuple[np.array, np.array]:
+
+def get_X_y_data(
+    df: pd.DataFrame, label: str, shuffle: bool = False
+) -> Tuple[np.array, np.array]:
     """Get X (feature space) and labels (predicting class) from pandas Data frame
 
     Args:
@@ -22,7 +26,7 @@ def get_X_y_data(df: pd.DataFrame, label: str, shuffle: bool = False) -> Tuple[n
         Tuple[np.array, np.array]: Returns np.arrays for the feature space (X) and the predicting class (y)
     """
     # Remove "Metadata" columns from df, leaving only the feature space
-    X = df.loc[:, ~df.columns.str.contains('Metadata')].values
+    X = df.loc[:, ~df.columns.str.contains("Metadata")].values
 
     # Extract class label
     y = df.loc[:, [label]].values
@@ -36,7 +40,10 @@ def get_X_y_data(df: pd.DataFrame, label: str, shuffle: bool = False) -> Tuple[n
 
     return X, y
 
-def load_data(path_to_data: pathlib.Path, label: str, shuffle: bool = False) -> Tuple[np.array, np.array]:
+
+def load_data(
+    path_to_data: pathlib.Path, label: str, shuffle: bool = False
+) -> Tuple[np.array, np.array]:
     """Load in data from a path as X (feature space) and labels (predicting class)
 
     Args:
@@ -54,10 +61,11 @@ def load_data(path_to_data: pathlib.Path, label: str, shuffle: bool = False) -> 
     else:
         print("File does not have a CSV extension. Current expected input is CSV.")
 
-    # Get X, y data from loaded in data frame 
+    # Get X, y data from loaded in data frame
     X, y = get_X_y_data(df=df, label=label, shuffle=shuffle)
 
     return X, y
+
 
 def downsample_data(path_to_data: pathlib.Path, label: str) -> pd.DataFrame:
     """Load in data from path and down sample to the lowest class, returning a data frame to use for retrieving X, y data
@@ -80,6 +88,8 @@ def downsample_data(path_to_data: pathlib.Path, label: str) -> pd.DataFrame:
     min_samples = df[label].value_counts().min()
 
     # Downsample classes to the lowest label
-    df_downsampled = df.groupby(label, group_keys=False).apply(lambda x: x.sample(min_samples))
+    df_downsampled = df.groupby(label, group_keys=False).apply(
+        lambda x: x.sample(min_samples)
+    )
 
     return df_downsampled

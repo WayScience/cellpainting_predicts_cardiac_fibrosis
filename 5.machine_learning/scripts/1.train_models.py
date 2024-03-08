@@ -8,19 +8,18 @@
 # In[1]:
 
 
-import pandas as pd
 import pathlib
-import numpy as np
+import sys
 import warnings
 
+import numpy as np
+import pandas as pd
+from joblib import dump
+from sklearn.exceptions import ConvergenceWarning
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
-from sklearn.utils import parallel_backend
-from sklearn.exceptions import ConvergenceWarning
 from sklearn.preprocessing import LabelEncoder
-from joblib import dump
-
-import sys
+from sklearn.utils import parallel_backend
 
 sys.path.append("../utils")
 from training_utils import downsample_data, get_X_y_data
@@ -79,9 +78,7 @@ downsample_df.head()
 
 
 # Get not shuffled training data from downsampled df (e.g., "final")
-X_train, y_train = get_X_y_data(
-    df=downsample_df, label=label, shuffle=False
-)
+X_train, y_train = get_X_y_data(df=downsample_df, label=label, shuffle=False)
 
 # Get shuffled training data from downsampled df(e.g., "shuffled_baseline")
 X_shuffled_train, y_shuffled_train = get_X_y_data(
@@ -123,17 +120,17 @@ straified_k_folds = StratifiedKFold(n_splits=10, shuffle=False)
 
 # Set Logistic Regression model parameters (use default for max_iter)
 logreg_params = {
-    "penalty": 'elasticnet',
-    "solver": 'saga',
+    "penalty": "elasticnet",
+    "solver": "saga",
     "max_iter": 1000,
     "n_jobs": -1,
     "random_state": 0,
-    "class_weight": 'balanced',
+    "class_weight": "balanced",
 }
 
 # Define the hyperparameter search space for RandomizedSearchCV
 param_dist = {
-    'C': np.logspace(-3, 3, 7),
+    "C": np.logspace(-3, 3, 7),
     "l1_ratio": np.linspace(0, 1, 11),
 }
 
@@ -206,11 +203,19 @@ data_prefix = "log_reg_fs_plate_4"
 
 # Check if there are models with "final" or "shuffled" in its name that exists in the models folder
 if any(model_dir.glob("*final*")) or any(model_dir.glob("*shuffled*")):
-    print("No models were generated or saved because 'final' and/or 'shuffled' files already exist.")
+    print(
+        "No models were generated or saved because 'final' and/or 'shuffled' files already exist."
+    )
 else:
     # Save the models
-    dump(final_random_search.best_estimator_, f"{model_dir}/{data_prefix}_final_downsample.joblib")
-    dump(shuffled_random_search.best_estimator_, f"{model_dir}/{data_prefix}_shuffled_downsample.joblib")
+    dump(
+        final_random_search.best_estimator_,
+        f"{model_dir}/{data_prefix}_final_downsample.joblib",
+    )
+    dump(
+        shuffled_random_search.best_estimator_,
+        f"{model_dir}/{data_prefix}_shuffled_downsample.joblib",
+    )
 
     # Save label encoder
     dump(le, f"{encoder_dir}/label_encoder_{data_prefix}.joblib")

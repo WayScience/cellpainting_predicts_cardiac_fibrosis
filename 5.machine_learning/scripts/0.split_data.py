@@ -7,10 +7,9 @@
 
 
 import pathlib
-import pandas as pd
-import numpy as np
 import random
 
+import pandas as pd
 from sklearn.model_selection import train_test_split
 
 
@@ -61,12 +60,19 @@ neighbors_df = pd.read_parquet(
 )
 
 # Rename neighbors feature to one that includes metadata as a prefix
-neighbors_df.rename(columns={'Cells_Neighbors_NumberOfNeighbors_Adjacent': 'Metadata_Neighbors_Adjacent'}, inplace=True)
+neighbors_df.rename(
+    columns={
+        "Cells_Neighbors_NumberOfNeighbors_Adjacent": "Metadata_Neighbors_Adjacent"
+    },
+    inplace=True,
+)
 
 # Add new metadata column of neighbors onto the normalized data frame
-plate_4_df = plate_4_df.merge(neighbors_df, 
-                              on=["Metadata_Well", "Metadata_Site", "Metadata_Nuclei_Number_Object_Number"], 
-                              how="inner")
+plate_4_df = plate_4_df.merge(
+    neighbors_df,
+    on=["Metadata_Well", "Metadata_Site", "Metadata_Nuclei_Number_Object_Number"],
+    how="inner",
+)
 
 print(plate_4_df.shape)
 plate_4_df.head()
@@ -83,10 +89,16 @@ plate_4_df.head()
 
 
 # Copy all DMSO heart #7 rows into the holdout_df
-holdout_df = plate_4_df[(plate_4_df['Metadata_heart_number'] == 7) & (plate_4_df['Metadata_treatment'] == 'DMSO')]
+holdout_df = plate_4_df[
+    (plate_4_df["Metadata_heart_number"] == 7)
+    & (plate_4_df["Metadata_treatment"] == "DMSO")
+]
 
 # Check shape and output
-print("The shape of the holdout data frame after removing DMSO heart 7 cells is", holdout_df.shape)
+print(
+    "The shape of the holdout data frame after removing DMSO heart 7 cells is",
+    holdout_df.shape,
+)
 holdout_df.head()
 
 
@@ -117,8 +129,16 @@ holdout_df = pd.concat([holdout_df, random_failing_heart_rows], ignore_index=Tru
 holdout_df.to_csv(f"{output_dir}/holdout1_data.csv", index=False)
 
 # Check shape and output
-print("There were", random_failing_heart_rows.shape[0], "rows from heart number", random_heart_number)
-print("The shape of the holdout data frame after removing one random failing heart is", holdout_df.shape)
+print(
+    "There were",
+    random_failing_heart_rows.shape[0],
+    "rows from heart number",
+    random_heart_number,
+)
+print(
+    "The shape of the holdout data frame after removing one random failing heart is",
+    holdout_df.shape,
+)
 holdout_df.head()
 
 
@@ -137,8 +157,7 @@ plate_4_df_filtered = plate_4_df[
             (plate_4_df["Metadata_heart_number"] == random_heart_number)
             & (plate_4_df["Metadata_cell_type"] == "Failing")
         )
-        |
-        (
+        | (
             (plate_4_df["Metadata_heart_number"] == 7)
             & (plate_4_df["Metadata_treatment"] == "DMSO")
         )
@@ -147,15 +166,21 @@ plate_4_df_filtered = plate_4_df[
 
 # Generate random well per heart number to add to holdout_df
 random_wells = (
-    plate_4_df_filtered.groupby('Metadata_heart_number')['Metadata_Well']
-    .apply(lambda x: random.choice(sorted(x.unique())))  # Selecting a random well from sorted unique values
-    .reset_index(name='Random_Metadata_Well')
+    plate_4_df_filtered.groupby("Metadata_heart_number")["Metadata_Well"]
+    .apply(
+        lambda x: random.choice(sorted(x.unique()))
+    )  # Selecting a random well from sorted unique values
+    .reset_index(name="Random_Metadata_Well")
 )
 
 # Filter plate_4_df_filtered based on Metadata_heart_number and Metadata_Well in random_wells
 matched_rows = plate_4_df_filtered[
-    (plate_4_df_filtered['Metadata_heart_number'].isin(random_wells['Metadata_heart_number'])) &
-    (plate_4_df_filtered['Metadata_Well'].isin(random_wells['Random_Metadata_Well']))
+    (
+        plate_4_df_filtered["Metadata_heart_number"].isin(
+            random_wells["Metadata_heart_number"]
+        )
+    )
+    & (plate_4_df_filtered["Metadata_Well"].isin(random_wells["Random_Metadata_Well"]))
 ]
 
 # Prior to adding data into holdout_df to remove all holdout data at once, save random well data as "holdout2_data"
@@ -166,7 +191,10 @@ holdout_df = pd.concat([holdout_df, matched_rows], ignore_index=True)
 
 # Check shape and output
 print("There were", matched_rows.shape[0], "rows matching the random wells per heart")
-print("The shape of the holdout data frame after removing a random well per heart is", holdout_df.shape)
+print(
+    "The shape of the holdout data frame after removing a random well per heart is",
+    holdout_df.shape,
+)
 holdout_df.head()
 
 
@@ -182,14 +210,16 @@ plate_4_df = plate_4_df[
             (plate_4_df["Metadata_heart_number"] == random_heart_number)
             & (plate_4_df["Metadata_cell_type"] == "Failing")
         )
-        |
-        (
+        | (
             (plate_4_df["Metadata_heart_number"] == 7)
             & (plate_4_df["Metadata_treatment"] == "DMSO")
         )
-        |
-        (
-            (plate_4_df["Metadata_heart_number"].isin(random_wells["Metadata_heart_number"]))
+        | (
+            (
+                plate_4_df["Metadata_heart_number"].isin(
+                    random_wells["Metadata_heart_number"]
+                )
+            )
             & (plate_4_df["Metadata_Well"].isin(random_wells["Random_Metadata_Well"]))
         )
     )

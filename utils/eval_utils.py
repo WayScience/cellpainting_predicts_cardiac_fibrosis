@@ -2,11 +2,12 @@
 This utility file holds functions for generating data frames for confusion matrices and F1 scoring.
 """
 
-from joblib import load
 import pathlib
+
 import pandas as pd
-from training_utils import load_data
+from joblib import load
 from sklearn.metrics import confusion_matrix, f1_score
+from training_utils import load_data
 
 
 def generate_confusion_matrix_df(
