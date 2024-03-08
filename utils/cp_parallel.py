@@ -3,14 +3,16 @@ This collection of functions runs CellProfiler in parallel and can convert the r
 for each process.
 """
 
-import multiprocessing
 import logging
-from typing import List
+import multiprocessing
 import os
-import subprocess
 import pathlib
+import subprocess
 from concurrent.futures import ProcessPoolExecutor, Future
+from typing import List
+
 from errors.exceptions import MaxWorkerError
+
 
 def results_to_log(
     results: List[subprocess.CompletedProcess], log_dir: pathlib.Path, run_name: str
@@ -34,12 +36,14 @@ def results_to_log(
         log_file_path = pathlib.Path(f"{log_dir}/{plate_name}_{run_name}_run.log")
         # print output to a log file for each plate to view after the run
         # set up logging configuration
-        log_format = '[%(asctime)s] [Process ID: %(process)d] %(message)s'
-        logging.basicConfig(filename=log_file_path, level=logging.INFO, format=log_format)
+        log_format = "[%(asctime)s] [Process ID: %(process)d] %(message)s"
+        logging.basicConfig(
+            filename=log_file_path, level=logging.INFO, format=log_format
+        )
 
         # log plate name and output string
-        logging.info(f'Plate Name: {plate_name}')
-        logging.info(f'Output String: {output_string}')
+        logging.info(f"Plate Name: {plate_name}")
+        logging.info(f"Output String: {output_string}")
 
 
 def run_cellprofiler_parallel(

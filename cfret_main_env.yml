@@ -11,7 +11,7 @@ dependencies:
 - conda-forge::pip
 - conda-forge::numpy
 - conda-forge::matplotlib
-- conda-forge::seaborn=0.12.2
+- conda-forge::seaborn
 - conda-forge::pandas
 # this package must be hardcoded to work with Mac 
 - conda-forge::mysqlclient=1.4.6

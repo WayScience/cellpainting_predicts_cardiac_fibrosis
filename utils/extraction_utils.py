@@ -4,10 +4,10 @@ cells.SingleCells class in Pycytominer. This file also hold a function to add si
 to the single cell count dataframes.
 """
 
-import pandas as pd
-from sqlalchemy import create_engine
 import numpy as np
+import pandas as pd
 import pathlib
+from sqlalchemy import create_engine
 
 
 def load_sqlite_as_df(
