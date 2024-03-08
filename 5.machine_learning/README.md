@@ -2,6 +2,9 @@
 
 In this module, we train a logistic regression elasticnet machine learning model to predict if a single cell is either failing or healthy based on the feature selected morphology features from Plate 4. 
 
+The metadata column used for the prediction classes is called `Metadata_cell_type`.
+There are different heart numbers for each class, called `Metadata_heart_number`, where there are 2 healthy hearts (`#2` and `#7`) and 4 failing hearts (`#4`, `#19`, `#23`, and `#29`).
+
 ## Splitting the data
 
 We split the data into hold-out, training, and testing datasets using the Plate 4 feature selected data.
@@ -34,7 +37,8 @@ We use the following parameters:
 We use the [randomized search CV function from sklearn](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html) to perform optimize the hyper parameters where it maximizes the F1 weighted score. 
 There are other metrics to choose for maximizing, but we use F1 weighted score since it is a harmonic mean of precision and recall as defined by the [sklearn documentation](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html). 
 We found this to be more optimal than just using either precision or recall alone.
-We also used the [stratified k-fold cross-validation function from sklearn](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html) to make sure each fold contains equal number of cells from each class.
+We also used the [stratified k-fold cross-validation function from sklearn](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html) to make sure each fold contains equal number of cells from each class and help with avoiding over-fitting.
+We increase the number of folds to 10 from the default of 5 to allow for more chance of reducing over-fitting in the model and since we have a fairly large training dataset, we can allow for more splits without having too small of splits.
 Below is the hyper parameter search space we used:
 
 - `C` - Inverse of the regularization strength, we set the range of values as `[1e-03, 1e-02, 1e-01, 1e+00, 1e+01, 1e+02, 1e+03]`.
@@ -50,7 +54,7 @@ We evaluate the each model's performance by using three different plots:
 
 We create plots for each model type (`final` or `shuffled`) and each data split (`training`, `testing`, `holdout1`, `holdout2`).
 
-We found that downsampling the classes prior to training the model significantly improved the performance on the training and testing datasets.
+We found that down-sampling the classes prior to training the model significantly improved the performance on the training and testing datasets.
 There is high performance when applying the model to data it has never seen (e.g., holdout1 and holdout2).
 The shuffled model performs poorly compared to the final model, indicating the our model is able to detect a significant pattern between failing and healthy cells.
 
