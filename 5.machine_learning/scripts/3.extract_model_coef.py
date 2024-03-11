@@ -84,14 +84,17 @@ positive_coeffs_df = coefficients_df[coefficients_df['Coefficient'] > 0].copy()
 negative_coeffs_df = coefficients_df[coefficients_df['Coefficient'] < 0].copy()
 zero_coeffs_df = coefficients_df[coefficients_df['Coefficient'] == 0].copy()
 
+# Make the values in negative_coeffs_df positive to prevent issues during plotting
+negative_coeffs_df['Coefficient'] = abs(negative_coeffs_df['Coefficient'])
+
 # Rename the columns
 positive_coeffs_df.columns = ['Feature', 'Healthy_Coeffs']
 negative_coeffs_df.columns = ['Feature', 'Failing_Coeffs']
 zero_coeffs_df.columns = ['Feature', 'Zero_Coeffs']
 
 # Save the coef data into the "/data" folder
-positive_coeffs_df.to_csv(f'{data_dir}/positive_coeffs.csv', index=False)
-negative_coeffs_df.to_csv(f'{data_dir}/negative_coeffs.csv', index=False)
+positive_coeffs_df.to_csv(f'{data_dir}/healthy_coeffs.csv', index=False)
+negative_coeffs_df.to_csv(f'{data_dir}/failing_coeffs.csv', index=False)
 zero_coeffs_df.to_csv(f'{data_dir}/zero_coeffs.csv', index=False)
 
 

@@ -1,17 +1,5 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# # Visualize ML model coefficients per class
-
-# In[1]:
-
-
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(dplyr))
-
-
-# In[2]:
-
 
 # Dir with coef files
 input_data_dir <- "./data"
@@ -19,21 +7,15 @@ input_data_dir <- "./data"
 # Set output figure dir
 output_fig_dir <- "./figures"
 
-# Path to positive coef file (features related to predicting Healthy class)
-healthy_coef_file <- file.path(input_data_dir, "positive_coeffs.csv")
+# Path to healthy coef file
+healthy_coef_file <- file.path(input_data_dir, "healthy_coeffs.csv")
 
-# Path to negative coef file (features related to predicting Failing class)
-failing_coef_file <- file.path(input_data_dir, "negative_coeffs.csv")
+# Path to failing coef file
+failing_coef_file <- file.path(input_data_dir, "failing_coeffs.csv")
 
 # Paths for each figure output
 healthy_coef_fig <- file.path(output_fig_dir, "logistic_regression_final_healthy_coefficients_plot.png")
 failing_coef_fig <- file.path(output_fig_dir, "logistic_regression_final_failing_coefficients_plot.png")
-
-
-# ## Load in and clean data frames to use in plotting
-
-# In[3]:
-
 
 # Load and clean healthy class data frame
 healthy_coef_df <- readr::read_csv(
@@ -42,6 +24,7 @@ healthy_coef_df <- readr::read_csv(
 
 # Split out components of feature name for visualization
 healthy_coef_df <- healthy_coef_df %>%
+    dplyr::arrange(desc(abs(Healthy_Coeffs))) %>%
     tidyr::separate(
         Feature,
         into = c(
@@ -68,12 +51,22 @@ healthy_coef_df$channel_cleaned <- dplyr::recode(healthy_coef_df$channel_cleaned
     .missing = "other"
 )
 
+channels <- c(
+    "Mito" = "Mito",
+    "Nucleus" = "DNA",
+    "PM" = "PM",
+    "ER" = "ER",
+    "Actin" = "Actin",
+    "other" = "other"
+)
+
+healthy_coef_df <- healthy_coef_df %>%
+    dplyr::filter(channel_cleaned %in% names(channels)) %>%
+    dplyr::group_by(feature_group, channel_cleaned, compartment) %>%
+    dplyr::slice_max(order_by = Healthy_Coeffs, n = 1)
+
 print(dim(healthy_coef_df))
 head(healthy_coef_df, 3)
-
-
-# In[4]:
-
 
 # Load and clean failing class data frame
 failing_coef_df <- readr::read_csv(
@@ -82,6 +75,7 @@ failing_coef_df <- readr::read_csv(
 
 # Split out components of feature name for visualization
 failing_coef_df <- failing_coef_df %>%
+    dplyr::arrange(desc(abs(Failing_Coeffs))) %>%
     tidyr::separate(
         Feature,
         into = c(
@@ -108,13 +102,22 @@ failing_coef_df$channel_cleaned <- dplyr::recode(failing_coef_df$channel_cleaned
     .missing = "other"
 )
 
+channels <- c(
+    "Mito" = "Mito",
+    "Nucleus" = "DNA",
+    "PM" = "PM",
+    "ER" = "ER",
+    "Actin" = "Actin",
+    "other" = "other"
+)
+
+failing_coef_df <- failing_coef_df %>%
+    dplyr::filter(channel_cleaned %in% names(channels)) %>%
+    dplyr::group_by(feature_group, channel_cleaned, compartment) %>%
+    dplyr::slice_max(order_by = Failing_Coeffs, n = 1)
+
 print(dim(failing_coef_df))
-head(failing_coef_df, 3)
-
-
-# ## Plot coefficients for each cell type
-
-# In[5]:
+head(failing_coef_df, 2)
 
 
 healthy_coef_gg <- (
@@ -149,16 +152,13 @@ ggsave(healthy_coef_fig, healthy_coef_gg, height = 8, width = 8, dpi = 500)
 healthy_coef_gg
 
 
-# In[6]:
-
-
 failing_coef_gg <- (
     ggplot(failing_coef_df, aes(x = channel_cleaned, y = feature_group))
     + geom_point(aes(fill = abs(Failing_Coeffs)), pch = 22, size = 5)
     + facet_wrap("~compartment", ncol = 1)
     + theme_bw()
     + scale_fill_gradient(
-        name="Top healthy cell type\nML model\ncoefficient",
+        name="Top failing cell type\nML model\ncoefficient",
         low = "darkblue",
         high = "yellow"
     )
@@ -182,4 +182,3 @@ failing_coef_gg <- (
 ggsave(failing_coef_fig, failing_coef_gg, height = 8, width = 8, dpi = 500)
 
 failing_coef_gg
-
