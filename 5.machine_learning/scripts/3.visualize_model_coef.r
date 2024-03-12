@@ -122,7 +122,7 @@ head(failing_coef_df, 2)
 
 healthy_coef_gg <- (
     ggplot(healthy_coef_df, aes(x = channel_cleaned, y = feature_group))
-    + geom_point(aes(fill = Healthy_Coeffs), pch = 22, size = 5)
+    + geom_point(aes(fill = Healthy_Coeffs), pch = 22, size = 7)
     + facet_wrap("~compartment", ncol = 1)
     + theme_bw()
     + scale_fill_gradient(
@@ -133,12 +133,12 @@ healthy_coef_gg <- (
     + xlab("Channel")
     + ylab("Feature")
     + theme(
-        axis.text = element_text(size = 7),
-        axis.text.x = element_text(angle = 90, size = 7),
+        axis.text = element_text(size = 9),
+        axis.text.x = element_text(angle = 90, size = 9),
         axis.title = element_text(size = 10),
         legend.text = element_text(size = 9),
         legend.title = element_text(size = 10),
-        strip.text = element_text(size = 8),
+        strip.text = element_text(size = 10),
         strip.background = element_rect(
             colour = "black",
             fill = "#fdfff4"
@@ -147,14 +147,14 @@ healthy_coef_gg <- (
 )
 
 # Save figure
-ggsave(healthy_coef_fig, healthy_coef_gg, height = 8, width = 8, dpi = 500)
+ggsave(healthy_coef_fig, healthy_coef_gg, height = 8, width = 7, dpi = 500)
 
 healthy_coef_gg
 
 
 failing_coef_gg <- (
     ggplot(failing_coef_df, aes(x = channel_cleaned, y = feature_group))
-    + geom_point(aes(fill = abs(Failing_Coeffs)), pch = 22, size = 5)
+    + geom_point(aes(fill = abs(Failing_Coeffs)), pch = 22, size = 7)
     + facet_wrap("~compartment", ncol = 1)
     + theme_bw()
     + scale_fill_gradient(
@@ -165,12 +165,12 @@ failing_coef_gg <- (
     + xlab("Channel")
     + ylab("Feature")
     + theme(
-        axis.text = element_text(size = 7),
-        axis.text.x = element_text(angle = 90, size = 7),
+        axis.text = element_text(size = 9),
+        axis.text.x = element_text(angle = 90, size = 9),
         axis.title = element_text(size = 10),
         legend.text = element_text(size = 9),
         legend.title = element_text(size = 10),
-        strip.text = element_text(size = 8),
+        strip.text = element_text(size = 10),
         strip.background = element_rect(
             colour = "black",
             fill = "#fdfff4"
@@ -179,6 +179,6 @@ failing_coef_gg <- (
 )
 
 # Save figure
-ggsave(failing_coef_fig, failing_coef_gg, height = 8, width = 8, dpi = 500)
+ggsave(failing_coef_fig, failing_coef_gg, height = 8, width = 7, dpi = 500)
 
 failing_coef_gg
