@@ -58,6 +58,10 @@ We found that down-sampling the classes prior to training the model significantl
 There is high performance when applying the model to data it has never seen (e.g., holdout1 and holdout2).
 The shuffled model performs poorly compared to the final model, indicating the our model is able to detect a significant pattern between failing and healthy cells.
 
+## Interpreting the model
+
+We interpret the model by extracting the final model's coefficients per CellProfiler feature and plotting the top features per class that the model uses to make predictions.
+
 ## Running the notebooks
 
 To perform the data splitting, training, and evaluation, run the below code in terminal:
