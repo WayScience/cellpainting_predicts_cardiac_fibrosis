@@ -246,14 +246,14 @@ ggsave(ranked_coef_fig, coef_rank_plot, height = 8, width = 12, dpi = 500)
 
 # Add zoomed in portions
 # Top features from healthy (positive)
-from <- list(-25, 40, 0.25, 0.48) #xmin, xmax, ymin, ymax
-to <- list(150, 225, 0.4, 1.2)
+from <- list(-15, 40, 0.25, 0.48) #xmin, xmax, ymin, ymax
+to <- list(125, 275, 0.4, 1.4)
 coef_rank_plot <- coef_rank_plot + geom_magnify(
     from = from, to = to
 )
 # Top features from failing (negative)
-from <- list(580, 665, -0.52, -0.28) #xmin, xmax, ymin, ymax
-to <- list(400, 500, -0.9, -0.2)
+from <- list(600, 645, -0.52, -0.28) #xmin, xmax, ymin, ymax
+to <- list(375, 525, 1.4, 0.4)
 coef_rank_plot <- coef_rank_plot + geom_magnify(
     from = from, to = to
 )
@@ -265,3 +265,5 @@ ranked_coef_fig_zoom <- gsub(".png$", "_zoom.png", ranked_coef_fig)
 ggsave(ranked_coef_fig_zoom, coef_rank_plot, height = 8, width = 12, dpi = 500)
 
 coef_rank_plot
+
+
