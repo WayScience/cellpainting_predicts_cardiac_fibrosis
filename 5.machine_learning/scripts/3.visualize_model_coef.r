@@ -1,11 +1,19 @@
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(dplyr))
 
+# insall ggmagnify from hughjonesd's universe to zoom in on plots
+install.packages("ggmagnify", repos = c("https://hughjonesd.r-universe.dev", 
+                 "https://cloud.r-project.org"))
+suppressPackageStartupMessages(suppressWarnings(library(ggmagnify)))
+
 # Dir with coef files
 input_data_dir <- "./data"
 
 # Set output figure dir
 output_fig_dir <- "./figures"
+
+# Path to ranked coef file
+ranked_coef_file <- file.path(input_data_dir, "ranked_coeffs.csv")
 
 # Path to healthy coef file
 healthy_coef_file <- file.path(input_data_dir, "healthy_coeffs.csv")
@@ -14,6 +22,7 @@ healthy_coef_file <- file.path(input_data_dir, "healthy_coeffs.csv")
 failing_coef_file <- file.path(input_data_dir, "failing_coeffs.csv")
 
 # Paths for each figure output
+ranked_coef_fig <- file.path(output_fig_dir, "logistic_regression_final_ranked_coefficients_line_plot.png")
 healthy_coef_fig <- file.path(output_fig_dir, "logistic_regression_final_healthy_coefficients_plot.png")
 failing_coef_fig <- file.path(output_fig_dir, "logistic_regression_final_failing_coefficients_plot.png")
 
@@ -120,6 +129,44 @@ print(dim(failing_coef_df))
 head(failing_coef_df, 2)
 
 
+# Load and clean failing class data frame
+ranked_coef_df <- readr::read_csv(
+    ranked_coef_file, col_types = readr::cols(.default = "d", Feature = "c")
+)
+
+# Split out components of feature name for visualization
+ranked_coef_df <- ranked_coef_df %>%
+    dplyr::arrange(desc(abs(Coefficient))) %>%
+    tidyr::separate(
+        Feature,
+        into = c(
+            "compartment",
+            "feature_group",
+            "measurement",
+            "channel", 
+            "parameter1", 
+            "parameter2",
+            "parameter3"
+        ),
+        sep = "_",
+        remove = FALSE
+    ) %>%
+    dplyr::mutate(channel_cleaned = channel)
+
+ranked_coef_df$channel_cleaned <- dplyr::recode(ranked_coef_df$channel_cleaned,
+    "Hoechst" = "Nucleus",
+    "ER" = "ER",
+    "Actin" = "Actin",
+    "Mitochondria" = "Mito",
+    "PM" = "PM",
+    .default = "other",
+    .missing = "other"
+)
+
+
+print(dim(ranked_coef_df))
+head(ranked_coef_df, 2)
+
 healthy_coef_gg <- (
     ggplot(healthy_coef_df, aes(x = channel_cleaned, y = feature_group))
     + geom_point(aes(fill = Healthy_Coeffs), pch = 22, size = 7)
@@ -182,3 +229,39 @@ failing_coef_gg <- (
 ggsave(failing_coef_fig, failing_coef_gg, height = 8, width = 7, dpi = 500)
 
 failing_coef_gg
+
+# Creating a line plot with ggplot
+coef_rank_plot <- ggplot(ranked_coef_df, aes(x = Rank, y = Coefficient, color = feature_group, shape = channel_cleaned)) +
+  geom_line(aes(group = 1), color = "black") +
+  geom_point(size = 4, alpha = 0.7) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(title = "Plot of the rank of coefficents for predicting failing versus healthy", x = "Rank", y = "Coefficient") +
+  scale_color_brewer(name = "Measurement", palette = "Dark2") +
+  scale_shape_manual(name = "Channel", values = c(16, 17, 15, 18, 7, 12)) +
+  theme_bw()+
+  ylim(-1, 1.5)
+
+# Save figure before zoom
+ggsave(ranked_coef_fig, coef_rank_plot, height = 8, width = 12, dpi = 500)
+
+# Add zoomed in portions
+# Top features from healthy (positive)
+from <- list(-25, 40, 0.25, 0.48) #xmin, xmax, ymin, ymax
+to <- list(150, 225, 0.4, 1.2)
+coef_rank_plot <- coef_rank_plot + geom_magnify(
+    from = from, to = to
+)
+# Top features from failing (negative)
+from <- list(580, 665, -0.52, -0.28) #xmin, xmax, ymin, ymax
+to <- list(400, 500, -0.9, -0.2)
+coef_rank_plot <- coef_rank_plot + geom_magnify(
+    from = from, to = to
+)
+
+# Create a new save path with "_zoom" added to save the added zoomed in portions
+ranked_coef_fig_zoom <- gsub(".png$", "_zoom.png", ranked_coef_fig)
+
+# Save figure after adding zooms
+ggsave(ranked_coef_fig_zoom, coef_rank_plot, height = 8, width = 12, dpi = 500)
+
+coef_rank_plot
