@@ -56,7 +56,7 @@ final_model = load(path_to_final_model)
 # In[4]:
 
 
-# Get the coefficients (assuming it's a linear model)
+# Get the coefficients
 coefficients = final_model.coef_
 
 # Print the coefficients shape and confirm it is the same number as feature columns from training data
