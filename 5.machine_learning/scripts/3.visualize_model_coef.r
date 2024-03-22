@@ -235,7 +235,7 @@ coef_rank_plot <- ggplot(ranked_coef_df, aes(x = Rank, y = Coefficient, color = 
   geom_line(aes(group = 1), color = "black") +
   geom_point(size = 4, alpha = 0.7) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
-  labs(title = "Plot of the rank of coefficents for predicting failing versus healthy", x = "Rank", y = "Coefficient") +
+  labs(title = "Rank of coefficents for predicting failing versus healthy", x = "Rank", y = "Coefficient") +
   scale_color_brewer(name = "Measurement", palette = "Dark2") +
   scale_shape_manual(name = "Channel", values = c(16, 17, 15, 18, 7, 12)) +
   theme_bw()+
@@ -265,5 +265,3 @@ ranked_coef_fig_zoom <- gsub(".png$", "_zoom.png", ranked_coef_fig)
 ggsave(ranked_coef_fig_zoom, coef_rank_plot, height = 8, width = 12, dpi = 500)
 
 coef_rank_plot
-
-

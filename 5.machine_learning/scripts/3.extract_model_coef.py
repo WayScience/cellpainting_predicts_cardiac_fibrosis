@@ -158,6 +158,8 @@ coefficients_failing_df.head(10)
 
 
 # ## Add ranking column with sorted descending values and save the CSV for visualization
+# 
+# Rank is based on the highest positive coefficient which will have rank one and then descending from there. We expect to see that the model will take into account many different features (positive and negative which relate to different classes) and there will be many features at zero meaning they are redundant to the model.
 
 # In[10]:
 
