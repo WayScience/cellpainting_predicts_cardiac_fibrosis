@@ -56,7 +56,7 @@ final_model = load(path_to_final_model)
 # In[4]:
 
 
-# Get the coefficients (assuming it's a linear model)
+# Get the coefficients
 coefficients = final_model.coef_
 
 # Print the coefficients shape and confirm it is the same number as feature columns from training data
@@ -155,4 +155,25 @@ coefficients_failing_df = coefficients_df.sort_values(by='Coefficient', ascendin
 
 # Show the top ten ranking features for predicting "Failing" class
 coefficients_failing_df.head(10)
+
+
+# ## Add ranking column with sorted descending values and save the CSV for visualization
+# 
+# Rank is based on the highest positive coefficient which will have rank one and then descending from there. We expect to see that the model will take into account many different features (positive and negative which relate to different classes) and there will be many features at zero meaning they are redundant to the model.
+
+# In[10]:
+
+
+# Sort coefficients_df by descending order
+coefficients_df = coefficients_df.sort_values(by='Coefficient', ascending=False)
+
+# Add a new column 'Rank'
+coefficients_df['Rank'] = range(1, len(coefficients_df) + 1)
+
+# Save the ranked df
+coefficients_df.to_csv(f'{data_dir}/ranked_coeffs.csv', index=False)
+
+# Show df to assess if the ranking was performed correctly
+print(coefficients_df.shape)
+coefficients_df.head()
 
