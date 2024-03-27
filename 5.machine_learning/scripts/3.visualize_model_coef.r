@@ -7,7 +7,7 @@ install.packages("ggmagnify", repos = c("https://hughjonesd.r-universe.dev",
 suppressPackageStartupMessages(suppressWarnings(library(ggmagnify)))
 
 # Dir with coef files
-input_data_dir <- "./data"
+input_data_dir <- "./coeff_data"
 
 # Set output figure dir
 output_fig_dir <- "./figures"
@@ -230,6 +230,8 @@ ggsave(failing_coef_fig, failing_coef_gg, height = 8, width = 7, dpi = 500)
 
 failing_coef_gg
 
+ranked_coef_df
+
 # Creating a line plot with ggplot
 coef_rank_plot <- ggplot(ranked_coef_df, aes(x = Rank, y = Coefficient, color = feature_group, shape = channel_cleaned)) +
   geom_line(aes(group = 1), color = "black") +
@@ -239,14 +241,14 @@ coef_rank_plot <- ggplot(ranked_coef_df, aes(x = Rank, y = Coefficient, color = 
   scale_color_brewer(name = "Measurement", palette = "Dark2") +
   scale_shape_manual(name = "Channel", values = c(16, 17, 15, 18, 7, 12)) +
   theme_bw()+
-  ylim(-1, 1.5)
+  ylim(-2, 2)
 
 # Save figure before zoom
 ggsave(ranked_coef_fig, coef_rank_plot, height = 8, width = 12, dpi = 500)
 
 # Add zoomed in portions
 # Top features from healthy (positive)
-from <- list(-15, 40, 0.25, 0.48) #xmin, xmax, ymin, ymax
+from <- list(-15, 40, 0.25, 0.58) #xmin, xmax, ymin, ymax
 to <- list(125, 275, 0.4, 1.4)
 coef_rank_plot <- coef_rank_plot + geom_magnify(
     from = from, to = to
@@ -265,3 +267,5 @@ ranked_coef_fig_zoom <- gsub(".png$", "_zoom.png", ranked_coef_fig)
 ggsave(ranked_coef_fig_zoom, coef_rank_plot, height = 8, width = 12, dpi = 500)
 
 coef_rank_plot
+
+
