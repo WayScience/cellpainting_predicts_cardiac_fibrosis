@@ -237,11 +237,23 @@ coef_rank_plot <- ggplot(ranked_coef_df, aes(x = Rank, y = Coefficient, color = 
   geom_line(aes(group = 1), color = "black") +
   geom_point(size = 4, alpha = 0.7) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
-  labs(title = "Rank of coefficents for predicting failing versus healthy", x = "Rank", y = "Coefficient") +
+  labs(title = "Rank of coefficients for predicting failing versus healthy", x = "Rank", y = "Coefficient") +
   scale_color_brewer(name = "Measurement", palette = "Dark2") +
   scale_shape_manual(name = "Channel", values = c(16, 17, 15, 18, 7, 12)) +
   theme_bw()+
-  ylim(-2, 2)
+  ylim(-2, 2) +
+  theme(
+    # Increasing font sizes
+    text = element_text(size = 12), # Adjust the number to change the font size
+
+    # Increasing font sizes for specific elements
+    axis.title.x = element_text(size = 14), # X-axis title
+    axis.title.y = element_text(size = 14), # Y-axis title
+    plot.title = element_text(size = 16),   # Main title
+    axis.text.x = element_text(size = 12),  # X-axis tick labels
+    axis.text.y = element_text(size = 12),  # Y-axis tick labels
+    legend.text = element_text(size = 12)   # Legend font size
+  )
 
 # Save figure before zoom
 ggsave(ranked_coef_fig, coef_rank_plot, height = 8, width = 12, dpi = 500)
