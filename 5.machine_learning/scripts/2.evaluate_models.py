@@ -138,11 +138,11 @@ sns.lineplot(
     data=filtered_df,
 )
 
-# plt.legend(loc="lower right", title="Model (data split)")
+plt.legend(loc="lower right", fontsize='large')  # Adjust legend font size
 plt.ylim(bottom=0.0, top=1.02)
-plt.xlabel("Recall")
-plt.ylabel("Precision")
-plt.title("Precision vs. Recall Plate 4 Cell Type Classification")
+plt.xlabel("Recall", fontsize=14)  # Adjust x-axis label font size
+plt.ylabel("Precision", fontsize=14)  # Adjust y-axis label font size
+plt.title("Precision vs. Recall Plate 4 Cell Type Classification", fontsize=16)  # Adjust title font size
 plt.tight_layout()
 
 plt.savefig(f"{fig_dir}/precision_recall_plate4_downsample.png", dpi=500)
