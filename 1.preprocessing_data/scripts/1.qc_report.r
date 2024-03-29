@@ -25,6 +25,9 @@ qc_df <- qc_df %>%
          
 head(qc_df)
 
+# Load in platemap and add cell type to include in plate map figure
+platemap_df <- read.csv("../metadata/localhost231120090001_platemap.csv")
+
 # Find the number of FOVs that are being removed due to being poor images
 unique_combinations <- outlier_df[c('Metadata_Well', 'Metadata_Site')] %>% distinct()
 cat("The number of image sets being removed is", nrow(unique_combinations), "out of 960 image sets\n")
@@ -34,6 +37,16 @@ result_df <- anti_join(qc_df, unique_combinations, by = c('Metadata_Well', 'Meta
 
 # Group by 'Metadata_Well' and count the occurrences of 'Metadata_Site'
 counts_per_well <- result_df %>% group_by(Metadata_Well) %>% summarise(count = n())
+
+# Select only relevant columns
+platemap_subset <- platemap_df[, c("well_position", "cell_type")]
+
+# Add cell type to counts per well
+counts_per_well <- merge(counts_per_well, platemap_subset, 
+                         by.x = "Metadata_Well", by.y = "well_position", all.x = TRUE)
+
+dim(counts_per_well)
+head(counts_per_well)
 
 # Extract the first letter from 'Metadata_Well' to create a color palette
 unique_starting_letters <- unique(substr(counts_per_well$Metadata_Well, 1, 1))
@@ -47,9 +60,11 @@ color_dict <- setNames(color_palette, unique_starting_letters)
 # Create a new column 'Color' in the data frame based on the starting letter
 counts_per_well$Color <- color_dict[substr(counts_per_well$Metadata_Well, 1, 1)]
 
-# Increase the figure size to extend the chart horizontally
-options(repr.plot.width=14, repr.plot.height=6)
+# Set width and height of the plot
+width <- 14
+height <- 6
 
+options(repr.plot.width=width, repr.plot.height=height)
 # Create a bar chart using ggplot2 with the 'Color' column for colors
 fov_chart <- ggplot(counts_per_well, aes(x = Metadata_Well, y = count, fill = Color)) +
   geom_bar(stat = 'identity') +
@@ -57,14 +72,13 @@ fov_chart <- ggplot(counts_per_well, aes(x = Metadata_Well, y = count, fill = Co
   scale_fill_identity() +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
 # Save plot to qc_figures
 ggsave(
         barchart_output_file,
         fov_chart,
         dpi = 500,
-        height = 6,
-        width = 10
+        height = height,
+        width = width
     )
 
 # Display the plot in the notebook
@@ -80,11 +94,12 @@ fov_platemap <- platetools::raw_map(
 
     ggtitle(paste("Platemap of FOV Count Per Well in plate localhost231120090001")) +
     theme(plot.title = element_text(size = 10, face = "bold")) +
+    geom_point(aes(shape = counts_per_well$cell_type)) +
+    scale_shape_discrete(name = "Cell Type") +
     scale_fill_manual(
     name = "FOV Count",
-    values = c("13" = "#adc8e6", "14" = "#4293f0", "15" = "#3b56f5", "16" = "darkblue")  # Assign colors manually
+    values = c("12" = "#ffffff", "13" = "#c5d7f0", "14" = "#688cce", "15" = "#4a5ecc", "16" = "#2424d1") # Assign colors manually
   )
-
     ggsave(
     platemap_output_file,
     fov_platemap,
@@ -95,3 +110,12 @@ fov_platemap <- platetools::raw_map(
 
 # Display the plot in the notebook
 print(fov_platemap)
+
+# Filter wells with less than 16 FOVs
+filtered_counts <- counts_per_well %>% filter(count < 16)
+
+# Group by cell_type and count the occurrences
+count_by_cell_type <- filtered_counts %>% group_by(cell_type) %>% summarise(well_count = n())
+
+# View the result
+count_by_cell_type

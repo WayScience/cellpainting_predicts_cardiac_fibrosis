@@ -29,6 +29,9 @@ import seaborn as sns
 # In[2]:
 
 
+# Set the threshold for identifying outliers with z-scoring for all metrics (# of standard deviations away from mean)
+threshold_z = 2
+
 # Directory for figures to be outputted
 figure_dir = pathlib.Path("./qc_figures")
 figure_dir.mkdir(exist_ok=True)
@@ -55,7 +58,7 @@ qc_df.head()
 # List of channels
 channels = ["Actin", "DNA", "ER", "PM", "Mito"]
 
-# Create DataFrames for each channel with all Metadata columns
+# Create DataFrames for each channel with all Metadata columns (excluding Series and Frame which are artifacts of CellProfiler)
 Actin_df = qc_df.filter(like="Metadata_").drop(columns=["Metadata_Series", "Metadata_Frame"]).copy()
 DNA_df = Actin_df.copy()
 ER_df = Actin_df.copy()
@@ -94,7 +97,10 @@ df.head()
 
 # ## Visualize blur metric
 # 
-# Based on the plot below, we can see the `actin` channel distribution is more different than the rest of the channels. We found that this difference is due to this channel on average being more dim, but not blurry. We decided that the DNA and PM channels were best at identifying blurry images and minimized removing good quality images. **We used the z-scoring method to identify max and min thresholds using 2 standard deviations.**
+# Based on the plot below, we can see the `actin` channel distribution is more different than the rest of the channels. 
+# We found that this difference is due to this channel on average being more dim, but not blurry. 
+# We decided that the DNA and PM channels were best at identifying blurry images and minimized removing good quality images. 
+# **We used the z-scoring method to identify max and min thresholds using 2 standard deviations.**
 
 # In[4]:
 
@@ -123,9 +129,6 @@ print(summary_statistics)
 # Calculate Z-scores for the column
 z_scores = zscore(df['ImageQuality_PowerLogLogSlope'])
 
-# Set a threshold for Z-scores (adjust as needed for number of standard deviations away from the mean)
-threshold_z = 2
-
 # Identify outlier rows based on Z-scores above and below the mean since we are using absolute values of the z-scores
 blur_outliers = df[abs(z_scores) > threshold_z]
 
@@ -144,12 +147,9 @@ blur_outliers.sort_values(by='ImageQuality_PowerLogLogSlope', ascending=False).h
 mean_value = df["ImageQuality_PowerLogLogSlope"].mean()
 std_dev = df["ImageQuality_PowerLogLogSlope"].std()
 
-# Set the threshold multiplier for above and below the mean
-threshold = 2
-
 # Calculate the threshold values
-threshold_value_above_mean = mean_value + threshold * std_dev
-threshold_value_below_mean = mean_value - threshold * std_dev
+threshold_value_above_mean = mean_value + threshold_z * std_dev
+threshold_value_below_mean = mean_value - threshold_z * std_dev
 
 # Print the calculated threshold values
 print("Threshold for outliers above the mean:", threshold_value_above_mean)
@@ -165,8 +165,8 @@ plt.title(f'DNA and PM channels are best for identifying blur\n for {plate}')
 plt.xlabel('ImageQuality_PowerLogLogSlope')
 plt.ylabel('Density')
 
-plt.axvline(x=-1.2827898535807258, color='k', linestyle='--')
-plt.axvline(x=-2.3840811649380393, color='k', linestyle='--')
+plt.axvline(x=threshold_value_above_mean, color='k', linestyle='--')
+plt.axvline(x=threshold_value_below_mean, color='k', linestyle='--')
 
 plt.tight_layout()
 plt.savefig(pathlib.Path(f"{figure_dir}/{plate}_DNA_PM_blur_density.png"), dpi=500)
@@ -195,9 +195,6 @@ print(summary_statistics)
 # Calculate Z-scores for the column
 z_scores = zscore(df['ImageQuality_PercentMaximal'])
 
-# Set a threshold for Z-scores (adjust as needed for number of standard deviations away from the mean)
-threshold_z = 2
-
 # Identify outlier rows based on Z-scores greater than as to identify whole images with abnormally high saturated pixels
 sat_outliers = df[abs(z_scores) > threshold_z]
 
@@ -222,11 +219,8 @@ sat_outliers.sort_values(by='ImageQuality_PercentMaximal', ascending=True).head(
 mean_value = df["ImageQuality_PercentMaximal"].mean()
 std_dev = df["ImageQuality_PercentMaximal"].std()
 
-# Set the threshold multiplier for above and below the mean
-threshold = 2
-
 # Calculate the threshold values
-threshold_value_above_mean = mean_value + threshold * std_dev
+threshold_value_above_mean = mean_value + threshold_z * std_dev
 
 # Print the calculated threshold values
 print("Threshold for outliers above the mean:", threshold_value_above_mean)
@@ -247,10 +241,10 @@ plt.axvline(
     label=f'Mean Percent Maximal: {df["ImageQuality_PercentMaximal"].mean():.2f}',
 )
 plt.axvline(
-    x=0.26,
+    x=threshold_value_above_mean,
     color="r",
     linestyle="--",
-    label='Threshold for Outliers: > 0.26',
+    label=f'Threshold for Outliers: > {threshold_value_above_mean}',
 )
 
 # Set labels and title
@@ -283,10 +277,10 @@ plt.axvline(
     label=f'Mean Percent Maximal: {df["ImageQuality_PercentMaximal"].mean():.2f}',
 )
 plt.axvline(
-    x=0.26,
+    x=threshold_value_above_mean,
     color="r",
     linestyle="--",
-    label='Threshold for Outliers: > 0.26',
+    label=f'Threshold for Outliers: > {threshold_value_above_mean}',
 )
 
 # Set labels

@@ -19,12 +19,12 @@ clean_plate4_output_file <- file.path(paste0("./qc_figures/localhost231120090001
 orig_df <- arrow::read_parquet(path_to_orig_plate4)
 cleaned_df <- arrow::read_parquet(path_to_cleaned_plate4)
 
-# Assuming your dataframe is called 'orig_df'
+# Summarize cleaned data into cell counts per well
 filtered_cleaned_df <- cleaned_df %>%
   group_by(Image_Metadata_Well) %>%
   summarize(Metadata_Count_Per_Well = n())
 
-# Assuming your dataframe is called 'orig_df'
+# Summarize non-QC data into cell counts per well
 filtered_orig_df <- orig_df %>%
   group_by(Image_Metadata_Well) %>%
   summarize(Metadata_Count_Per_Well = n())

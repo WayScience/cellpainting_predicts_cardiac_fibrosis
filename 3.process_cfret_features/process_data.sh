@@ -6,9 +6,10 @@ conda init bash
 conda activate cfret_data_env
 
 # convert all notebooks to python files into the scripts folder
-jupyter nbconvert --to python --output-dir=scripts/ *.ipynb
+jupyter nbconvert --to script --output-dir=scripts/ *.ipynb
 
 # run python script to preprocess data before downstream analysis (ran in sequential order)
 python scripts/0.convert_cytotable.py
 python scripts/1.sc_quality_control.py
 python scripts/2.single_cell_processing.py
+Rscript scripts/3.qc_report.r

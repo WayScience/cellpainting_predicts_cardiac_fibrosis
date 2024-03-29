@@ -12,22 +12,28 @@
 # 
 # Due to high confluence, sometimes nuclei overlap on top of each other, creating highly intense clusters within the Hoechst channel. To identify these nuclei, we use:
 # 
-# - **Nuclei Area:** This metric quantifies the number of pixels in a nucleus segmentation. We detect nuclei that are abnormally large, which likely indicates poor nucleus segmentation where overlapping nuclei are merged into one segmentation. 
-# - **Nuclei Intensity:** This metric quantifies the total intensity of all pixels in a nucleus segmentation. In combination with abnormally large nuclei, we detect nuclei that are also highly intense, likely indicating that this a group of overlapped nuclei.
+# - **Nuclei Area:** This metric quantifies the number of pixels in a nucleus segmentation. 
+# We detect nuclei that are abnormally large, which likely indicates poor nucleus segmentation where overlapping nuclei are merged into one segmentation. 
+# - **Nuclei Intensity:** This metric quantifies the total intensity of all pixels in a nucleus segmentation. 
+# In combination with abnormally large nuclei, we detect nuclei that are also highly intense, likely indicating that this a group of overlapped nuclei.
 # 
 # As well, there are times where nuclei are under or over-segmented, leading to non-circular nuclei shapes. To identify these nuclei, we use:
 # 
-# - **Nuclei FormFactor:** This metric quantifies how circular an object is, with 1 meaning perfect circle and 0 meaning non-circular. We are detecting nuclei that are not circular and have rough edges or shapes that look like budding yeast.
+# - **Nuclei FormFactor:** This metric quantifies how circular an object is, with 1 meaning perfect circle and 0 meaning non-circular. 
+# We are detecting nuclei that are not circular and have rough edges or shapes that look like budding yeast.
 # 
 # ### Assessing poor cell segmentation
 # 
-# Also due to high confluence, images with large, intense clusters of cells leads to errors in the segmentation algorithm that causes cells around the cluster to segmented incorrectly. When this happens, a cell is segmented around the same segmentation as the nucleus, giving it the same area which is very small for a normal cardiac fibroblast cell. To detect poorly segmented cells, we use:
+# Also due to high confluence, images with large, intense clusters of cells leads to errors in the segmentation algorithm that causes cells around the cluster to segmented incorrectly. 
+# When this happens, a cell is segmented around the same segmentation as the nucleus, giving it the same area which is very small for a normal cardiac fibroblast cell. To detect poorly segmented cells, we use:
 # 
-# - **Cells area in conjunction with nuclei area:** The Cells Area metric quantifies the number of pixels in a cell segmentation. We detect cells that are abnormally small using nuclei area as the threshold to try and avoid removing too many properly segmented cells. We find cells that are with 2 standard deviations above the nuclei mean are more likely  to be poor cell segmentation due to high confluence clusters.
+# - **Cells area in conjunction with nuclei area:** The Cells Area metric quantifies the number of pixels in a cell segmentation.
+# We detect cells that are abnormally small using nuclei area as the threshold to try and avoid removing too many properly segmented cells. 
+# We find cells that are with 2 standard deviations above the nuclei mean are more likely  to be poor cell segmentation due to high confluence clusters.
 
 # ## Import libraries
 
-# In[1]:
+# In[2]:
 
 
 import pathlib
@@ -39,7 +45,7 @@ from scipy.stats import zscore
 
 # ## Set paths and variables
 
-# In[2]:
+# In[3]:
 
 
 # Directory with data
@@ -70,7 +76,7 @@ plate_4_df.head()
 
 # ### Perform z-scoring to identify nuclei outliers
 
-# In[3]:
+# In[4]:
 
 
 # Determine z-score using only Nuclei Area and Nuclei Intensity from Nuclei channel
@@ -110,7 +116,7 @@ nuclei_outliers_df[
 
 # ### Scatter plot of single-cells based on Nuclei Area and Intensity
 
-# In[4]:
+# In[5]:
 
 
 # Set the default value to 'inlier'
@@ -132,13 +138,13 @@ plot = sns.scatterplot(
 
 # Add threshold lines
 plt.axvline(
-    x=1917.0,
+    x=nuclei_outliers_df['Nuclei_AreaShape_Area'].min(),
     color="r",
     linestyle="--",
     label='Min. threshold for Nuclei Area'
 )
 plt.axhline(
-    y=114.0,
+    y=nuclei_outliers_df['Nuclei_Intensity_IntegratedIntensity_Hoechst'].min(),
     color="b",
     linestyle="--",
     label='Min. threshold for Nuclei Intensity'

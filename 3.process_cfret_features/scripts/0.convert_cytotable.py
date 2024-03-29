@@ -129,9 +129,3 @@ converted_df = pd.read_parquet(
 print(converted_df.shape)
 converted_df.head()
 
-
-# In[ ]:
-
-
-
-
