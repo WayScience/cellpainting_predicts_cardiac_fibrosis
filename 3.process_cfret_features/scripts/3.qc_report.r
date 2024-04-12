@@ -5,15 +5,18 @@ suppressPackageStartupMessages(library(stringr))
 suppressPackageStartupMessages(library(RColorBrewer))
 suppressPackageStartupMessages(library(arrow))
 
+plate <- "localhost230405150001"
+
 # Paths to parquet files to generate QC report
-path_to_orig_plate4 <- file.path("./data/converted_profiles/localhost231120090001_converted.parquet")
-path_to_cleaned_plate4 <- file.path("./data/cleaned_profiles/localhost231120090001_cleaned.parquet")
+path_to_orig_plate4 <- file.path("./data/converted_profiles/", paste0(plate, "_converted.parquet"))
+path_to_cleaned_plate4 <- file.path("./data/cleaned_profiles/", paste0(plate, "_cleaned.parquet"))
 
 # Output path for bar chart
-orig_plate4_output_file <- file.path(paste0("./qc_figures/localhost231120090001_orig_plate4_platemap.png"))
+orig_plate4_output_file <- file.path("./qc_figures/", paste0(plate, "_orig_plate4_platemap.png"))
 
 # Output path for platemap
-clean_plate4_output_file <- file.path(paste0("./qc_figures/localhost231120090001_cleaned_plate4_platemap.png"))
+clean_plate4_output_file <- file.path("./qc_figures/", paste0(plate, "_cleaned_plate4_platemap.png"))
+
 
 # Read in CSV files
 orig_df <- arrow::read_parquet(path_to_orig_plate4)
@@ -41,7 +44,7 @@ orig_platemap <- platetools::raw_map(
 
     ggtitle(paste("Platemap of single-cell count per well in plate localhost231120090001\nbefore single-cell QC")) +
     theme(plot.title = element_text(size = 10, face = "bold")) +
-    scale_fill_gradient(name = "Single-cell Count", low = "white", high = "red", limits = c(150, 540))
+    scale_fill_gradient(name = "Single-cell Count", low = "white", high = "red", limits = c(50, 1200))
 
     ggsave(
     orig_plate4_output_file,
@@ -63,7 +66,7 @@ cleaned_platemap <- platetools::raw_map(
 
     ggtitle(paste("Platemap of single-cell count per well in plate localhost231120090001\nafter single-cell QC")) +
     theme(plot.title = element_text(size = 10, face = "bold")) +
-    scale_fill_gradient(name = "Single-cell Count", low = "white", high = "red", limits = c(100, 540))
+    scale_fill_gradient(name = "Single-cell Count", low = "white", high = "red", limits = c(50, 1000))
 
     ggsave(
     clean_plate4_output_file,
@@ -76,9 +79,15 @@ cleaned_platemap <- platetools::raw_map(
 # Display the plot in the notebook
 cleaned_platemap
 
-annot_df <- arrow::read_parquet(file.path("./data/single_cell_profiles/localhost231120090001_sc_annotated.parquet"))
+# Load in plate data that includes metadata
+annot_df <- arrow::read_parquet(file.path("./data/single_cell_profiles", paste0(plate, "_sc_annotated.parquet")))
 
+# Mutate cell type to be capitalized if needed and print the number of cells per cell type
 count_failing_healthy <- annot_df %>%
+  mutate(Metadata_cell_type = ifelse(
+    str_detect(Metadata_cell_type, "^[a-z]"), 
+    str_to_title(Metadata_cell_type), 
+    Metadata_cell_type)) %>%
   filter(Metadata_cell_type %in% c("Failing", "Healthy")) %>%
   group_by(Metadata_cell_type) %>%
   summarise(Count = n())

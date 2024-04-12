@@ -24,4 +24,5 @@ dependencies:
   - conda-forge::r-pwr
   - conda-forge::r-platetools
   - conda-forge::r-arrow
+  - conda-forge::r-ggridges
 
