@@ -114,7 +114,57 @@ print(pr_df.shape)
 pr_df.head()
 
 
+# In[4]:
+
+
+predicted_probs
+
+
 # ### Plot precision-recall curves for testing and training data per model type
+
+# In[6]:
+
+
+# PR curves with only testing and training data
+plt.figure(figsize=(12, 10))
+sns.set_style("whitegrid")
+
+# Combine model and data type as one column for plotting
+pr_df["data_split"] = pr_df["Model_Type"] + " (" + pr_df["Data_Type"] + ")"
+
+# Filter data frame to only show training versus testing
+filtered_df = pr_df[pr_df["Data_Type"].isin(["training"])]
+
+# Define colors for each condition
+colors = {"final (training)": "red", "shuffled (training)": "#ff7f0e"}
+
+sns.lineplot(
+    x="Recall",
+    y="Precision",
+    hue="data_split",
+    style="Model_Type",
+    dashes={"final": (1, 0), "shuffled": (2, 2)},
+    palette=colors,
+    data=filtered_df,
+)
+
+plt.legend(loc="lower right", fontsize=15)
+plt.ylim(bottom=0.0, top=1.02)
+plt.xlabel("Recall", fontsize=18)
+plt.ylabel("Precision", fontsize=18)
+plt.title("Precision vs. Recall Plate 4 Cell Type Classification", fontsize=18)
+
+# Adjust x-axis ticks font size
+plt.xticks(fontsize=14)
+
+# Adjust y-axis ticks font size and labels
+plt.yticks(fontsize=14)
+
+plt.tight_layout()
+plt.savefig(f"{fig_dir}/precision_recall_plate4_downsample_only_training.png", dpi=500)
+
+plt.show()
+
 
 # In[4]:
 

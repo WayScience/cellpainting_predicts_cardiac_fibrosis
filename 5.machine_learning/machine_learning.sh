@@ -14,3 +14,7 @@ python scripts/1.train_models.py
 python scripts/2.evaluate_models.py
 python scripts/3.extract_model_coef.py
 Rscript scripts/3.visualize_model_coef.r
+python scripts/4.assess_generalizability.py
+Rscript scripts/4.vis_generalizability.r
+python scripts/4.dose_assess_generalizability.py
+Rscript scripts/4.dose_vis_generalizability.r

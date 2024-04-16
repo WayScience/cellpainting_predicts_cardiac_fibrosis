@@ -12,10 +12,10 @@ path_to_orig_plate4 <- file.path("./data/converted_profiles/", paste0(plate, "_c
 path_to_cleaned_plate4 <- file.path("./data/cleaned_profiles/", paste0(plate, "_cleaned.parquet"))
 
 # Output path for bar chart
-orig_plate4_output_file <- file.path("./qc_figures/", paste0(plate, "_orig_plate4_platemap.png"))
+orig_plate4_output_file <- file.path("./qc_figures/", paste0(plate, "_orig_platemap.png"))
 
 # Output path for platemap
-clean_plate4_output_file <- file.path("./qc_figures/", paste0(plate, "_cleaned_plate4_platemap.png"))
+clean_plate4_output_file <- file.path("./qc_figures/", paste0(plate, "_cleaned_platemap.png"))
 
 
 # Read in CSV files
