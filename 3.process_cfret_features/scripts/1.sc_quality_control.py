@@ -3,9 +3,6 @@
 
 # # Perform single-cell quality control
 # 
-# >**Note:** 
-# > We only perform single-cell quality control filtering on **Plate 4 (localhost231120090001)**.
-# 
 # In this notebook, we perform single-cell quality control. To filter the single-cells, we use z-score to find outliers using the values from only one feature at a time. We use features from the AreaShape and Intensity modle to assess the quality of the segmented single-cells:
 # 
 # ### Assessing poor nuclei segmentation
@@ -33,7 +30,7 @@
 
 # ## Import libraries
 
-# In[2]:
+# In[1]:
 
 
 import pathlib
@@ -45,8 +42,11 @@ from scipy.stats import zscore
 
 # ## Set paths and variables
 
-# In[3]:
+# In[2]:
 
+
+# Set outlier threshold to use for all metrics (# of std deviations away from the mean)
+outlier_threshold = 2
 
 # Directory with data
 data_dir = pathlib.Path("./data/converted_profiles/")
@@ -59,39 +59,37 @@ cleaned_dir.mkdir(exist_ok=True)
 qc_fig_dir = pathlib.Path("./qc_figures")
 qc_fig_dir.mkdir(exist_ok=True)
 
-# Load in plate 4 annotated data
-plate_4_df = pd.read_parquet(f"{data_dir}/localhost231120090001_converted.parquet")
+# Set plate as variable to load in
+plate = "localhost230405150001" # plate 3
 
-# Focus on Plate 4
-plate = "localhost231120090001"
+# Load in converted plate data
+plate_df = pd.read_parquet(f"{data_dir}/{plate}_converted.parquet")
 
-# Add plate value to plate_4 which is absent due to error
-plate_4_df['Image_Metadata_Plate'] = 'localhost231120090001'
+# Add plate values if plate_4 is loaded in as it is absent due to error
+if plate == 'localhost231120090001':
+    plate_df['Image_Metadata_Plate'] = 'localhost231120090001'
 
-print(plate_4_df.shape)
-plate_4_df.head()
+print(plate_df.shape)
+plate_df.head()
 
 
 # ## Identify mis-segmented nuclei from large clusters
 
 # ### Perform z-scoring to identify nuclei outliers
 
-# In[4]:
+# In[3]:
 
 
 # Determine z-score using only Nuclei Area and Nuclei Intensity from Nuclei channel
-plate_4_df["Z_Score_Area"] = zscore(plate_4_df["Nuclei_AreaShape_Area"])
-plate_4_df["Z_Score_Intensity"] = zscore(
-    plate_4_df["Nuclei_Intensity_IntegratedIntensity_Hoechst"]
+plate_df["Z_Score_Area"] = zscore(plate_df["Nuclei_AreaShape_Area"])
+plate_df["Z_Score_Intensity"] = zscore(
+    plate_df["Nuclei_Intensity_IntegratedIntensity_Hoechst"]
 )
 
-# Set a threshold for considering outliers (number of standard deviations away from the mean)
-outlier_threshold = 2
-
 # Filter DataFrame for outliers
-nuclei_outliers_df = plate_4_df[
-    (plate_4_df["Z_Score_Area"].abs() > outlier_threshold)
-    & (plate_4_df["Z_Score_Intensity"].abs() > outlier_threshold)
+nuclei_outliers_df = plate_df[
+    (plate_df["Z_Score_Area"].abs() > outlier_threshold)
+    & (plate_df["Z_Score_Intensity"].abs() > outlier_threshold)
 ]
 
 # Print outliers to assess how it detected outliers
@@ -116,19 +114,19 @@ nuclei_outliers_df[
 
 # ### Scatter plot of single-cells based on Nuclei Area and Intensity
 
-# In[5]:
+# In[4]:
 
 
 # Set the default value to 'inlier'
-plate_4_df['Outlier_Status'] = 'Single-cell passed QC'
+plate_df['Outlier_Status'] = 'Single-cell passed QC'
 
 # Update the 'Outlier_Status' column based on the outliers DataFrame using index
-plate_4_df.loc[plate_4_df.index.isin(nuclei_outliers_df.index), 'Outlier_Status'] = 'Single-cell failed QC'
+plate_df.loc[plate_df.index.isin(nuclei_outliers_df.index), 'Outlier_Status'] = 'Single-cell failed QC'
 
 # Create scatter plot
 plt.figure(figsize=(10, 6))
 plot = sns.scatterplot(
-    data=plate_4_df,
+    data=plate_df,
     x="Nuclei_AreaShape_Area",
     y="Nuclei_Intensity_IntegratedIntensity_Hoechst",
     hue="Outlier_Status",
@@ -170,14 +168,11 @@ plt.show()
 
 
 # Determine z-score using only Nuclei FormFactor
-plate_4_df["Z_Score_FormFactor"] = zscore(plate_4_df["Nuclei_AreaShape_FormFactor"])
-
-# Set a threshold for considering outliers (number of standard deviations away from the mean)
-outlier_threshold = 2
+plate_df["Z_Score_FormFactor"] = zscore(plate_df["Nuclei_AreaShape_FormFactor"])
 
 # Filter DataFrame for outliers
-formfactor_outliers_df = plate_4_df[
-    (plate_4_df["Z_Score_FormFactor"].abs() > outlier_threshold)
+formfactor_outliers_df = plate_df[
+    (plate_df["Z_Score_FormFactor"].abs() > outlier_threshold)
 ]
 
 # Print outliers to assess how it detected outliers
@@ -201,17 +196,17 @@ formfactor_outliers_df[
 
 
 # Reset the default value to 'inlier'
-plate_4_df["Outlier_Status"] = "Single-cell passed QC"
+plate_df["Outlier_Status"] = "Single-cell passed QC"
 
 # Update the 'Outlier_Status' column based on the outliers DataFrame using index
-plate_4_df.loc[plate_4_df.index.isin(formfactor_outliers_df.index), "Outlier_Status"] = (
+plate_df.loc[plate_df.index.isin(formfactor_outliers_df.index), "Outlier_Status"] = (
     "Single-cell failed QC"
 )
 
 # Create histogram
 plt.figure(figsize=(10, 6))
 sns.histplot(
-    data=plate_4_df,
+    data=plate_df,
     x="Nuclei_AreaShape_FormFactor",
     hue="Outlier_Status",
     multiple="stack",
@@ -249,18 +244,15 @@ plt.show()
 
 
 # Calculate the mean and standard deviation of Nuclei_AreaShape_Area
-mean_nuclei_area = plate_4_df["Nuclei_AreaShape_Area"].mean()
-std_nuclei_area = plate_4_df["Nuclei_AreaShape_Area"].std()
-
-# Set a threshold for considering outliers (number of standard deviations away from the mean)
-threshold = 2
+mean_nuclei_area = plate_df["Nuclei_AreaShape_Area"].mean()
+std_nuclei_area = plate_df["Nuclei_AreaShape_Area"].std()
 
 # Calculate the threshold for filtering cells which is the number of standard deviations above the mean for nuclei
-outlier_threshold = mean_nuclei_area + threshold * std_nuclei_area
+outlier_threshold = mean_nuclei_area + outlier_threshold * std_nuclei_area
 
 # Filter DataFrame for cells with area below the threshold
-cells_outliers_df = plate_4_df[
-    plate_4_df["Cells_AreaShape_Area"] <= outlier_threshold
+cells_outliers_df = plate_df[
+    plate_df["Cells_AreaShape_Area"] <= outlier_threshold
 ]
 
 # Print the filtered DataFrame shape to check the number of cells filtered
@@ -291,14 +283,14 @@ cells_outliers_df[
 
 # Create a density plot
 plt.figure(figsize=(10, 6))
-sns.histplot(x='Cells_AreaShape_Area', data=plate_4_df, fill=True)
+sns.histplot(x='Cells_AreaShape_Area', data=plate_df, fill=True)
 
 # Add threshold line
 plt.axvline(
-    x=1885.0,
+    x=cells_outliers_df["Cells_AreaShape_Area"].max(),
     color="r",
     linestyle="--",
-    label='Threshold for Outliers: < 1885.0',
+    label=f'Threshold for Outliers: < {cells_outliers_df["Cells_AreaShape_Area"].max()}',
 )
 
 # Set labels and title
@@ -324,7 +316,7 @@ plt.show()
 outlier_indices = pd.concat([nuclei_outliers_df, cells_outliers_df, formfactor_outliers_df]).index
 
 # Remove rows with outlier indices from plate_4_df
-plate_4_df_cleaned = plate_4_df.drop(outlier_indices)
+plate_4_df_cleaned = plate_df.drop(outlier_indices)
 
 # Remove columns from z-scoring or assigning outliers (not included for downstream analysis)
 plate_4_df_cleaned = plate_4_df_cleaned.drop(
@@ -333,7 +325,7 @@ plate_4_df_cleaned = plate_4_df_cleaned.drop(
 )
 
 # Save cleaned data for this plate
-plate_name = plate_4_df['Image_Metadata_Plate'].iloc[0]
+plate_name = plate_df['Image_Metadata_Plate'].iloc[0]
 plate_4_df_cleaned.to_parquet(f"{cleaned_dir}/{plate_name}_cleaned.parquet")
 
 # Verify the result

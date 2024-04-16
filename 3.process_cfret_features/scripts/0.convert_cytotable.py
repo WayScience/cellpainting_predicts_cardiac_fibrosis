@@ -61,7 +61,8 @@ for name in plate_names:
 
 
 for file_path in sqlite_dir.iterdir():
-    if file_path.stem == "localhost231120090001":
+    # focus on plate 3 only
+    if file_path.stem == "localhost230405150001":
         output_path = pathlib.Path(
             f"{output_dir}/converted_profiles/{file_path.stem}_converted.parquet"
         )
@@ -88,7 +89,8 @@ print("All plates have been converted with cytotable!")
 converted_dir = pathlib.Path(f"{output_dir}/converted_profiles")
 
 for file_path in converted_dir.iterdir():
-    if file_path.stem == "localhost231120090001_converted":
+    # focus on plate 3 only
+    if file_path.stem == "localhost230405150001_converted":
         # Load the DataFrame from the Parquet file
         df = pd.read_parquet(file_path)
 
@@ -123,7 +125,7 @@ for file_path in converted_dir.iterdir():
 
 
 converted_df = pd.read_parquet(
-    "./data/converted_profiles/localhost231120090001_converted.parquet"
+    "./data/converted_profiles/localhost230405150001_converted.parquet"
 )
 
 print(converted_df.shape)
