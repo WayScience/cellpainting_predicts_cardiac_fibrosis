@@ -61,7 +61,7 @@ plate_info_dictionary = {
         "path_to_pipeline": path_to_pipeline,
 
     }
-    for name in plate_names if name == 'localhost230405150001' # plate 3
+    for name in plate_names if 'KK22-05-198' in name # only plates 1 and 2
 }
 
 # view the dictionary to assess that all info is added correctly
