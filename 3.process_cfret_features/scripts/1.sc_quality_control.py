@@ -60,7 +60,7 @@ qc_fig_dir = pathlib.Path("./qc_figures")
 qc_fig_dir.mkdir(exist_ok=True)
 
 # Set plate as variable to load in
-plate = "localhost230405150001" # plate 3
+plate = "localhost220513100001_KK22-05-198_FactinAdjusted"
 
 # Load in converted plate data
 plate_df = pd.read_parquet(f"{data_dir}/{plate}_converted.parquet")
@@ -215,7 +215,7 @@ sns.histplot(
     legend=True,
 )
 
-plt.title(f"Histogram of Nuclei FormFactor for all plates")
+plt.title(f"Histogram of Nuclei FormFactor for plate {plate}")
 plt.xlabel("Nuclei FormFactor")
 plt.ylabel("Count")
 plt.tight_layout()
