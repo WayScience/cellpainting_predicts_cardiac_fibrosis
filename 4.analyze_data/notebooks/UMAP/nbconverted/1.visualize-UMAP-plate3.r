@@ -41,6 +41,7 @@ df <- readr::read_tsv(
         "Metadata_heart_failure_type" = "c",
         "Metadata_Plate" = "c",
         "Metadata_Well" = "c",
+        "Metadata_Site" = "c",
         "Metadata_Cytoplasm_Parent_Cells" = "c",
         "Metadata_Cytoplasm_Parent_Nuclei" = "c",
         "Metadata_Cells_Number_Object_Number" = "c",
@@ -99,11 +100,13 @@ print(treatment_gg)
 failing_drug_x_df <- umap_cp_df %>% filter(Metadata_cell_type == "failing" & Metadata_treatment == "drug_x")
 failing_DMSO_df <- umap_cp_df %>% filter(Metadata_cell_type == "failing" & Metadata_treatment == "DMSO")
 healthy_DMSO_df <- umap_cp_df %>% filter(Metadata_cell_type == "healthy" & Metadata_treatment == "DMSO")
+failing_TGFRi_df <- umap_cp_df %>% filter(Metadata_cell_type == "failing" & Metadata_treatment == "TGFRi")
 
 
 print(paste0("failing", " + ", "drug_x"))
 print(paste0("failing", "+", "DMSO"))
 print(paste0("healthy", " + ", "DMSO"))
+print(paste0("failing", " + ", "TGFRi"))
 
 
 # UMAP Plot healthy w/ DMSO and failing w/ treatment
@@ -196,7 +199,78 @@ merged_plot <- ggplot(combined_df, aes(x = UMAP0, y = UMAP1, color = Group)) +
   guides(colour = guide_legend(override.aes = list(size = 4))) +
   ylim(min(umap_cp_df$UMAP1), max(umap_cp_df$UMAP1)) +  # Set the same y-axis limits as umap_cp_df
   theme(
-    legend.position = c(0.15, 0.88),  # Adjust the legend position (x, y)
+    legend.position = c(0.85, 0.13),  # Adjust the legend position (x, y)
+    legend.background = element_rect(fill = "white", color = "black"),  # Add a white background to the legend
+    legend.key = element_rect(color = "white"),  # Make legend key (color boxes) white
+
+  )
+# print and save plot
+print(merged_plot)
+ggsave(output_file, merged_plot, dpi = 500, height = 12, width = 12)
+
+
+# combine all dfs with TGFRi
+combined_df <- rbind(
+  failing_TGFRi_df %>% mutate(Group = "Failing with TGFRi"),
+  healthy_DMSO_df %>% mutate(Group = "Healthy with DMSO"),
+  failing_DMSO_df %>% mutate(Group = "Failing with DMSO")
+)
+
+# UMAP merged plots (from above)
+output_file <- paste0(output_umap_file, "_failing_DMSO_and_TGFRi_w_healthy_DMSO_Merged.png")
+
+# Create a combined data frame with the "Group" column
+combined_df <- rbind(
+  failing_TGFRi_df %>% mutate(Group = "failing + TGFRi"),
+  healthy_DMSO_df %>% mutate(Group = "healthy + DMSO"),
+  failing_DMSO_df %>% mutate(Group = "failing + DMSO")
+)
+
+# Plot the combined data without facets
+merged_TGFRi_plot <- ggplot(combined_df, aes(x = UMAP0, y = UMAP1, color = Group)) +
+  geom_point(size = 1.0 , alpha = 0.5) +  # Adjust alpha value to make points more transparent
+  labs(title = "UMAP of single-cells demonstrating a shift from failing to\nhealthy cells after failing cells are treated with TGFRi") + 
+  theme_bw(base_size = 22) +  # Set the base font size to 12
+  scale_color_manual(
+    name = "Group",
+    values = c("failing + TGFRi" = "#69DC9E", "failing + DMSO" = "#BA5A31", "healthy + DMSO" = "#8269dc")
+  ) +
+  guides(colour = guide_legend(override.aes = list(size = 4))) +
+  ylim(min(umap_cp_df$UMAP1), max(umap_cp_df$UMAP1)) +  # Set the same y-axis limits as umap_cp_df
+  theme(
+    legend.position = c(0.85, 0.13),  # Adjust the legend position (x, y)
+    legend.background = element_rect(fill = "white", color = "black"),  # Add a white background to the legend
+    legend.key = element_rect(color = "white"),  # Make legend key (color boxes) white
+
+  )
+# print and save plot
+print(merged_TGFRi_plot)
+ggsave(output_file, merged_TGFRi_plot, dpi = 500, height = 12, width = 12)
+
+
+# UMAP merged plots (from above)
+output_file <- paste0(output_umap_file, "_failing_DMSO_and_DrugX_w_healhy_DMSO_Merged.png")
+
+# Create a combined data frame with the "Group" column
+combined_df <- rbind(
+  failing_drug_x_df %>% mutate(Group = "failing + drug_x"),
+  healthy_DMSO_df %>% mutate(Group = "healthy + DMSO"),
+  failing_DMSO_df %>% mutate(Group = "failing + DMSO")
+)
+
+# Plot the combined data without facets
+merged_plot <- ggplot(combined_df, aes(x = UMAP0, y = UMAP1, color = Group)) +
+  geom_point(size = 1.0 , alpha = 0.5) +  # Adjust alpha value to make points more transparent
+  labs(title = "UMAP of single-cells demonstrating a shift from failing to\nhealthy cells after failing cells are treated with drug_x") + 
+  theme_bw(base_size = 22) +  # Set the base font size to 12
+  scale_color_manual(
+    name = "Group",
+    values = c("failing + drug_x" = "#69DC9E", "failing + DMSO" = "#BA5A31", "healthy + DMSO" = "#8269dc")
+  ) +
+  guides(colour = guide_legend(override.aes = list(size = 4))) +
+  ylim(min(umap_cp_df$UMAP1), max(umap_cp_df$UMAP1)) +  # Set the same y-axis limits as umap_cp_df
+  theme(
+    legend.position = c(0.85, 0.13),  # Adjust the legend position (x, y)
     legend.background = element_rect(fill = "white", color = "black"),  # Add a white background to the legend
     legend.key = element_rect(color = "white"),  # Make legend key (color boxes) white
 
@@ -319,3 +393,137 @@ merged_plot <- ggplot(combined_df, aes(x = UMAP0, y = UMAP1, color = Group)) +
 print(merged_plot)
 ggsave(output_file, merged_plot, dpi = 500, height = 12, width = 12)
 
+
+# Remove decimal from nuclei object number to avoid issues with merging
+umap_cp_df <- umap_cp_df %>%
+  mutate(Metadata_Nuclei_Number_Object_Number = gsub("\\.0", "", as.character(Metadata_Nuclei_Number_Object_Number)))
+
+# Load in parquet file with nearest neighbors per single cell (not normalized)
+neighbors_df <- arrow::read_parquet(
+    "../../../3.process_cfret_features/data/single_cell_profiles/localhost230405150001_sc_annotated.parquet"
+)
+
+desired_columns <- c("Cells_Neighbors_NumberOfNeighbors_Adjacent", 
+                     "Metadata_Well", 
+                     "Metadata_Site", 
+                     "Metadata_Nuclei_Number_Object_Number")
+
+neighbors_df <- neighbors_df[, desired_columns]
+
+neighbors_df <- neighbors_df %>%
+  mutate(Metadata_Nuclei_Number_Object_Number = as.character(Metadata_Nuclei_Number_Object_Number))
+
+# Assuming you want to merge based on the specified columns
+merge_columns <- c("Metadata_Well", "Metadata_Site", "Metadata_Nuclei_Number_Object_Number")
+
+# Merge number of neighbors based on cell to umap dataframe
+merged_data <- merge(neighbors_df, umap_cp_df, by = merge_columns)
+
+umap_cell_neighbors_figure <- 
+  ggplot(merged_data, aes(x = UMAP0, y = UMAP1)) +
+  geom_point(aes(color = Cells_Neighbors_NumberOfNeighbors_Adjacent), alpha = 0.5) +
+  theme_bw() +
+  scale_color_continuous(
+    name = "Number of Cell Neighbors", 
+    low = "light blue",
+    high = "blue"
+  ) +
+  labs(title = "UMAP of Plate 3 Morphology Space Comparing\nBetween Number of Neighbors per Cell", x = "UMAP0", y = "UMAP1") +
+  theme(
+    # Increase title size
+    plot.title = element_text(size = 20),
+    
+    # Increase axis text size
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12),
+    
+    # Increase legend size
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 14),
+  ) +
+  coord_fixed(1.1)
+
+# saving image
+output_file <- file.path(paste0(output_umap_file, "_number_neighbors_cells.png"))
+ggsave(output_file, umap_cell_neighbors_figure, dpi = 500, height = 10, width = 10)
+
+
+print(umap_cell_neighbors_figure)
+
+
+# Set directory and file structure
+umap_dir <- file.path("results")
+umap_file <- "UMAP_localhost230405150001_fs_filtered.tsv.gz"
+umap_path <- file.path(umap_dir, umap_file)
+
+# Load in the umap data
+filtered_df <- readr::read_tsv(
+    umap_path,
+    col_types = readr::cols(
+        .default = "c",
+        "UMAP0" = "d",
+        "UMAP1" = "d"
+    )
+)
+cell_count_df <- filtered_df %>%
+    dplyr::group_by(Metadata_Well) %>%
+    dplyr::count() %>%
+    dplyr::rename(Metadata_Cell_Count = n)
+
+umap_filtered_df <- filtered_df %>%
+    dplyr::left_join(cell_count_df, by = "Metadata_Well") %>%
+    mutate_all(~ifelse(is.na(.), "None", .))
+
+head(umap_filtered_df)
+
+
+# Filter the data frames from the filtered data (only not clustered single cells)
+filtered_failing_drug_x_df <- umap_filtered_df %>% filter(Metadata_cell_type == "failing" & Metadata_treatment == "drug_x")
+filtered_failing_DMSO_df <- umap_filtered_df %>% filter(Metadata_cell_type == "failing" & Metadata_treatment == "DMSO")
+filtered_healthy_DMSO_df <- umap_filtered_df %>% filter(Metadata_cell_type == "healthy" & Metadata_treatment == "DMSO")
+
+# UMAP merged plots (from above)
+output_file <- paste0(output_umap_file, "_filtered_failing_DMSO_and_DrugX_w_healhy_DMSO_Merged.png")
+
+# Create a combined data frame with the "Group" column
+filtered_combined_df <- rbind(
+  filtered_failing_drug_x_df %>% mutate(Group = "failing + drug_x"),
+  filtered_healthy_DMSO_df %>% mutate(Group = "healthy + DMSO"),
+  filtered_failing_DMSO_df %>% mutate(Group = "failing + DMSO")
+)
+
+# Plot the combined data without facets
+merged_filtered_plot <- ggplot(filtered_combined_df, aes(x = UMAP0, y = UMAP1, color = Group)) +
+  geom_point(size = 2.0 , alpha = 0.5) +  # Adjust alpha value to make points more transparent
+  labs(title = "UMAP of non-clustered single-cells comparing\ntreatment and cell type ") + 
+  theme_bw(base_size = 22) +  # Set the base font size to 12
+  scale_color_manual(
+    name = "Group",
+    values = c("failing + drug_x" = "#69DC9E", "failing + DMSO" = "#BA5A31", "healthy + DMSO" = "#8269dc")
+  ) +
+  guides(colour = guide_legend(override.aes = list(size = 4))) +
+  ylim(min(filtered_combined_df$UMAP1), max(filtered_combined_df$UMAP1)) +  # Set the same y-axis limits as umap_cp_df
+  theme(
+    legend.position = c(0.15, 0.88),  # Adjust the legend position (x, y)
+    legend.background = element_rect(fill = "white", color = "black"),  # Add a white background to the legend
+    legend.key = element_rect(color = "white"),  # Make legend key (color boxes) white
+
+  )
+# print and save plot
+print(merged_filtered_plot)
+ggsave(output_file, merged_filtered_plot, dpi = 500, height = 12, width = 12)
+
+
+umap_filtered_cell_neighbors_figure <- 
+  ggplot(umap_filtered_df, aes(x = UMAP0, y = UMAP1)) +
+  geom_point(aes(color = Metadata_Neighbors_Adjacent), alpha = 0.5, size = 2) +
+  theme_bw() +
+  labs(title = "UMAP of Filtered Plate 3 Morphology Space Comparing\nBetween Number of Neighbors per Cell", x = "UMAP0", y = "UMAP1") +
+  scale_color_discrete(name = "Number of Neighbors Adjacent")
+
+# saving image
+output_file <- file.path(paste0(output_umap_file, "_filtered_number_neighbors_cells.png"))
+ggsave(output_file, umap_filtered_cell_neighbors_figure, dpi = 500, height = 8, width = 8)
+
+
+print(umap_filtered_cell_neighbors_figure)

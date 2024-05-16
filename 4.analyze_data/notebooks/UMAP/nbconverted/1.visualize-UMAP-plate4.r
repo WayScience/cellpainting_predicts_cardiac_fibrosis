@@ -222,3 +222,100 @@ ggsave(output_file, umap_cell_neighbors_figure, dpi = 500, height = 10, width = 
 
 print(umap_cell_neighbors_figure)
 
+
+# Set directory and file structure
+umap_dir <- file.path("results")
+umap_file <- "UMAP_localhost231120090001_fs_filtered.tsv.gz"
+umap_path <- file.path(umap_dir, umap_file)
+
+# Load in the umap data
+filtered_df <- readr::read_tsv(
+    umap_path,
+    col_types = readr::cols(
+        .default = "c",
+        "UMAP0" = "d",
+        "UMAP1" = "d"
+    )
+)
+cell_count_df <- filtered_df %>%
+    dplyr::group_by(Metadata_Well) %>%
+    dplyr::count() %>%
+    dplyr::rename(Metadata_Cell_Count = n)
+
+umap_filtered_df <- filtered_df %>%
+    dplyr::left_join(cell_count_df, by = "Metadata_Well") %>%
+    mutate_all(~ifelse(is.na(.), "None", .))
+
+head(umap_filtered_df)
+
+
+# Create UMAP labelled with the anomaly score as gradient
+umap_filtered_heart_num_figure <- 
+  ggplot(umap_filtered_df, aes(x = UMAP0, y = UMAP1, color = Metadata_heart_number)) +
+  geom_point(size = 2, alpha = 0.3) +
+  scale_color_manual(name = "Heart Number",   
+        values = c(
+          "2" = "#00FF00",     
+          "7" = "#0000FF",     
+          "19" = "#FFA500",   
+          "23" = "#FF0000",    
+          "29" = "#800080",    
+          "4" = "#FF00FF"      
+        ),
+        breaks = c("2", "7", "19", "23", "29", "4"),  
+        labels = c("2", "7", "19", "23", "29", "4")
+  ) +
+  labs(title = "UMAP of Filtered Plate 4 Morphology Space Comparing Between Heart Numbers of Isolated Cells", x = "UMAP0", y = "UMAP1") +
+  theme_bw() +
+  theme(
+    # Increase title size
+    plot.title = element_text(size = 18),
+    
+    # Increase axis text size
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12),
+    
+    # Increase legend size
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 14),
+    
+  ) +
+  facet_wrap(Metadata_treatment ~ Metadata_cell_type)
+
+# saving image
+output_file <- file.path(paste0(output_umap_file, "_filtered_heart_number.png"))
+ggsave(output_file, umap_filtered_heart_num_figure, dpi = 500, height = 10, width = 14)
+
+print(umap_filtered_heart_num_figure)
+
+umap_filtered_cell_count_figure <- 
+  ggplot(umap_filtered_df, aes(x = UMAP0, y = UMAP1)) +
+  geom_point(aes(color = Metadata_Cell_Count), alpha = 0.5, size = 3) +
+  theme_bw() +
+  scale_color_continuous(
+    name = "Cell Count", 
+    low = "light pink",
+    high = "red"
+  ) +
+  labs(title = "UMAP of Filtered Plate 4 Morphology Space Comparing\nBetween Cell Counts (Well-Level) of Isolated Cells", x = "UMAP0", y = "UMAP1")
+
+# saving image
+output_file <- file.path(paste0(output_umap_file, "_filtered_well_cell_count.png"))
+ggsave(output_file, umap_filtered_cell_count_figure, dpi = 500, height = 8, width = 8)
+
+
+print(umap_filtered_cell_count_figure)
+
+umap_filtered_cell_neighbors_figure <- 
+  ggplot(umap_filtered_df, aes(x = UMAP0, y = UMAP1)) +
+  geom_point(aes(color = Metadata_Neighbors_Adjacent), alpha = 0.5, size = 2) +
+  theme_bw() +
+  labs(title = "UMAP of Filtered Plate 4 Morphology Space Comparing\nBetween Number of Neighbors per Cell", x = "UMAP0", y = "UMAP1") +
+  scale_color_discrete(name = "Number of Neighbors Adjacent")
+
+# saving image
+output_file <- file.path(paste0(output_umap_file, "_filtered_number_neighbors_cells.png"))
+ggsave(output_file, umap_filtered_cell_neighbors_figure, dpi = 500, height = 8, width = 8)
+
+
+print(umap_filtered_cell_neighbors_figure)

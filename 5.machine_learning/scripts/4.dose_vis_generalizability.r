@@ -27,6 +27,12 @@ head(combined_probabilities_df,2)
 # Add "uM" to all values in the Metadata_dose column
 combined_probabilities_df$Metadata_dose <- paste0(combined_probabilities_df$Metadata_dose, " uM")
 
+# Specify the levels in the desired order
+dose_levels <- c("0 uM", "0.005 uM", "0.014 uM", "0.04 uM", "0.12 uM", "0.37 uM", "1.11 uM", "3.33 uM", "5 uM", "10 uM")
+
+# Convert Metadata_dose to factor with specified levels
+combined_probabilities_df$Metadata_dose <- factor(combined_probabilities_df$Metadata_dose, levels = dose_levels)
+
 height <- 5
 width <- 20
 options(repr.plot.width = width, repr.plot.height = height)
@@ -66,15 +72,13 @@ ridge_plot_healthy
 bar_plot_predictions <- (
   ggplot(combined_probabilities_df, aes(x = Metadata_heart_number)) +
   geom_bar(aes(fill = predicted_label), position = "dodge") +
-  labs(x = "Heart number", y = "Count") +
-  facet_grid(model_type~factor(Metadata_dose, 
-        levels = c("0", "0.005", "0.014", "0.04", "0.12", "0.37", "1.11", "3.33", "5", "10")), 
-        scales = "free_y") +
-  scale_fill_manual(values = c(
+  labs(x = "Heart number", y = "Count")
+  + facet_grid(model_type ~ Metadata_dose, scales = "free_y") 
+  + scale_fill_manual(values = c(
         "Healthy" = brewer.pal(3, "Dark2")[1],
         "Failing" = brewer.pal(3, "Dark2")[2]
-    )) +
-  theme_bw()
+    )) 
+  + theme_bw()
 )
 bar_plot_predictions
 
@@ -82,17 +86,15 @@ combined_probabilities_df_filtered <- combined_probabilities_df %>%
   filter(Healthy_probas > 0.9 | Failing_probas > 0.9)
 
 bar_plot_predictions_filtered <- (
-  ggplot(combined_probabilities_df_filtered, aes(x = Metadata_heart_number)) +
-  geom_bar(aes(fill = predicted_label), position = "dodge") +
-  labs(x = "Heart number", y = "Count") +
-  facet_grid(model_type~factor(Metadata_dose, 
-        levels = c("0", "0.005", "0.014", "0.04", "0.12", "0.37", "1.11", "3.33", "5", "10")), 
-        scales = "free_y") +
-  scale_fill_manual(values = c(
+  ggplot(combined_probabilities_df_filtered, aes(x = Metadata_heart_number))
+  + geom_bar(aes(fill = predicted_label), position = "dodge")
+  + labs(x = "Heart number", y = "Count")
+  + facet_grid(model_type ~ Metadata_dose, scales = "free_y") 
+  + scale_fill_manual(values = c(
         "Healthy" = brewer.pal(3, "Dark2")[1],
         "Failing" = brewer.pal(3, "Dark2")[2]
-    )) +
-  theme_bw()
+    ))
+  + theme_bw()
 )
 
 bar_plot_predictions_filtered

@@ -18,3 +18,4 @@ python scripts/4.assess_generalizability.py
 Rscript scripts/4.vis_generalizability.r
 python scripts/4.dose_assess_generalizability.py
 Rscript scripts/4.dose_vis_generalizability.r
+python scripts/5.ks_test.py
