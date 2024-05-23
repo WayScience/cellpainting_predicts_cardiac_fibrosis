@@ -30,7 +30,7 @@ def perform_ks_test(
 
     Args:
         df1 (pd.DataFrame): First data frame in the ks-test (will be represented by positive values if greater distribution)
-        df2 (pd.DataFrame): First data frame in the ks-test (will be represented by negative values if greater distribution)
+        df2 (pd.DataFrame): Second data frame in the ks-test (will be represented by negative values if greater distribution)
         cp_features (list[str]): List of strings with the names of the CellProfiler features to perform the ks-test on
 
     Returns:
@@ -207,7 +207,7 @@ plt.show()
 
 # ## Go over the non-shuffled data to assess top differential features
 
-# In[13]:
+# In[10]:
 
 
 # Print the sorted dataframe to see the top features in both directions
@@ -232,7 +232,7 @@ print(f"Number of features below significance line (-log10pval <= {significance_
 
 # ## Extract the top differential feature for each population
 
-# In[14]:
+# In[12]:
 
 
 # Extract the first and last row Feature names
@@ -248,7 +248,7 @@ print(selected_features)
 
 # ## Density plots of these features comparing between treatment
 
-# In[16]:
+# In[13]:
 
 
 # Filter the plate_4_df DataFrame to include only rows with Metadata_heart_number 7
@@ -257,14 +257,14 @@ filtered_plate_df = plate4_df[plate4_df["Metadata_heart_number"] == 7]
 # Generate KDE plots for each feature in selected_features with hue based on Metadata_treatment
 for feature in selected_features:
     plt.figure(figsize=(8, 6))
-    sns.kdeplot(data=filtered_plate_df, x=feature, hue="Metadata_treatment", fill=True)
+    sns.kdeplot(data=filtered_plate_df, x=feature, hue="Metadata_treatment", fill=True, common_norm=False)
     plt.title(f"KDE Plot for {feature}")
     plt.show()
 
 
 # ### Look at the cell counts across treatments
 
-# In[17]:
+# In[14]:
 
 
 # Count the number of cells for each Metadata_treatment
@@ -272,4 +272,60 @@ treatment_counts = filtered_plate_df['Metadata_treatment'].value_counts()
 
 # Print the counts
 print(treatment_counts)
+
+
+# ## Look at the CDF (cumulative distribution function) curves to visualize the KS results for top two features
+
+# In[15]:
+
+
+# Assuming heart_7_DMSO and heart_7_None are your datasets containing the feature
+# Extract the specific feature
+feature_name = 'Nuclei_Texture_AngularSecondMoment_PM_3_01_256'
+data1 = heart_7_DMSO[feature_name]
+data2 = heart_7_None[feature_name]
+
+# Sort the data
+data1_sorted = np.sort(data1)
+data2_sorted = np.sort(data2)
+
+# Calculate the CDFs
+cdf_data1 = np.arange(1, len(data1_sorted) + 1) / len(data1_sorted)
+cdf_data2 = np.arange(1, len(data2_sorted) + 1) / len(data2_sorted)
+
+# Plot the CDFs
+plt.plot(data1_sorted, cdf_data1, label='DMSO (data1)')
+plt.plot(data2_sorted, cdf_data2, label='None (data2)')
+plt.xlabel('Nuclei_Texture_AngularSecondMoment_PM_3_01_256')
+plt.ylabel('Cumulative Probability')
+plt.title('CDF Plot for Nuclei_Texture_AngularSecondMoment_PM_3_01_256')
+plt.legend()
+plt.show()
+
+
+# In[16]:
+
+
+# Assuming heart_7_DMSO and heart_7_None are your datasets containing the feature
+# Extract the specific feature
+feature_name = 'Cells_Neighbors_SecondClosestDistance_Adjacent'
+data1 = heart_7_DMSO[feature_name]
+data2 = heart_7_None[feature_name]
+
+# Sort the data
+data1_sorted = np.sort(data1)
+data2_sorted = np.sort(data2)
+
+# Calculate the CDFs
+cdf_data1 = np.arange(1, len(data1_sorted) + 1) / len(data1_sorted)
+cdf_data2 = np.arange(1, len(data2_sorted) + 1) / len(data2_sorted)
+
+# Plot the CDFs
+plt.plot(data1_sorted, cdf_data1, label='DMSO (data1)')
+plt.plot(data2_sorted, cdf_data2, label='None (data2)')
+plt.xlabel('Cells_Neighbors_SecondClosestDistance_Adjacent')
+plt.ylabel('Cumulative Probability')
+plt.title('CDF Plot for Cells_Neighbors_SecondClosestDistance_Adjacent')
+plt.legend()
+plt.show()
 
