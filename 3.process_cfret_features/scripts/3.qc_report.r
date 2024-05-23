@@ -5,7 +5,7 @@ suppressPackageStartupMessages(library(stringr))
 suppressPackageStartupMessages(library(RColorBrewer))
 suppressPackageStartupMessages(library(arrow))
 
-plate <- "localhost230405150001"
+plate <- "localhost220512140003_KK22-05-198"
 
 # Paths to parquet files to generate QC report
 path_to_orig_plate4 <- file.path("./data/converted_profiles/", paste0(plate, "_converted.parquet"))
@@ -79,17 +79,21 @@ cleaned_platemap <- platetools::raw_map(
 # Display the plot in the notebook
 cleaned_platemap
 
-# Load in plate data that includes metadata
-annot_df <- arrow::read_parquet(file.path("./data/single_cell_profiles", paste0(plate, "_sc_annotated.parquet")))
+if (!grepl("KK22-05-198", plate)) {
+  # Load in plate data that includes metadata
+  annot_df <- arrow::read_parquet(file.path("./data/single_cell_profiles", paste0(plate, "_sc_annotated.parquet")))
 
-# Mutate cell type to be capitalized if needed and print the number of cells per cell type
-count_failing_healthy <- annot_df %>%
-  mutate(Metadata_cell_type = ifelse(
-    str_detect(Metadata_cell_type, "^[a-z]"), 
-    str_to_title(Metadata_cell_type), 
-    Metadata_cell_type)) %>%
-  filter(Metadata_cell_type %in% c("Failing", "Healthy")) %>%
-  group_by(Metadata_cell_type) %>%
-  summarise(Count = n())
+  # Mutate cell type to be capitalized if needed and print the number of cells per cell type
+  count_failing_healthy <- annot_df %>%
+    mutate(Metadata_cell_type = ifelse(
+      str_detect(Metadata_cell_type, "^[a-z]"), 
+      str_to_title(Metadata_cell_type), 
+      Metadata_cell_type)) %>%
+    filter(Metadata_cell_type %in% c("Failing", "Healthy")) %>%
+    group_by(Metadata_cell_type) %>%
+    summarise(Count = n())
 
-count_failing_healthy
+  count_failing_healthy
+} else {
+  print("Skipping processing because plate name includes 'KK22-05-198'")
+}
