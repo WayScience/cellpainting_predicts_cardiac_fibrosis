@@ -74,6 +74,9 @@ else:
 # Create a DataFrame with the coefficients and features
 coefficients_df = pd.DataFrame({'Feature': feature_columns, 'Coefficient': coefficients.flatten()})
 
+# Save the all coefficient data into a CSV file prior to splitting
+coefficients_df.to_csv(f'{coeff_dir}/all_coeffs.csv', index=False)
+
 # Print the DataFrame
 coefficients_df.head()
 

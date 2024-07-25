@@ -133,9 +133,15 @@ plate_3_dfs_dict['drug_x'] = {'data_df': drug_x_df}
 plate_3_dfs_dict['TGFRi'] = {'data_df': TGFRi_df}
 
 
+# In[7]:
+
+
+DMSO_df['Metadata_cell_type'].value_counts()
+
+
 # ## Create a data frame with precision recall data
 
-# In[7]:
+# In[8]:
 
 
 # Initialize empty lists to store data for each iteration
@@ -219,7 +225,7 @@ pr_df.head()
 
 # ## Create PR curve with only DMSO (control) data to assess performance
 
-# In[8]:
+# In[9]:
 
 
 # PR curves with only testing and training data
@@ -255,14 +261,14 @@ plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 
 plt.tight_layout()
-plt.savefig(f"{fig_dir}/precision_recall_plate3_DMSO_only.png", dpi=500)
+plt.savefig(f"{fig_dir}/precision_recall_plate3_DMSO_only.pdf", dpi=500)
 
 plt.show()
 
 
 # ## Extract final model predicted probabilities for each treatment
 
-# In[9]:
+# In[10]:
 
 
 # Create an empty DataFrame to store the results

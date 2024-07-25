@@ -19,3 +19,5 @@ Rscript scripts/4.vis_generalizability.r
 python scripts/4.dose_assess_generalizability.py
 Rscript scripts/4.dose_vis_generalizability.r
 python scripts/5.ks_test.py
+python scripts/6.find_sc_crop_coeff.py
+Rscript scripts/7.vis_accuracy_scores.r
