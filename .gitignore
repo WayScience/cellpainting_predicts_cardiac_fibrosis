@@ -58,3 +58,6 @@ runinfo
 
 # ignore CellProfiler SQLite output due to size (~500-800MB)
 2.cellprofiler_processing/cp_output
+
+# ignore single-cell crops for figure since they take up a lot of space and can be dervived through a notebook
+sc_crops*

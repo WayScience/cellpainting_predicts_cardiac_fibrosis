@@ -19,7 +19,7 @@ from joblib import load
 from sklearn.metrics import precision_recall_curve
 
 sys.path.append("../utils")
-from eval_utils import generate_confusion_matrix_df, generate_f1_score_df
+from eval_utils import generate_confusion_matrix_df, generate_f1_score_df, generate_accuracy_score_df
 from training_utils import load_data
 
 
@@ -33,6 +33,9 @@ data_dir = pathlib.Path("./data")
 
 # Directory with models
 models_dir = pathlib.Path("./models")
+
+# Path to encoder file
+encoder_path = pathlib.Path("./encoder_results/label_encoder_log_reg_fs_plate_4.joblib")
 
 # Directory for model figures output
 fig_dir = pathlib.Path("./figures")
@@ -69,9 +72,7 @@ for model_path in models_dir.iterdir():
         model = load(model_path)
 
         # load in label encoder
-        le = load(
-            pathlib.Path("./encoder_results/label_encoder_log_reg_fs_plate_4.joblib")
-        )
+        le = load(encoder_path)
 
         # Load in X and y data from dataset
         X, y = load_data(path_to_data=data_path, label="Metadata_cell_type")
@@ -114,15 +115,9 @@ print(pr_df.shape)
 pr_df.head()
 
 
-# In[4]:
-
-
-predicted_probs
-
-
 # ### Plot precision-recall curves for testing and training data per model type
 
-# In[6]:
+# In[4]:
 
 
 # PR curves with only testing and training data
@@ -166,7 +161,7 @@ plt.savefig(f"{fig_dir}/precision_recall_plate4_downsample_only_training.png", d
 plt.show()
 
 
-# In[4]:
+# In[5]:
 
 
 # PR curves with only testing and training data
@@ -201,14 +196,14 @@ plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 
 plt.tight_layout()
-plt.savefig(f"{fig_dir}/precision_recall_plate4_downsample.png", dpi=500)
+plt.savefig(f"{fig_dir}/precision_recall_plate4_downsample.pdf", dpi=500)
 
 plt.show()
 
 
 # ### Plot precision-recall curves for holdout data per model type
 
-# In[5]:
+# In[6]:
 
 
 # PR curves with hold-out data
@@ -252,7 +247,7 @@ plt.show()
 
 # ### Generate confusion matrix plots for each data set and model type
 
-# In[6]:
+# In[7]:
 
 
 # List of paths that contains each model
@@ -327,21 +322,18 @@ for model_path in path_list:
             f"{fig_dir}/plate4_confusion_matrix_{data_set}_{model_path.stem.split('_')[5]}_downsample.png",
             dpi=500,
         )
-        plt.show()
+        plt.close()
 
 
 # ## F1 scores
 
 # ### Concat F1 scores from all datasets and model types
 
-# In[7]:
+# In[8]:
 
 
 # List of paths that contains each model
 path_list = list(models_dir.glob("*"))
-
-# Path to encoder file
-encoder_path = pathlib.Path("./encoder_results/label_encoder_log_reg_fs_plate_4.joblib")
 
 # Metadata column used for classifying
 label = "Metadata_cell_type"
@@ -377,7 +369,7 @@ concat_f1_scores = pd.concat(dfs, ignore_index=True)
 
 # ### Check if output looks correct
 
-# In[8]:
+# In[9]:
 
 
 print(concat_f1_scores.shape)
@@ -386,7 +378,7 @@ concat_f1_scores.head()
 
 # ### Plot F1 scores for only testing and training data
 
-# In[9]:
+# In[10]:
 
 
 plt.figure(figsize=(10, 6))
@@ -427,7 +419,7 @@ plt.show()
 
 # ### Plot F1 scores for holdout data
 
-# In[10]:
+# In[11]:
 
 
 plt.figure(figsize=(10, 6))
@@ -462,6 +454,126 @@ plt.legend(title="Data Set")
 plt.tight_layout()
 
 plt.savefig(f"{fig_dir}/f1_scores_plate4_holdout_data_downsample.png", dpi=500)
+
+plt.show()
+
+
+# ## Generate accuracy scores specifically from the whole plate 4 dataset per heart
+
+# In[12]:
+
+
+# List of paths that contains each model
+path_list = list(models_dir.glob("*"))
+
+# Metadata column used for classifying
+label = "Metadata_cell_type"
+
+dfs = []
+
+# Iterate over each model path
+for model_path in path_list:
+    # Iterate over each dataset
+    for data_set in data_set_list:
+        print(data_set.capitalize(), model_path.stem.split("_")[5].capitalize())
+        
+        # Load the dataset
+        data_path = data_dir / f"{data_set}_data.csv"
+        data_df = pd.read_csv(data_path)
+        
+        # Group the data by heart number
+        grouped_data = data_df.groupby("Metadata_heart_number")
+        
+        # Iterate over each group (heart number)
+        for heart_number, df_heart in grouped_data:
+            # Generate accuracy data frame
+            df = generate_accuracy_score_df(
+                model_path=model_path,
+                data_set=df_heart,
+                encoder_path=encoder_path,
+                label=label
+            )
+
+            # Rename binary labels to failing versus healthy
+            df = df.rename(columns={0: "Failing", 1: "Healthy"})
+
+            # Add columns for model, data_set, and heart number
+            df["Model"] = model_path.stem.split("_")[5].capitalize()
+            df["Data_Set"] = data_set.capitalize()
+            df["Heart_Number"] = heart_number
+
+            # Append the DataFrame to the list
+            dfs.append(df)
+
+concat_accuracy_scores = pd.concat(dfs, ignore_index=True)
+
+concat_accuracy_scores.to_csv("./accuracy_scores_per_heart.csv", index=False)
+
+
+# In[13]:
+
+
+plt.figure(figsize=(12, 6))  # Adjust the width of the figure
+
+# Set y-axis limits
+plt.ylim(0, 1)
+
+filtered_accuracy_df = concat_accuracy_scores[concat_accuracy_scores['Model'] != 'Shuffled']
+
+ax = sns.barplot(x="Heart_Number", y="Accuracy", hue="Data_Set", data=filtered_accuracy_df)
+
+# Add the weighted values above the bars
+for p in ax.patches:
+    height = p.get_height()
+    if height > 0:
+        ax.annotate(
+            f"{height:.2f}",
+            (p.get_x() + p.get_width() / 2.0, height),
+            ha="center",
+            va="center",
+            xytext=(0, 10),
+            textcoords="offset points",
+        )
+
+plt.title("Accuracy per heart separated by data split")
+plt.xlabel("Heart number")
+plt.ylabel("Accuracy")
+plt.legend(title="Data Split", bbox_to_anchor=(0.5, -0.15), loc='upper center', ncol=2)  # Move legend to the middle
+plt.tight_layout()
+
+plt.show()
+
+
+# In[14]:
+
+
+plt.figure(figsize=(12, 6))  # Adjust the width of the figure
+
+# Set y-axis limits
+plt.ylim(0, 1)
+
+filtered_accuracy_df = concat_accuracy_scores[concat_accuracy_scores['Model'] != 'Final']
+
+ax = sns.barplot(x="Heart_Number", y="Accuracy", hue="Data_Set", data=filtered_accuracy_df)
+
+# Add the weighted values above the bars
+for p in ax.patches:
+    height = p.get_height()
+    if height > 0:
+        ax.annotate(
+            f"{height:.2f}",
+            (p.get_x() + p.get_width() / 2.0, height),
+            ha="center",
+            va="center",
+            xytext=(0, 10),
+            textcoords="offset points",
+        )
+
+plt.title("Accuracy per heart separated by data split")
+plt.xlabel("Heart number")
+plt.ylabel("Accuracy")
+plt.legend(title="Data Split", bbox_to_anchor=(0.5, -0.15), loc='upper center', ncol=2)  # Move legend to the middle
+plt.tight_layout()
 
 plt.show()
 
