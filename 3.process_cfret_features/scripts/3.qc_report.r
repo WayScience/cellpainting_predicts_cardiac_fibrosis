@@ -5,7 +5,7 @@ suppressPackageStartupMessages(library(stringr))
 suppressPackageStartupMessages(library(RColorBrewer))
 suppressPackageStartupMessages(library(arrow))
 
-plate <- "localhost220512140003_KK22-05-198"
+plate <- "localhost220513100001_KK22-05-198_FactinAdjusted"
 
 # Paths to parquet files to generate QC report
 path_to_orig_plate4 <- file.path("./data/converted_profiles/", paste0(plate, "_converted.parquet"))

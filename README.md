@@ -60,20 +60,38 @@ The goals of this project are:
 | [2.cellprofiler_processing](2_cellprofiler_processing/) | Apply feature extraction pipeline | We use CellProfiler to extract hundreds of morphology features per imaging channel |
 | [3.process_cfret_features](3.process_cfret_features/) | Get morphology features analysis ready | Apply cytotable and pycytominer to perform single-cell merging, annotation, normalization, and feature selection |
 | [4.analyze_data](4.analyze_data/) | Analyze the single cell profiles to achieve goals listed above | Several independent analyses to describe data and test hypotheses |
+| [5.machine_learning](5.machine_learning/) | Generate binary logistic regression model | Train model to predict healthy or failing cells and evaluate performance |
 
-## Create main CFReT conda environment
+## Create main CellProfiler conda environment
 
-For all modules, we use one main environment for the repository, which includes all packages needed including installing CellProfiler v4.2.4 among other packages.
+For modules 1 and 2, we use one CellProfiler environment for the repository, which includes all packages needed including installing CellProfiler v4.2.4 among other packages.
 
 To create the environment, run the below code block:
 
 ```bash
 # Run this command in terminal to create the conda environment
-conda env create -f cfret_main_env.yml
+conda env create -f cfret_cp_env.yml
 ```
 
-**Make sure that the conda environment is activated before running notebooks or scripts:**
+**Make sure that the conda environment is activated before running CellProfiler related notebooks or scripts:**
 
 ```bash
 conda activate cfret_data
+```
+
+## Python and R analysis
+
+There are two different environments used for python (preprocessing steps) and 
+
+- [python_analysis_env](./python_analysis_env.yml): This environment is for use in python specific notebooks, like the preprocessing and analyze data modules in modules 3 and 4.
+- [R_analysis_env](./R_analysis_env.yml): This environment is for use in R specific notebooks, specifically for visualizing data.
+
+**NOTE:** For module 5 where we train a machine learning model, there is a specific environment for that module that can be installed which is described in the [README](./5.machine_learning/README.md).
+
+You can create the environments using the code block below:
+
+```bash
+# create environment for analysis
+mamba env create -f python_analysis_env.yml
+mamba env create -f R_analysis_env.yml
 ```
