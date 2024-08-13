@@ -138,30 +138,3 @@ for (plate in names(platemap_dfs)) {
     )
     }
 }
-
-for (plate in names(platemap_dfs)) {
-    if (plate %in% c("localhost240201110001")) {
-    # output for each plate
-    output_file <- output_platemap_files[[plate]]
-    output_file <- paste0(output_file)
-    
-    platemap <-
-        platetools::raw_map(
-            data = platemap_dfs[[plate]]$treatment,
-            well = platemap_dfs[[plate]]$well_position,
-            plate = 96,
-            size = 8
-        ) +
-        ggtitle(paste("Platemap layout for plate", plate)) +
-        theme(plot.title = element_text(hjust=0.5, size = 10, face = "bold", margin = margin(b = -5))) +
-        ggplot2::scale_fill_discrete(name = "Treatment")
-
-    ggsave(
-        output_file,
-        platemap,
-        dpi = 500,
-        height = 3.5,
-        width = 6
-    )
-    }
-}
