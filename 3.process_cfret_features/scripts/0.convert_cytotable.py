@@ -92,21 +92,30 @@ for file_path in converted_dir.iterdir():
 
     # If any, drop rows where "Metadata_ImageNumber" is NaN (artifact of cytotable)
     df = df.dropna(subset=["Metadata_ImageNumber"])
-
-    # Columns to move to the front
-    columns_to_move = [
-        "Nuclei_Location_Center_X",
-        "Nuclei_Location_Center_Y",
-        "Cells_Location_Center_X",
-        "Cells_Location_Center_Y",
-        "Image_Count_Cells",
-    ]
-
+    
     # Rearrange columns and add "Metadata" prefix in one line
     df = df[
-        columns_to_move + [col for col in df.columns if col not in columns_to_move]
+        [
+            "Nuclei_Location_Center_X",
+            "Nuclei_Location_Center_Y",
+            "Cells_Location_Center_X",
+            "Cells_Location_Center_Y",
+            "Image_Count_Cells",
+        ]
+        + [col for col in df.columns if col not in [
+            "Nuclei_Location_Center_X",
+            "Nuclei_Location_Center_Y",
+            "Cells_Location_Center_X",
+            "Cells_Location_Center_Y",
+            "Image_Count_Cells"]]
     ].rename(
-        columns=lambda col: "Metadata_" + col if col in columns_to_move else col
+        columns=lambda col: "Metadata_" + col if col in [
+            "Nuclei_Location_Center_X",
+            "Nuclei_Location_Center_Y",
+            "Cells_Location_Center_X",
+            "Cells_Location_Center_Y",
+            "Image_Count_Cells"
+        ] else col
     )
 
     # Save the processed DataFrame as Parquet in the same path
@@ -121,7 +130,7 @@ for file_path in converted_dir.iterdir():
 
 
 converted_df = pd.read_parquet(
-    "./data/converted_profiles/localhost220512140003_KK22-05-198_converted.parquet"
+    "./data/converted_profiles/localhost231120090001_converted.parquet"
 )
 
 print(converted_df.shape)

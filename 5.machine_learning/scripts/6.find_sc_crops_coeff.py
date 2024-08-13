@@ -3,7 +3,7 @@
 
 # # Find one top representative single-cell crop visualize per top healthy and failing coefficients
 # 
-# The features with the highest coefficients per channel per cell type are identified *manually*. We do not use correlation features due to having to use two features and those are harder to visualize.
+# The features with the highest coefficients per channel for each cell type are identified *manually*. We exclude correlation features because they involve two variables, making them more challenging to visualize.
 # 
 # We first filter the plate 4 data frame to only include isolated cells (0 cell neighbors adjacent) and then filter out any single-cell that is too close to an edge (based on crop_size).
 # 
@@ -28,6 +28,8 @@
 # | F-actin | Cells_Intensity_IntegratedIntensityEdge_Actin | 1.35720412209369 |
 # 
 
+# ## Import libraries
+
 # In[1]:
 
 
@@ -38,6 +40,8 @@ import cv2
 import pandas as pd
 from typing import List
 
+
+# ## Define functions for notebook
 
 # In[2]:
 
@@ -130,6 +134,8 @@ def generate_sc_crops(
                 cv2.imwrite(output_filename, cropped_channel)
 
 
+# ## Set paths and variables
+
 # In[4]:
 
 
@@ -151,6 +157,8 @@ list_of_dfs = []
 # Create open list of names to assign each data frame in a list relating to the feature, channel, and cell type
 list_of_names = []
 
+
+# ## Load in plate 4 data
 
 # In[5]:
 
@@ -191,6 +199,8 @@ plate4_df.rename(
 print(plate4_df.shape)
 plate4_df.head()
 
+
+# ## Filter for isolated single cells
 
 # In[6]:
 

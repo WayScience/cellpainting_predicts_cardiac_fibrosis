@@ -3,7 +3,7 @@
 
 # # Perform single-cell quality control
 # 
-# In this notebook, we perform single-cell quality control using coSMicQC. To filter the single-cells, we use z-score to find outliers using the values from only one feature at a time. We use features from the AreaShape and Intensity modules to assess the quality of the segmented single-cells:
+# In this notebook, we perform single-cell quality control using coSMicQC. e filter the single cells by identifying outliers with z-scores, and use either combinations of features or one feature for each condition. We use features from the AreaShape and Intensity modules to assess the quality of the segmented single-cells:
 # 
 # ### Assessing poor nuclei segmentation
 # 
@@ -13,11 +13,6 @@
 # We detect nuclei that are abnormally large, which likely indicates poor nucleus segmentation where overlapping nuclei are merged into one segmentation. 
 # - **Nuclei Intensity:** This metric quantifies the total intensity of all pixels in a nucleus segmentation. 
 # In combination with abnormally large nuclei, we detect nuclei that are also highly intense, likely indicating that this a group of overlapped nuclei.
-# 
-# As well, there are times where nuclei are under or over-segmented, leading to non-circular nuclei shapes. To identify these nuclei, we use:
-# 
-# - **Nuclei FormFactor:** This metric quantifies how circular an object is, with 1 meaning perfect circle and 0 meaning non-circular. 
-# We are detecting nuclei that are not circular and have rough edges or shapes that look like budding yeast.
 # 
 # ### Assessing poor cell segmentation
 # 
@@ -67,9 +62,6 @@ metadata_columns = [
     "Metadata_Nuclei_Location_Center_Y",
 ]
 
-# Set outlier threshold to use for all metrics (# of std deviations away from the mean)
-outlier_threshold = 2
-
 
 # ## Load in plate to perform QC on
 
@@ -77,7 +69,7 @@ outlier_threshold = 2
 
 
 # Set plate as variable to load in
-plate = "localhost231120090001"
+plate = "localhost220513100001_KK22-05-198_FactinAdjusted"
 
 # Load in converted plate data
 plate_df = pd.read_parquet(f"{data_dir}/{plate}_converted.parquet")
@@ -94,6 +86,9 @@ plate_df.head()
 
 # In[4]:
 
+
+# Set outlier threshold that maximizes removing most technical outliers and minimizes good cells
+outlier_threshold = 2
 
 # find large nuclei and high intensity
 feature_thresholds = {
@@ -161,79 +156,23 @@ plt.savefig(pathlib.Path(f"{qc_fig_dir}/{plate}_nuclei_outliers.png"), dpi=500)
 plt.show()
 
 
-# ## Identify all non-circular (poorly-segmented) nuclei
+# ## Mis-segmented cells due to high confluence (segmentation for cells around the nuclei)
 
 # In[6]:
 
 
-# find non-circular nuclei (low formfactor means below mean so must add a negative to the outlier threshold)
-feature_thresholds = {
-    "Nuclei_AreaShape_FormFactor": -outlier_threshold,
-}
-
-low_formfactor_outliers = find_outliers(
-    df=plate_df,
-    metadata_columns=metadata_columns,
-    feature_thresholds=feature_thresholds
-)
-
-print(low_formfactor_outliers.shape)
-low_formfactor_outliers.head()
-
-
-# ### Plot FormFactor distribution labelling outlier status
-
-# In[7]:
-
-
-# Reset the default value to 'inlier'
-plate_df["Outlier_Status"] = "Single-cell passed QC"
-
-# Update the 'Outlier_Status' column based on the outliers DataFrame using index
-plate_df.loc[plate_df.index.isin(low_formfactor_outliers.index), "Outlier_Status"] = (
-    "Single-cell failed QC"
-)
-
-# Create histogram
-plt.figure(figsize=(10, 6))
-sns.histplot(
-    data=plate_df,
-    x="Nuclei_AreaShape_FormFactor",
-    hue="Outlier_Status",
-    multiple="stack",
-    bins=50,  # Adjust the number of bins as needed
-    palette={"Single-cell passed QC": "#006400", "Single-cell failed QC": "#990090"},
-    legend=True,
-)
-
-plt.title(f"Distribution of Nuclei FormFactor all outlier statuses for plate {plate}")
-plt.xlabel("Nuclei FormFactor")
-plt.ylabel("Count")
-plt.tight_layout()
-
-# Show the legend
-plt.legend(
-    title="QC Status",
-    loc="upper left",
-    prop={"size": 10},
-    labels=["Failed QC", "Passed QC"],
-)
-
-# save figure
-plt.savefig(pathlib.Path(f"{qc_fig_dir}/{plate}_nuclei_formfactor_outliers.png"), dpi=500)
-
-plt.show()
-
-
-# ## Mis-segmented cells due to high confluence (segmentation for cells around the nuclei)
-
-# In[8]:
-
-
 # find large nuclei and high intensity
-feature_thresholds = {
-    "Cells_AreaShape_Area": -1.08,
-}
+if plate == "localhost230405150001": # for plate 3
+    # Set threshold more strict as it is not enough to remove most outliers
+    feature_thresholds = {
+        "Cells_AreaShape_Area": -0.9,
+    }
+else:
+    # This threshold can work for plate 4 and the pilot plates which removes most outliers
+    feature_thresholds = {
+        "Cells_AreaShape_Area": -1,
+    }
+
 
 small_cells_outliers = find_outliers(
     df=plate_df,
@@ -245,7 +184,7 @@ print(small_cells_outliers.shape)
 small_cells_outliers.sort_values(by="Cells_AreaShape_Area", ascending=False).head()
 
 
-# In[9]:
+# In[7]:
 
 
 # Create a density plot
@@ -276,20 +215,20 @@ plt.show()
 
 # ## Remove all outliers and save cleaned data frame
 
-# In[10]:
+# In[8]:
 
 
 # Assuming nuclei_outliers_df and cells_outliers_df have the same index
-outlier_indices = pd.concat([large_nuclei_high_int_outliers, small_cells_outliers, low_formfactor_outliers]).index
+outlier_indices = pd.concat([large_nuclei_high_int_outliers, small_cells_outliers]).index
 
 # Remove rows with outlier indices from plate_4_df
-plate_4_df_cleaned = plate_df.drop(outlier_indices)
+plate_df_cleaned = plate_df.drop(outlier_indices)
 
 # Save cleaned data for this plate
 plate_name = plate_df['Image_Metadata_Plate'].iloc[0]
-plate_4_df_cleaned.to_parquet(f"{cleaned_dir}/{plate_name}_cleaned.parquet")
+plate_df_cleaned.to_parquet(f"{cleaned_dir}/{plate_name}_cleaned.parquet")
 
 # Verify the result
-print(plate_4_df_cleaned.shape)
-plate_4_df_cleaned.head()
+print(plate_df_cleaned.shape)
+plate_df_cleaned.head()
 

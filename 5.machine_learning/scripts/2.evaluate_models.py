@@ -16,10 +16,14 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from joblib import load
-from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import precision_recall_curve, auc
 
 sys.path.append("../utils")
-from eval_utils import generate_confusion_matrix_df, generate_f1_score_df, generate_accuracy_score_df
+from eval_utils import (
+    generate_confusion_matrix_df,
+    generate_f1_score_df,
+    generate_accuracy_score_df,
+)
 from training_utils import load_data
 
 
@@ -141,6 +145,7 @@ sns.lineplot(
     dashes={"final": (1, 0), "shuffled": (2, 2)},
     palette=colors,
     data=filtered_df,
+    linewidth=2.5  # Adjust the line width as needed
 )
 
 plt.legend(loc="lower right", fontsize=15)
@@ -181,6 +186,7 @@ sns.lineplot(
     style="Model_Type",
     dashes={"final": (1, 0), "shuffled": (2, 2)},
     data=filtered_df,
+    linewidth=2.5  # Adjust the line width as needed
 )
 
 plt.legend(loc="lower right", fontsize=15)
@@ -201,9 +207,28 @@ plt.savefig(f"{fig_dir}/precision_recall_plate4_downsample.pdf", dpi=500)
 plt.show()
 
 
+# In[6]:
+
+
+# Filter the dataframe for the final model
+final_model_df = filtered_df[filtered_df["Model_Type"] == "final"]
+
+# Calculate AUPRC for training data
+training_data = final_model_df[final_model_df["Data_Type"] == "training"]
+training_auprc = auc(training_data["Recall"], training_data["Precision"])
+
+# Calculate AUPRC for testing data
+testing_data = final_model_df[final_model_df["Data_Type"] == "testing"]
+testing_auprc = auc(testing_data["Recall"], testing_data["Precision"])
+
+# Output the results
+print(f"AUPRC for Training Data: {training_auprc:.4f}")
+print(f"AUPRC for Testing Data: {testing_auprc:.4f}")
+
+
 # ### Plot precision-recall curves for holdout data per model type
 
-# In[6]:
+# In[7]:
 
 
 # PR curves with hold-out data
@@ -223,6 +248,7 @@ sns.lineplot(
     style="Model_Type",
     dashes={"final": (1, 0), "shuffled": (2, 2)},
     data=filtered_df,
+    linewidth=2.5  # Adjust the line width as needed
 )
 
 plt.legend(loc="lower right", fontsize=13)
@@ -247,7 +273,7 @@ plt.show()
 
 # ### Generate confusion matrix plots for each data set and model type
 
-# In[7]:
+# In[8]:
 
 
 # List of paths that contains each model
@@ -290,7 +316,7 @@ for model_path in path_list:
         plt.figure(figsize=(12, 10))
         sns.set_style("whitegrid")
 
-        sns.heatmap(
+        heatmap = sns.heatmap(
             data=df.pivot(
                 index="True_Label", columns="Predicted_Label", values="Recall"
             ),
@@ -300,24 +326,33 @@ for model_path in path_list:
             fmt=".0f",
             cmap="Reds",
             square=True,
-            vmin=0,  # Set vmin here
-            vmax=1,  # Set vmax here
-            cbar_kws={"label": "Recall"},
+            vmin=0,
+            vmax=1,
             xticklabels=["Failing", "Healthy"],
             yticklabels=["Failing", "Healthy"],
             linewidths=0.5,
-            annot_kws={"size": 14},
+            annot_kws={"size": 16},  # Adjusted annotation font size
             mask=(
                 df.pivot(
                     index="True_Label", columns="Predicted_Label", values="Count"
                 ).isna()
             ),
+            cbar_kws={"label": "Recall"},
         )
 
+        # Adjust color bar label font size
+        colorbar = heatmap.collections[0].colorbar
+        colorbar.set_label("Recall", fontsize=14)  # Adjust colorbar label font size
+        colorbar.ax.tick_params(labelsize=12)  # Adjust colorbar tick labels font size
+
         plt.title(
-            f"Confusion Matrix for {data_set.capitalize()} Data - Model: {model_path.stem.split('_')[5].capitalize()}"
+            f"Confusion Matrix for {data_set.capitalize()} Data - Model: {model_path.stem.split('_')[5].capitalize()}",
+            fontsize=20,  # Adjusted title font size
         )
+        plt.xticks(fontsize=14)  # Adjusted x-axis tick label font size
+        plt.yticks(fontsize=14)  # Adjusted y-axis tick label font size
         plt.tight_layout()
+
         plt.savefig(
             f"{fig_dir}/plate4_confusion_matrix_{data_set}_{model_path.stem.split('_')[5]}_downsample.png",
             dpi=500,
@@ -329,7 +364,7 @@ for model_path in path_list:
 
 # ### Concat F1 scores from all datasets and model types
 
-# In[8]:
+# In[9]:
 
 
 # List of paths that contains each model
@@ -369,7 +404,7 @@ concat_f1_scores = pd.concat(dfs, ignore_index=True)
 
 # ### Check if output looks correct
 
-# In[9]:
+# In[10]:
 
 
 print(concat_f1_scores.shape)
@@ -378,7 +413,7 @@ concat_f1_scores.head()
 
 # ### Plot F1 scores for only testing and training data
 
-# In[10]:
+# In[11]:
 
 
 plt.figure(figsize=(10, 6))
@@ -419,7 +454,7 @@ plt.show()
 
 # ### Plot F1 scores for holdout data
 
-# In[11]:
+# In[12]:
 
 
 plt.figure(figsize=(10, 6))
@@ -460,7 +495,7 @@ plt.show()
 
 # ## Generate accuracy scores specifically from the whole plate 4 dataset per heart
 
-# In[12]:
+# In[13]:
 
 
 # List of paths that contains each model
@@ -476,14 +511,14 @@ for model_path in path_list:
     # Iterate over each dataset
     for data_set in data_set_list:
         print(data_set.capitalize(), model_path.stem.split("_")[5].capitalize())
-        
+
         # Load the dataset
         data_path = data_dir / f"{data_set}_data.csv"
         data_df = pd.read_csv(data_path)
-        
+
         # Group the data by heart number
         grouped_data = data_df.groupby("Metadata_heart_number")
-        
+
         # Iterate over each group (heart number)
         for heart_number, df_heart in grouped_data:
             # Generate accuracy data frame
@@ -491,7 +526,7 @@ for model_path in path_list:
                 model_path=model_path,
                 data_set=df_heart,
                 encoder_path=encoder_path,
-                label=label
+                label=label,
             )
 
             # Rename binary labels to failing versus healthy
@@ -510,40 +545,6 @@ concat_accuracy_scores = pd.concat(dfs, ignore_index=True)
 concat_accuracy_scores.to_csv("./accuracy_scores_per_heart.csv", index=False)
 
 
-# In[13]:
-
-
-plt.figure(figsize=(12, 6))  # Adjust the width of the figure
-
-# Set y-axis limits
-plt.ylim(0, 1)
-
-filtered_accuracy_df = concat_accuracy_scores[concat_accuracy_scores['Model'] != 'Shuffled']
-
-ax = sns.barplot(x="Heart_Number", y="Accuracy", hue="Data_Set", data=filtered_accuracy_df)
-
-# Add the weighted values above the bars
-for p in ax.patches:
-    height = p.get_height()
-    if height > 0:
-        ax.annotate(
-            f"{height:.2f}",
-            (p.get_x() + p.get_width() / 2.0, height),
-            ha="center",
-            va="center",
-            xytext=(0, 10),
-            textcoords="offset points",
-        )
-
-plt.title("Accuracy per heart separated by data split")
-plt.xlabel("Heart number")
-plt.ylabel("Accuracy")
-plt.legend(title="Data Split", bbox_to_anchor=(0.5, -0.15), loc='upper center', ncol=2)  # Move legend to the middle
-plt.tight_layout()
-
-plt.show()
-
-
 # In[14]:
 
 
@@ -552,9 +553,13 @@ plt.figure(figsize=(12, 6))  # Adjust the width of the figure
 # Set y-axis limits
 plt.ylim(0, 1)
 
-filtered_accuracy_df = concat_accuracy_scores[concat_accuracy_scores['Model'] != 'Final']
+filtered_accuracy_df = concat_accuracy_scores[
+    concat_accuracy_scores["Model"] != "Shuffled"
+]
 
-ax = sns.barplot(x="Heart_Number", y="Accuracy", hue="Data_Set", data=filtered_accuracy_df)
+ax = sns.barplot(
+    x="Heart_Number", y="Accuracy", hue="Data_Set", data=filtered_accuracy_df
+)
 
 # Add the weighted values above the bars
 for p in ax.patches:
@@ -572,7 +577,49 @@ for p in ax.patches:
 plt.title("Accuracy per heart separated by data split")
 plt.xlabel("Heart number")
 plt.ylabel("Accuracy")
-plt.legend(title="Data Split", bbox_to_anchor=(0.5, -0.15), loc='upper center', ncol=2)  # Move legend to the middle
+plt.legend(
+    title="Data Split", bbox_to_anchor=(0.5, -0.15), loc="upper center", ncol=2
+)  # Move legend to the middle
+plt.tight_layout()
+
+plt.show()
+
+
+# In[15]:
+
+
+plt.figure(figsize=(12, 6))  # Adjust the width of the figure
+
+# Set y-axis limits
+plt.ylim(0, 1)
+
+filtered_accuracy_df = concat_accuracy_scores[
+    concat_accuracy_scores["Model"] != "Final"
+]
+
+ax = sns.barplot(
+    x="Heart_Number", y="Accuracy", hue="Data_Set", data=filtered_accuracy_df
+)
+
+# Add the weighted values above the bars
+for p in ax.patches:
+    height = p.get_height()
+    if height > 0:
+        ax.annotate(
+            f"{height:.2f}",
+            (p.get_x() + p.get_width() / 2.0, height),
+            ha="center",
+            va="center",
+            xytext=(0, 10),
+            textcoords="offset points",
+        )
+
+plt.title("Accuracy per heart separated by data split")
+plt.xlabel("Heart number")
+plt.ylabel("Accuracy")
+plt.legend(
+    title="Data Split", bbox_to_anchor=(0.5, -0.15), loc="upper center", ncol=2
+)  # Move legend to the middle
 plt.tight_layout()
 
 plt.show()

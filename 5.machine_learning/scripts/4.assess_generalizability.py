@@ -19,7 +19,7 @@ import pandas as pd
 import pyarrow.parquet as pq
 import seaborn as sns
 from joblib import load
-from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import precision_recall_curve, auc
 
 sys.path.append("../utils")
 from eval_utils import generate_confusion_matrix_df, generate_f1_score_df
@@ -246,6 +246,7 @@ sns.lineplot(
     dashes={"final": (1, 0), "shuffled": (2, 2)},
     drawstyle='steps',
     data=filtered_df,
+    linewidth=2.5  # Adjust the line width as needed
 )
 
 plt.legend(loc="lower right", fontsize=15)
@@ -266,9 +267,22 @@ plt.savefig(f"{fig_dir}/precision_recall_plate3_DMSO_only.png", dpi=500)
 plt.show()
 
 
+# In[10]:
+
+
+# Filter the dataframe for the final model with DMSO treatment
+dmso_df = filtered_df[filtered_df["Model_Type"] == "final"]
+
+# Calculate AUPRC for DMSO data (considered as testing)
+dmso_auprc = auc(dmso_df["Recall"], dmso_df["Precision"])
+
+# Output the result
+print(f"AUPRC for DMSO (Testing) Data: {dmso_auprc:.4f}")
+
+
 # ## Extract final model predicted probabilities for each treatment
 
-# In[10]:
+# In[11]:
 
 
 # Create an empty DataFrame to store the results
