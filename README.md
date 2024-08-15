@@ -6,8 +6,8 @@ In this repository, we generate pipelines to perform image analysis, image-based
 
 The goals of this project are to:
 
-1. Comprehensively define cell-state differences between distinct cardiac fibroblast (CF) populations.
-2. Accurately predict CF phenotype that can generalize and be applied to a large-drug screen to uncover potential hits to better treat cardiac fibrosis.
+1. Comprehensively define cell-state differences between failing and non-failing cardiac fibroblast (CF) populations.
+2. Accurately predict CF phenotype that can generalize and be applied to a large-drug screen to find hits that make the failing cells look healthy.
 
 ## Cell Painting
 
@@ -44,14 +44,14 @@ There are three different treatments:
 - drug_x
 - TGRFi (TGFB inhibitor)
 
-We applied the model to this place to assess that the model is able to accurately predict the control cells and how the model predictions change with the treatments.
+We applied the model to this dataset to evaluate its accuracy in predicting control cells and to observe how its predictions change in response to different treatments.
 
 - **localhost230405150001**
 
 ![localhost230405150001_platemap_figure.png](./metadata/platemap_figures/localhost230405150001_platemap_figure.png)
 
 
-Additionally, we include pilot plates in this repository that did not used an optimized protocol for extra analysis that we do not include in the manuscript.
+Additionally, we include the pilot plates below in this repository that were not prepared using an optimized protocol, intended for further analysis that is not included in the manuscript.
 
 - **localhost220512140003_KK22-05-198**
 - **localhost220513100001_KK22-05-198_FactinAdjusted**
