@@ -1,8 +1,8 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13328681.svg)](https://doi.org/10.5281/zenodo.13328681)
 
-# CFReT Project
+# Cell Painting predicts cardiac fibrosis
 
-In this repository, we generate pipelines to perform image analysis, image-based profiling, and training machine learning model to predict cardiac fibrosis phenotype.
+In this repository, we generate pipelines to perform image analysis, image-based profiling, and training machine learning model to predict cardiac fibrosis phenotype using non-failing and failing single cell morphological profiles.
 
 ## Goals
 
