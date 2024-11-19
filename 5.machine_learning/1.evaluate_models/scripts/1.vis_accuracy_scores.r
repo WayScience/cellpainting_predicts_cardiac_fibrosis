@@ -74,7 +74,7 @@ accuracy_plot_gg <- ggplot(final_df, aes(x = factor(Heart_Number), y = Accuracy,
 
 # Save the plot
 ggsave(
-  paste0(accuracy_dir, "/accuracy_plot_plate_4_per_heart_downsample.pdf"), 
+  paste0(accuracy_dir, "/accuracy_plot_plate_4_per_heart_downsample.png"), 
   plot = accuracy_plot_gg, 
   width = getOption("repr.plot.width"), 
   height = getOption("repr.plot.height"), 
