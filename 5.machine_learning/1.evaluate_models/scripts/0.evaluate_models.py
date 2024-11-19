@@ -140,18 +140,19 @@ pr_df.head()
 plt.figure(figsize=(12, 8))
 sns.set_style("whitegrid")
 
-# Combine model and data type as one column for plotting
-pr_df["data_split"] = pr_df["Model_Type"] + " (" + pr_df["Data_Type"] + ")"
-
 # Filter data frame to only show training versus testing
 filtered_df = pr_df[pr_df["Data_Type"].isin(["training", "testing"])]
+
+# Define color for data splits
+colors = {"training": "#D55E00", "testing": "#009E73"}
 
 sns.lineplot(
     x="Recall",
     y="Precision",
-    hue="data_split",
+    hue="Data_Type",
     style="Model_Type",
     dashes={"final": (1, 0), "shuffled": (2, 2)},
+    palette=colors,
     data=filtered_df,
     linewidth=4,  # Adjust the line width as needed
 )
@@ -171,7 +172,7 @@ plt.xticks(fontsize=20)
 plt.yticks(fontsize=20)
 
 plt.tight_layout()
-plt.savefig(f"{pr_curves_dir}/precision_recall_plate4_downsample.pdf", dpi=500, bbox_inches='tight')
+plt.savefig(f"{pr_curves_dir}/precision_recall_plate4_downsample.png", dpi=500, bbox_inches='tight')
 
 # Avoid showing plot in notebook
 plt.close()
@@ -186,19 +187,16 @@ plt.close()
 plt.figure(figsize=(12, 10))
 sns.set_style("whitegrid")
 
-# Combine model and data type as one column for plotting
-pr_df["data_split"] = pr_df["Model_Type"] + " (" + pr_df["Data_Type"] + ")"
-
 # Filter data frame to only show training versus testing
 filtered_df = pr_df[pr_df["Data_Type"].isin(["training"])]
 
-# Define colors for each condition
-colors = {"final (training)": "red", "shuffled (training)": "#ff7f0e"}
+# Define color for data split
+colors = {"training": "#D55E00"}
 
 sns.lineplot(
     x="Recall",
     y="Precision",
-    hue="data_split",
+    hue="Data_Type",
     style="Model_Type",
     dashes={"final": (1, 0), "shuffled": (2, 2)},
     palette=colors,
@@ -252,13 +250,10 @@ print(f"AUPRC for Testing Data: {testing_auprc:.4f}")
 
 
 # Custom colors for the holdout plot to differentiate between the training/testing plot
-custom_colors = ["#CC79A7", "#0072B2", "#009E73", "#882255"]  # Pink, Dark Blue, Teal, Burgundy
+custom_colors = ["#0072B2", "#882255"]  # Blue, Burgundy
 
 plt.figure(figsize=(12, 10))
 sns.set_style("whitegrid")
-
-# Combine model and data type as one column for plotting
-pr_df["data_split"] = pr_df["Model_Type"] + " (" + pr_df["Data_Type"] + ")"
 
 # Filter data frame to only show holdout datasets
 filtered_df = pr_df[pr_df["Data_Type"].isin(["holdout1", "holdout2"])]
@@ -266,11 +261,11 @@ filtered_df = pr_df[pr_df["Data_Type"].isin(["holdout1", "holdout2"])]
 sns.lineplot(
     x="Recall",
     y="Precision",
-    hue="data_split",
+    hue="Data_Type",
     style="Model_Type",
     dashes={"final": (1, 0), "shuffled": (2, 2)},
     data=filtered_df,
-    linewidth=2.5,  # Adjust the line width as needed
+    linewidth=4,  # Adjust the line width as needed
     palette=custom_colors  # Apply the custom color palette
 )
 
