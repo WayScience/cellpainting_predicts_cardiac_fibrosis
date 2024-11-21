@@ -352,9 +352,78 @@ print(f"AUPRC for Training Data: {training_auprc:.4f}")
 print(f"AUPRC for Testing Data: {testing_auprc:.4f}")
 
 
-# ## Extract accuracy scores across data splits and hearts
+# ## Create one PR curve for both models
 
 # In[9]:
+
+
+# Create a custom color palette: darker for training, lighter for testing
+palette = {
+    "training (rest)": "#1560bd",  # Darker blue
+    "testing (rest)": "#85c0f9",   # Lighter blue
+    "training (actin)": "#e6550d",   # Darker orange
+    "testing (actin)": "#ff9c3d",    # Lighter orange
+}
+
+# PR curves with both training and testing data for all feature sets
+plt.figure(figsize=(12, 8))
+sns.set_style("whitegrid")
+
+# Filter the dataframe to only include 'training' and 'testing' data types
+filtered_df = pr_df[
+    pr_df["Data_Type"].isin(["training", "testing"])
+].copy()  # Make a copy of the filtered dataframe to avoid SettingWithCopyWarning
+
+# Create a new column 'Data_Type_Feature' by combining Data_Type and Feature_Set
+filtered_df['Data Split'] = filtered_df['Data_Type'] + ' (' + filtered_df['Feature_Set'] + ')'
+
+# Rename the column 'Model_Type' to something else if needed
+filtered_df = filtered_df.rename(columns={'Model_Type': 'Model Type'})
+
+# Create a line plot for Precision vs Recall
+sns.lineplot(
+    x="Recall",
+    y="Precision",
+    hue="Data Split",  # Use the new combined column for hue
+    style="Model Type",  # Differentiate line styles based on Model Type
+    dashes={
+        "final": (1, 0),
+        "shuffled": (2, 2),
+    },  # Custom dash patterns for final and shuffled
+    data=filtered_df,
+    linewidth=4,  # Adjust the line width as needed
+    palette=palette,  # Apply the custom palette
+)
+
+# Set legend location
+plt.legend(loc="lower right")
+
+# Set plot limits for y-axis
+plt.ylim(bottom=0.0, top=1.02)
+
+# Set x and y axis labels with larger font
+plt.xlabel("Recall", fontsize=20)
+plt.ylabel("Precision", fontsize=20)
+
+# Set plot title with larger font
+plt.title("Precision vs. Recall Across Feature Sets", fontsize=20)
+
+# Adjust font size for x-axis and y-axis ticks
+plt.xticks(fontsize=18)
+plt.yticks(fontsize=18)
+
+# Adjust layout to prevent clipping
+plt.tight_layout()
+
+# Save the plot 
+plt.savefig(f"{supp_model_fig_dir}/precision_recall_actin_versus_rest.pdf", dpi=500, bbox_inches='tight')
+
+plt.show()
+
+
+# ## Extract accuracy scores across data splits and hearts
+
+# In[10]:
 
 
 # List of data sets to apply models to
@@ -445,7 +514,7 @@ concat_accuracy_scores.to_csv(f"{results_dir}/actin_and_rest_accuracy_scores_per
 
 # ## Create bar plot of the accuracies across hearts and data splits and the model type (actin or rest)
 
-# In[10]:
+# In[11]:
 
 
 # Set the order for Heart_Number
@@ -499,7 +568,7 @@ plt.show()
 
 # ## Find the top feature to predicting failing cells from rest final model
 
-# In[11]:
+# In[12]:
 
 
 # Load the training data
@@ -519,7 +588,7 @@ feature_columns = [col for col in feature_columns if "Actin" not in col]
 print(f"Length of feature columns: {len(feature_columns)}")
 
 
-# In[12]:
+# In[13]:
 
 
 # Retrieve the 'rest_final' model from the dictionary
