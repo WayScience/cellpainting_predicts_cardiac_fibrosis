@@ -88,7 +88,7 @@ for model_path in models_dir.glob("*downsample.joblib"):
 
 # ## Extract precision and recall data from the data splits
 
-# In[3]:
+# In[7]:
 
 
 # Initialize empty lists to store data for each iteration
@@ -379,9 +379,6 @@ filtered_df['Data Split'] = filtered_df['Data_Type'] + ' (' + filtered_df['Featu
 
 # Rename the column 'Model_Type' to something else if needed
 filtered_df = filtered_df.rename(columns={'Model_Type': 'Model Type'})
-
-# Save the filtered dataframe to the 'results' folder as a Parquet file for use in another plot
-filtered_df.to_parquet(f"{results_dir}/precision_recall_actin_rest_models.parquet", engine="pyarrow")
 
 # Create a line plot for Precision vs Recall
 sns.lineplot(

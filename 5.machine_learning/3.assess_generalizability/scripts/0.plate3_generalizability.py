@@ -64,17 +64,10 @@ encoder_path = pathlib.Path(
 # In[3]:
 
 
-# Load in Plate 4 normalized feature selected data metadata (used with model) to get the feature columns to filter the plate data
-parquet_metadata = pq.read_metadata(
-    pathlib.Path(f"{data_dir}/localhost231120090001_sc_feature_selected.parquet")
-)
-
-# Get the column names from the metadata
-all_column_names = parquet_metadata.schema.names
-
-# Filter out the column names that start with "Metadata_"
+# Read metadata and filter columns directly in one step
 model_column_names = [
-    col for col in all_column_names if not col.startswith("Metadata_")
+    col for col in pq.read_metadata(f"{data_dir}/localhost231120090001_sc_feature_selected.parquet").schema.names
+    if not col.startswith("Metadata_")
 ]
 
 print(len(model_column_names))
@@ -94,35 +87,23 @@ common_columns = [
     "Metadata_Nuclei_Location_Center_Y",
 ]
 
-# Load in Plate 3 data
-plate_3_df = pd.read_parquet(
-    pathlib.Path(f"{data_dir}/localhost230405150001_sc_normalized.parquet")
-)
-
-# Load in the annotated data and select only the needed columns
+# Load and merge the data in one step
+plate_3_df = pd.read_parquet(f"{data_dir}/localhost230405150001_sc_normalized.parquet")
 annotated_df = pd.read_parquet(
-    pathlib.Path(f"{data_dir}/localhost230405150001_sc_annotated.parquet")
-)[["Nuclei_Neighbors_NumberOfNeighbors_Adjacent"] + common_columns]
-
-# Merge the column into plate_3_df on the common columns
-plate_3_df = plate_3_df.merge(
-    annotated_df.rename(
-        columns={
-            "Nuclei_Neighbors_NumberOfNeighbors_Adjacent": "Metadata_Nuclei_Neighbors"
-        }
-    ),
-    on=common_columns,
-    how="left",  # Use left join to retain all rows from plate_3_df
+    f"{data_dir}/localhost230405150001_sc_annotated.parquet"
+)[["Nuclei_Neighbors_NumberOfNeighbors_Adjacent"] + common_columns].rename(
+    columns={"Nuclei_Neighbors_NumberOfNeighbors_Adjacent": "Metadata_Nuclei_Neighbors"}
 )
 
-# Drop rows with NaN values in feature columns that the model uses
-plate_3_df = plate_3_df.dropna(subset=model_column_names)
+plate_3_df = plate_3_df.merge(annotated_df, on=common_columns, how="left").dropna(
+    subset=model_column_names
+)
 
-# Capitalize the cell type values to match the model
+# Capitalize the cell type values
 plate_3_df["Metadata_cell_type"] = plate_3_df["Metadata_cell_type"].str.capitalize()
 
+# Output
 print(plate_3_df["Metadata_treatment"].unique())
-
 print(plate_3_df.shape)
 plate_3_df.head()
 
@@ -320,14 +301,20 @@ print(f"AUPRC for DMSO Only Data: {dmso_auprc:.4f}")
 
 
 # Load in PR curve data from the supplemental models
-actin_rest_pr_data = pd.read_parquet("../1.evaluate_models/results/precision_recall_actin_rest_models.parquet")
+actin_rest_pr_data = pd.read_parquet(
+    "../1.evaluate_models/results/precision_recall_actin_rest_models.parquet"
+)
 
 # Select the required columns from both dataframes
-actin_rest_selected = actin_rest_pr_data[["Precision", "Recall", "Model Type", "Data Split"]]
+actin_rest_selected = actin_rest_pr_data[
+    ["Precision", "Recall", "Model Type", "Data Split"]
+]
 dmso_selected = dmso_df[["Precision", "Recall", "Model Type", "Data Split"]]
 
 # Vertically concatenate the two dataframes
-merged_dmso_actin_rest_df = pd.concat([actin_rest_selected, dmso_selected], axis=0, ignore_index=True)
+merged_dmso_actin_rest_df = pd.concat(
+    [actin_rest_selected, dmso_selected], axis=0, ignore_index=True
+)
 
 merged_dmso_actin_rest_df.head()
 
@@ -338,10 +325,10 @@ merged_dmso_actin_rest_df.head()
 # Create a custom color palette
 palette = {
     "training (rest)": "#1560bd",  # Darker blue
-    "testing (rest)": "#85c0f9",   # Lighter blue
-    "training (actin)": "#e6550d",   # Darker orange
-    "testing (actin)": "#ff9c3d",    # Lighter orange
-    "DMSO (all features)": "#008000", # Green
+    "testing (rest)": "#85c0f9",  # Lighter blue
+    "training (actin)": "#e6550d",  # Darker orange
+    "testing (actin)": "#ff9c3d",  # Lighter orange
+    "DMSO (all features)": "#008000",  # Green
 }
 
 # Create PR curve plot
