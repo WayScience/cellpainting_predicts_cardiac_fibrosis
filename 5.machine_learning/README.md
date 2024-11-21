@@ -64,9 +64,9 @@ We interpret the model by extracting the final model's coefficients per CellProf
 
 ## Running the notebooks
 
-To perform the data splitting, training, and evaluation, run the below code in terminal:
+To perform the data splitting, training, and evaluation, run the below code in terminal in each module:
 
 ```bash
-cd 5.machine_learning
-source machine_learning.sh
+# cd into the module of choice
+source <bash_script>.sh
 ```
