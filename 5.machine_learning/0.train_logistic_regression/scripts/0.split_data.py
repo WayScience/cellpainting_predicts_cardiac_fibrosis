@@ -23,12 +23,12 @@ random.seed(0)
 
 # Path to feature selected data for plate 4
 path_to_norm_data = pathlib.Path(
-    "../3.process_cfret_features/data/single_cell_profiles/localhost231120090001_sc_feature_selected.parquet"
+    "../../3.process_cfret_features/data/single_cell_profiles/localhost231120090001_sc_feature_selected.parquet"
 ).resolve(strict=True)
 
 # Path to annotated data for plate 4
 path_to_annot_data = pathlib.Path(
-    "../3.process_cfret_features/data/single_cell_profiles/localhost231120090001_sc_annotated.parquet"
+    "../../3.process_cfret_features/data/single_cell_profiles/localhost231120090001_sc_annotated.parquet"
 ).resolve(strict=True)
 
 # Make directory for split data

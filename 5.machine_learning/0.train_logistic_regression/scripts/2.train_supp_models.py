@@ -8,6 +8,9 @@
 # 1. Only F-actin features
 # 2. The rest of the features (e.g., nucleus, ER, Golgi/plasma membrane, and Mitochondria)
 # 
+# NOTE: Prior to splitting based on `Actin` in the feature name versus not, we decided to remove any `correlation` features that include `Actin` because a correlation feature looks at two channels so it would not fit it actin only or rest.
+# Once these features are removed, we then split the features.
+# 
 # We will train a final and shuffled model for each of these feature sets to address the comments from manuscript review.
 
 # ## Import libraries
@@ -148,10 +151,10 @@ le = LabelEncoder()
 for feature_type, df in feature_dfs.items():
     # Get non-shuffled training data
     X_train, y_train = get_X_y_data(df=df, label=label, shuffle=False)
-    
+
     # Fit the LabelEncoder on the non-shuffled labels
     le.fit(y_train)
-    
+
     # Encode the labels for both non-shuffled and shuffled data
     y_train_encoded = le.transform(y_train)
     X_shuffled_train, y_shuffled_train = get_X_y_data(df=df, label=label, shuffle=True)
@@ -209,7 +212,7 @@ random_search_params = {
 }
 
 
-# ### Train final model
+# ### Train final and shuffled models
 
 # In[9]:
 

@@ -38,18 +38,19 @@ width <- 20
 options(repr.plot.width = width, repr.plot.height = height)
 
 # Define colors for the doses
+zero_dose_color <- brewer.pal(8, "Dark2")[7],  # Unique color for 0 uM
+all_other_doses_color <- brewer.pal(8, "Dark2")[4], # Same color for all other doses
 dose_colors <- c(
-  "0 uM" = brewer.pal(8, "Dark2")[7],  # Unique color for 0 uM
-  "0.005 uM" = brewer.pal(8, "Dark2")[4], # Same color for all other doses
-  "0.014 uM" = brewer.pal(8, "Dark2")[4],
-  "0.04 uM" = brewer.pal(8, "Dark2")[4],
-  "0.12 uM" = brewer.pal(8, "Dark2")[4],
-  "0.37 uM" = brewer.pal(8, "Dark2")[4],
-  "1.11 uM" = brewer.pal(8, "Dark2")[4],
-  "3.33 uM" = brewer.pal(8, "Dark2")[4],
-  "5 uM" = brewer.pal(8, "Dark2")[4],
-  "10 uM" = brewer.pal(8, "Dark2")[4]
-)
+  "0 uM" = zero_dose_color,
+  "0.005 uM" = all_other_doses_color,
+  "0.014 uM" = all_other_doses_color,
+  "0.04 uM" = all_other_doses_color,
+  "0.12 uM" = all_other_doses_color,
+  "0.37 uM" = all_other_doses_color,
+  "1.11 uM" = all_other_doses_color,
+  "3.33 uM" = all_other_doses_color,
+  "5 uM" = all_other_doses_color,
+  "10 uM" = all_other_doses_color
 
 # Basic plot with custom colors
 ridge_plot_healthy <- ggplot(combined_probabilities_df, aes(
