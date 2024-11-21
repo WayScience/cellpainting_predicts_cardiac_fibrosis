@@ -366,7 +366,7 @@ palette = {
 }
 
 # PR curves with both training and testing data for all feature sets
-plt.figure(figsize=(12, 8))
+plt.figure(figsize=(12, 10))
 sns.set_style("whitegrid")
 
 # Filter the dataframe to only include 'training' and 'testing' data types
@@ -379,6 +379,9 @@ filtered_df['Data Split'] = filtered_df['Data_Type'] + ' (' + filtered_df['Featu
 
 # Rename the column 'Model_Type' to something else if needed
 filtered_df = filtered_df.rename(columns={'Model_Type': 'Model Type'})
+
+# Save the filtered dataframe to the 'results' folder as a Parquet file for use in another plot
+filtered_df.to_parquet(f"{results_dir}/precision_recall_actin_rest_models.parquet", engine="pyarrow")
 
 # Create a line plot for Precision vs Recall
 sns.lineplot(

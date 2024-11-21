@@ -268,18 +268,17 @@ pr_df.head()
 plt.figure(figsize=(12, 10))
 sns.set_style("whitegrid")
 
-# Combine model and data type as one column for plotting
-pr_df["data_split"] = pr_df["Model_Type"] + " (" + pr_df["Metadata_treatment"] + ")"
-
 # Filter data frame to only show "DMSO" data
-dmso_df = pr_df[(pr_df["Metadata_treatment"] == "DMSO")]
-print(dmso_df[dmso_df["Model_Type"] == "final"]["Metadata_cell_type"].value_counts())
+dmso_df = pr_df[(pr_df["Metadata_treatment"] == "DMSO")].copy()
+# Combine model and data type as one column for plotting
+dmso_df["Data Split"] = "DMSO (all features)"
+dmso_df.rename(columns={"Model_Type": "Model Type"}, inplace=True)
+print(dmso_df[dmso_df["Model Type"] == "final"]["Metadata_cell_type"].value_counts())
 
 sns.lineplot(
     x="Recall",
     y="Precision",
-    hue="data_split",
-    style="Model_Type",
+    style="Model Type",
     dashes={"final": (1, 0), "shuffled": (2, 2)},
     drawstyle="steps",
     data=dmso_df,
@@ -302,11 +301,11 @@ plt.savefig(f"{fig_dir}/precision_recall_plate3_DMSO_only.png", dpi=500)
 plt.show()
 
 
-# In[9]:
+# In[8]:
 
 
 # Filter the dataframe for the final model with DMSO treatment
-final_dmso_df = dmso_df[dmso_df["Model_Type"] == "final"]
+final_dmso_df = dmso_df[dmso_df["Model Type"] == "final"]
 
 # Calculate AUPRC for DMSO data (considered as testing)
 dmso_auprc = auc(final_dmso_df["Recall"], final_dmso_df["Precision"])
@@ -315,7 +314,70 @@ dmso_auprc = auc(final_dmso_df["Recall"], final_dmso_df["Precision"])
 print(f"AUPRC for DMSO Only Data: {dmso_auprc:.4f}")
 
 
+# ## Create PR curve plot with the heldout plate DMSO data and PR curve data from the supplemental models
+
 # In[9]:
+
+
+# Load in PR curve data from the supplemental models
+actin_rest_pr_data = pd.read_parquet("../1.evaluate_models/results/precision_recall_actin_rest_models.parquet")
+
+# Select the required columns from both dataframes
+actin_rest_selected = actin_rest_pr_data[["Precision", "Recall", "Model Type", "Data Split"]]
+dmso_selected = dmso_df[["Precision", "Recall", "Model Type", "Data Split"]]
+
+# Vertically concatenate the two dataframes
+merged_dmso_actin_rest_df = pd.concat([actin_rest_selected, dmso_selected], axis=0, ignore_index=True)
+
+merged_dmso_actin_rest_df.head()
+
+
+# In[10]:
+
+
+# Create a custom color palette
+palette = {
+    "training (rest)": "#1560bd",  # Darker blue
+    "testing (rest)": "#85c0f9",   # Lighter blue
+    "training (actin)": "#e6550d",   # Darker orange
+    "testing (actin)": "#ff9c3d",    # Lighter orange
+    "DMSO (all features)": "#008000", # Green
+}
+
+# Create PR curve plot
+plt.figure(figsize=(14, 12))
+sns.set_style("whitegrid")
+
+sns.lineplot(
+    x="Recall",
+    y="Precision",
+    hue="Data Split",
+    style="Model Type",
+    dashes={"final": (1, 0), "shuffled": (2, 2)},
+    drawstyle="steps",
+    data=merged_dmso_actin_rest_df,
+    palette=palette,
+    linewidth=2.5,  # Adjust the line width as needed
+)
+
+plt.legend(loc="lower right", fontsize=11)
+plt.ylim(bottom=0.0, top=1.02)
+plt.xlabel("Recall", fontsize=18)
+plt.ylabel("Precision", fontsize=18)
+
+# Adjust x-axis and y-axis ticks font size
+plt.xticks(fontsize=14)
+plt.yticks(fontsize=14)
+
+plt.tight_layout()
+plt.savefig(f"{fig_dir}/precision_recall_DMSO_plate3_actin_rest.png", dpi=500)
+
+plt.show()
+
+
+# ## Create PR curves for each neighbor
+
+# In[11]:
 
 
 # Map Metadata_Nuclei_Neighbors to 0, 1, and 2+ neighbors
@@ -366,7 +428,7 @@ plt.show()
 
 # ## Extract final model predicted probabilities for each treatment
 
-# In[10]:
+# In[12]:
 
 
 # Create an empty DataFrame to store the results
@@ -428,7 +490,7 @@ for model_path in models_dir.iterdir():
 combined_prob_df.to_csv(f"{prob_dir}/combined_plate_3_predicted_proba.csv", index=False)
 
 
-# In[16]:
+# In[13]:
 
 
 # Filter for rows where treatment is "TGFRi" and cell type is "Failing"
