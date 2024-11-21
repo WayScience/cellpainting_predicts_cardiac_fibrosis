@@ -66,7 +66,10 @@ encoder_path = pathlib.Path(
 
 # Read metadata and filter columns directly in one step
 model_column_names = [
-    col for col in pq.read_metadata(f"{data_dir}/localhost231120090001_sc_feature_selected.parquet").schema.names
+    col
+    for col in pq.read_metadata(
+        f"{data_dir}/localhost231120090001_sc_feature_selected.parquet"
+    ).schema.names
     if not col.startswith("Metadata_")
 ]
 
@@ -130,9 +133,22 @@ plate_3_df = plate_3_df[metadata_columns + filtered_feature_columns]
 plate_3_df
 
 
+# In[6]:
+
+
+# Filter the dataframe for rows where Metadata_treatment is DMSO
+dmso_df = plate_3_df[plate_3_df["Metadata_treatment"] == "DMSO"]
+
+# Count the occurrences of each Metadata_cell_type in the filtered dataframe
+cell_type_counts = dmso_df["Metadata_cell_type"].value_counts()
+
+# Display the counts
+print(cell_type_counts)
+
+
 # ## Create a data frame with precision recall data
 
-# In[6]:
+# In[7]:
 
 
 # Initialize empty lists to store data for each iteration
@@ -160,6 +176,8 @@ for model_path in models_dir.iterdir():
     # Load in model and label encoder once, since they don't change across iterations
     model = load(model_path)
     le = load(encoder_path)
+
+    print(plate_3_df.shape)
 
     # Get the X and y data for the entire dataset at once
     X, y = get_X_y_data(df=plate_3_df, label="Metadata_cell_type")
@@ -242,7 +260,7 @@ pr_df.head()
 
 # ## Create PR curve with only DMSO (control) data to assess performance
 
-# In[7]:
+# In[8]:
 
 
 # PR curves with only DMSO cells from Plate 3
@@ -277,12 +295,12 @@ plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 
 plt.tight_layout()
-plt.savefig(f"{fig_dir}/precision_recall_plate3_DMSO_only.png", dpi=500)
+plt.savefig(f"{fig_dir}/precision_recall_plate3_DMSO_only.pdf", dpi=500)
 
 plt.show()
 
 
-# In[8]:
+# In[9]:
 
 
 # Filter the dataframe for the final model with DMSO treatment
@@ -295,76 +313,9 @@ dmso_auprc = auc(final_dmso_df["Recall"], final_dmso_df["Precision"])
 print(f"AUPRC for DMSO Only Data: {dmso_auprc:.4f}")
 
 
-# ## Create PR curve plot with the heldout plate DMSO data and PR curve data from the supplemental models
-
-# In[9]:
-
-
-# Load in PR curve data from the supplemental models
-actin_rest_pr_data = pd.read_parquet(
-    "../1.evaluate_models/results/precision_recall_actin_rest_models.parquet"
-)
-
-# Select the required columns from both dataframes
-actin_rest_selected = actin_rest_pr_data[
-    ["Precision", "Recall", "Model Type", "Data Split"]
-]
-dmso_selected = dmso_df[["Precision", "Recall", "Model Type", "Data Split"]]
-
-# Vertically concatenate the two dataframes
-merged_dmso_actin_rest_df = pd.concat(
-    [actin_rest_selected, dmso_selected], axis=0, ignore_index=True
-)
-
-merged_dmso_actin_rest_df.head()
-
-
-# In[10]:
-
-
-# Create a custom color palette
-palette = {
-    "training (rest)": "#1560bd",  # Darker blue
-    "testing (rest)": "#85c0f9",  # Lighter blue
-    "training (actin)": "#e6550d",  # Darker orange
-    "testing (actin)": "#ff9c3d",  # Lighter orange
-    "DMSO (all features)": "#008000",  # Green
-}
-
-# Create PR curve plot
-plt.figure(figsize=(14, 12))
-sns.set_style("whitegrid")
-
-sns.lineplot(
-    x="Recall",
-    y="Precision",
-    hue="Data Split",
-    style="Model Type",
-    dashes={"final": (1, 0), "shuffled": (2, 2)},
-    drawstyle="steps",
-    data=merged_dmso_actin_rest_df,
-    palette=palette,
-    linewidth=2.5,  # Adjust the line width as needed
-)
-
-plt.legend(loc="lower right", fontsize=11)
-plt.ylim(bottom=0.0, top=1.02)
-plt.xlabel("Recall", fontsize=18)
-plt.ylabel("Precision", fontsize=18)
-
-# Adjust x-axis and y-axis ticks font size
-plt.xticks(fontsize=14)
-plt.yticks(fontsize=14)
-
-plt.tight_layout()
-plt.savefig(f"{fig_dir}/precision_recall_DMSO_plate3_actin_rest.png", dpi=500)
-
-plt.show()
-
-
 # ## Create PR curves for each neighbor
 
-# In[11]:
+# In[10]:
 
 
 # Map Metadata_Nuclei_Neighbors to 0, 1, and 2+ neighbors
@@ -415,7 +366,7 @@ plt.show()
 
 # ## Extract final model predicted probabilities for each treatment
 
-# In[12]:
+# In[11]:
 
 
 # Create an empty DataFrame to store the results
@@ -477,7 +428,7 @@ for model_path in models_dir.iterdir():
 combined_prob_df.to_csv(f"{prob_dir}/combined_plate_3_predicted_proba.csv", index=False)
 
 
-# In[13]:
+# In[12]:
 
 
 # Filter for rows where treatment is "TGFRi" and cell type is "Failing"

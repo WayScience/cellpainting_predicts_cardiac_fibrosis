@@ -65,12 +65,14 @@ loaded_models = {}
 for model_path in models_dir.rglob("*.joblib"):
     # Initialize model_key variable
     model_key = None
-    
+
     # Check if the file contains 'log_reg_fs_plate_4'
     if "log_reg_fs_plate_4" in model_path.name:
         # Set the model type to final or shuffled based on file name
-        model_key = "allfeatures_" + ("final" if "final" in model_path.name else "shuffled")
-    
+        model_key = "allfeatures_" + (
+            "final" if "final" in model_path.name else "shuffled"
+        )
+
     # Check if the file contains 'actin' or 'rest'
     elif "actin" in model_path.name or "rest" in model_path.name:
         # Determine category (actin or rest) and type (final or shuffled)
@@ -81,10 +83,9 @@ for model_path in models_dir.rglob("*.joblib"):
     # If a valid model key was determined, load the model and add to dictionary
     if model_key:
         model = load(model_path)
-        loaded_models.setdefault(model_key, []).append({
-            "model": model,
-            "model_path": model_path
-        })
+        loaded_models.setdefault(model_key, []).append(
+            {"model": model, "model_path": model_path}
+        )
         print(f"Loaded model: {model_path.name} as {model_key}")
 
 
@@ -93,7 +94,10 @@ for model_path in models_dir.rglob("*.joblib"):
 
 # Read metadata and filter columns directly in one step
 model_column_names = [
-    col for col in pq.read_metadata(f"{data_dir}/localhost231120090001_sc_feature_selected.parquet").schema.names
+    col
+    for col in pq.read_metadata(
+        f"{data_dir}/localhost231120090001_sc_feature_selected.parquet"
+    ).schema.names
     if not col.startswith("Metadata_")
 ]
 
@@ -133,6 +137,19 @@ plate_3_df.head()
 
 
 # In[6]:
+
+
+# Filter the dataframe for rows where Metadata_treatment is DMSO
+dmso_df = plate_3_df[plate_3_df["Metadata_treatment"] == "DMSO"]
+
+# Count the occurrences of each Metadata_cell_type in the filtered dataframe
+cell_type_counts = dmso_df["Metadata_cell_type"].value_counts()
+
+# Display the counts
+print(cell_type_counts)
+
+
+# In[7]:
 
 
 # Initialize empty lists to store data for each iteration
@@ -180,9 +197,7 @@ for category, models in loaded_models.items():
         elif feature_set == "actin":
             features_columns = [col for col in filtered_columns if "Actin" in col]
         elif feature_set == "rest":
-            features_columns = [
-                col for col in filtered_columns if "Actin" not in col
-            ]
+            features_columns = [col for col in filtered_columns if "Actin" not in col]
         else:
             raise ValueError(f"Unknown feature set: {feature_set}")
 
@@ -260,7 +275,7 @@ print(pr_df.shape)
 pr_df.head()
 
 
-# In[9]:
+# In[8]:
 
 
 # PR curves with only DMSO cells from Plate 3
@@ -269,8 +284,14 @@ sns.set_style("whitegrid")
 
 # Filter data frame to only show "DMSO" data
 dmso_df = pr_df[(pr_df["Metadata_Treatment"] == "DMSO")].copy()
-dmso_df.rename(columns={"Feature_Set": "Feature set", "Model_Type": "Model type"}, inplace=True)
-print(dmso_df[(dmso_df["Feature set"] == "allfeatures") & (dmso_df["Model type"] == "final")]["Metadata_Cell_Type"].value_counts())
+dmso_df.rename(
+    columns={"Feature_Set": "Feature set", "Model_Type": "Model type"}, inplace=True
+)
+print(
+    dmso_df[
+        (dmso_df["Feature set"] == "allfeatures") & (dmso_df["Model type"] == "final")
+    ]["Metadata_Cell_Type"].value_counts()
+)
 
 sns.lineplot(
     x="Recall",
@@ -294,7 +315,33 @@ plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 
 plt.tight_layout()
-plt.savefig(f"{fig_dir}/precision_recall_plate3_all_actin_rest.png", dpi=500)
+plt.savefig(f"{fig_dir}/precision_recall_plate3_all_actin_rest.pdf", dpi=500)
 
 plt.show()
+
+
+# In[9]:
+
+
+# Filter the dataframe for the final rest features only model using the original pr_df
+final_model_df = pr_df[
+    (pr_df["Model_Type"] == "final") & (pr_df["Metadata_Treatment"] == "DMSO")
+]
+
+# Calculate AUPRC for all features data
+allfeatures_data = final_model_df[final_model_df["Feature_Set"] == "allfeatures"]
+allfeatures_auprc = auc(allfeatures_data["Recall"], allfeatures_data["Precision"])
+
+# Calculate AUPRC for rest model
+rest_data = final_model_df[final_model_df["Feature_Set"] == "rest"]
+rest_auprc = auc(rest_data["Recall"], rest_data["Precision"])
+
+# Calculate AUPRC for actin data
+actin_data = final_model_df[final_model_df["Feature_Set"] == "actin"]
+actin_auprc = auc(actin_data["Recall"], actin_data["Precision"])
+
+# Output the results
+print(f"AUPRC for All Features Model: {allfeatures_auprc:.4f}")
+print(f"AUPRC for Rest Model: {rest_auprc:.4f}")
+print(f"AUPRC for Testing Data: {actin_auprc:.4f}")
 
