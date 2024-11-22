@@ -5,7 +5,7 @@ install.packages(c("gridExtra", "grid", "ggarrange", "patchwork"))
 suppressPackageStartupMessages(library(patchwork))
 suppressPackageStartupMessages(library(gridExtra))
 suppressPackageStartupMessages(library(grid))
-
+suppressPackageStartupMessages(library(ggExtra))
 
 # Set directory and file structure
 umap_dir <- file.path("results")
@@ -18,14 +18,12 @@ output_fig_dir <- file.path("figures")
 umap_prefix <- "UMAP_"
 
 # Define output figure paths
-
 output_umap_file <- file.path(
     output_fig_dir,
     paste0(umap_prefix, plate3_name)
 )
 
 print(output_umap_file)
-
 
 # Load in the umap data
 df <- readr::read_tsv(
@@ -217,7 +215,7 @@ combined_df <- rbind(
 )
 
 # UMAP merged plots (from above)
-output_file <- paste0(output_umap_file, "_failing_DMSO_and_TGFRi_w_healthy_DMSO_Merged.pdf")
+output_file <- paste0(output_umap_file, "_DMSO_and_TGFRi.pdf")
 
 # Create a combined data frame with the "Group" column
 combined_df <- rbind(
@@ -226,27 +224,44 @@ combined_df <- rbind(
   failing_DMSO_df %>% mutate(Group = "failing + DMSO")
 )
 
-# Plot the combined data without facets
-merged_TGFRi_plot <- ggplot(combined_df, aes(x = UMAP0, y = UMAP1, color = Group)) +
-  geom_point(size = 1.0 , alpha = 0.5) +  # Adjust alpha value to make points more transparent
-  labs(title = "UMAP of single-cells demonstrating a shift from failing to\nhealthy cells after failing cells are treated with TGFRi") + 
-  theme_bw(base_size = 22) +  # Set the base font size to 12
+# Create the main UMAP plot
+merged_TGFRi_plot <- ggplot(combined_df, aes(x = UMAP0, y = UMAP1)) +
+  geom_point(size = 0.9, alpha = 0.29, aes(color = Group)) +
+  geom_density_2d(aes(color = Group), alpha = 0.58, size = 1.42) + # Adjust alpha and size as needed
+  theme_bw(base_size = 22) +
   scale_color_manual(
-    name = "Group",
-    values = c("failing + TGFRi" = "#69DC9E", "failing + DMSO" = "#BA5A31", "healthy + DMSO" = "#8269dc")
+    name = NA,
+    values = c("failing + TGFRi" = "#4CAF73", "failing + DMSO" = "#D78E5A", "healthy + DMSO" = "#8269dc")
   ) +
-  guides(colour = guide_legend(override.aes = list(size = 4))) +
-  ylim(min(umap_cp_df$UMAP1), max(umap_cp_df$UMAP1)) +  # Set the same y-axis limits as umap_cp_df
+  guides(colour = guide_legend(override.aes = list(size = 6))) +
+  ylim(min(umap_cp_df$UMAP1), max(umap_cp_df$UMAP1)) +
   theme(
-    legend.position = c(0.15, 0.88),  # Adjust the legend position (x, y)
-    legend.background = element_rect(fill = "white", color = "black"),  # Add a white background to the legend
-    legend.key = element_rect(color = "white"),  # Make legend key (color boxes) white
-
+    legend.position = c(0.15, 0.95),
+    legend.background = element_blank(),  # Make legend background transparent
+    legend.key = element_blank(),  # Remove the background from legend keys
+    legend.title = element_blank(),  # Remove the legend title
+    legend.text = element_text(size = 20, face = "bold"),  # Make legend text bigger and bold
+    panel.background = element_rect(fill = "white"),  # White background inside the plot area
+    plot.background = element_blank(),  # Make the outer area transparent
+    axis.text = element_text(size = 20),  # Make axis text bigger
+    axis.title = element_text(size = 22),  # Make axis titles bigger
+    axis.ticks = element_line(size = 1.5)  # Make axis ticks bigger
   )
-# print and save plot
-print(merged_TGFRi_plot)
-ggsave(output_file, merged_TGFRi_plot, dpi = 500, height = 12, width = 12)
 
+# Add density plots in the margins
+merged_TGFRi_plot_with_margins <- ggMarginal(
+  merged_TGFRi_plot,
+  type = "density",  # Add density plots
+  margins = "both",  # Add density plots to both x and y axes
+  groupFill = TRUE,  # Use the group colors for the density plots
+  size = 5,  # Adjust the size of the marginal plots
+  colour = NA  # Remove the outline around density plots
+)
+
+# Save the plot as a PNG with a transparent background outside the plot area
+ggsave(output_file, merged_TGFRi_plot_with_margins, dpi = 500, height = 12, width = 12)
+
+merged_TGFRi_plot_with_margins
 
 # UMAP merged plots (from above)
 output_file <- paste0(output_umap_file, "_failing_DMSO_and_DrugX_w_healhy_DMSO_Merged.png")
@@ -272,7 +287,8 @@ merged_plot <- ggplot(combined_df, aes(x = UMAP0, y = UMAP1, color = Group)) +
   theme(
     legend.position = c(0.15, 0.88),  # Adjust the legend position (x, y)
     legend.background = element_rect(fill = "white", color = "black"),  # Add a white background to the legend
-    legend.key = element_rect(color = "white"),  # Make legend key (color boxes) white
+    legend.key = element_rect(color = "white"),
+    legend.text = element_text(size = 18)  # Increase legend font size  # Make legend key (color boxes) white
 
   )
 # print and save plot

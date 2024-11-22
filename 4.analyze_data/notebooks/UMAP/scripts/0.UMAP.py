@@ -42,7 +42,7 @@ output_dir.mkdir(parents=True, exist_ok=True)
 data_dir = pathlib.Path("..", "..", "..", "3.process_cfret_features", "data", "single_cell_profiles")
 
 # Select only the feature selected files
-file_suffix = "*sc_feature_selected.parquet"
+file_suffix = "*sc_feature_selected_no_QC.parquet"
 
 # Obtain file paths for all feature selected plates
 fs_files = glob.glob(f"{data_dir}/{file_suffix}")
@@ -62,15 +62,9 @@ print(cp_dfs.keys())
 [cp_dfs[x].shape for x in cp_dfs]
 
 
-# In[5]:
-
-
-cp_dfs
-
-
 # ### Fit UMAP for whole plates
 
-# In[6]:
+# In[5]:
 
 
 # Fit UMAP features per dataset and save
@@ -78,7 +72,7 @@ for plate in cp_dfs:
     # Set plate name
     plate_name = pathlib.Path(plate).stem
     # Set output file for the UMAP
-    output_umap_file = pathlib.Path(output_dir, f"UMAP_{plate_name}.tsv.gz")
+    output_umap_file = pathlib.Path(output_dir, f"UMAP_{plate_name}_no_QC.tsv.gz")
 
     # # Check if the output file already exists
     # if output_umap_file.exists():
@@ -127,7 +121,7 @@ for plate in cp_dfs:
 # 
 # Note: We are filtering out single-cells from plates 3 and 4 where there is more than 1 single-cell adjacent. We are looking to see the impact on the UMAP when only including "isolated" single-cells.
 
-# In[7]:
+# In[6]:
 
 
 # Set random seed as 0 for filtered datasets
@@ -147,7 +141,7 @@ for file_path in pathlib.Path("../../../0.download_data/Images").iterdir():
 print(plate_names)
 
 
-# In[8]:
+# In[7]:
 
 
 # create plate info dictionary
@@ -180,18 +174,13 @@ print(
 )
 
 
-# In[9]:
+# In[8]:
 
 
 for plate, info in plate_info_dictionary.items():
     # Set output file for the UMAP
     output_umap_file = pathlib.Path(output_dir, f"UMAP_{plate}_fs_filtered.tsv.gz")
-
-    # # Check if the output file already exists
-    # if output_umap_file.exists():
-    #     print(f"Skipping {output_umap_file.stem} as it already exists.")
-    #     continue
-
+    
     # Give variable names to data frames
     fs_df = info["fs_data"]
     annot_df = info["annot_data"]
