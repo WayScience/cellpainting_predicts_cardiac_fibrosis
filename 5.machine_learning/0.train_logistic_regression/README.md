@@ -2,6 +2,8 @@
 
 In this submodule, we split the `Plate 4` data into training, testing, and holdout datasets and train binary logistic regression models to classify single-cells as either coming from healthy/nonfailing or failing hearts.
 
+![plate_4_platemap](../../metadata/platemap_figures/localhost231120090001_platemap_figure.png)
+
 We train `6` total models:
 
 ## 1. All features model
@@ -17,3 +19,5 @@ We do not include any Correlation feature with `actin` included since these cont
 ## 3. Rest/without F-actin model
 
 We train a final and shuffled model using the `rest` of the features that do not include the F-actin features.
+
+**We perform evaluations on these models to assess performance in the next module: [1.evaluate_models](../1.evaluate_models/)**

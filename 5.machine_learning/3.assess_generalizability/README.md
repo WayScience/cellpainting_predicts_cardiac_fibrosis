@@ -1,7 +1,7 @@
 # Assess generalizability of the models
 
 In this submodule, we perform various analysis to determine how to models we trained perform on holdout plates of data that has never been seen.
-We apply the models (all features, actin only, without actin/rest) to 3 different holdout plates.
+We apply the models (all features, actin only, without actin) to 3 different holdout plates.
 We assess if our model detects changes in probabilities across doses for a drug from two other plates.
 We are focusing on `Plate 3`, which include two completely new hearts with positive and negative controls.
 
