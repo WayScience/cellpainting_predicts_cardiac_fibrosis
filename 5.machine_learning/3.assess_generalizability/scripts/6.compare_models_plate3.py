@@ -343,5 +343,5 @@ actin_auprc = auc(actin_data["Recall"], actin_data["Precision"])
 # Output the results
 print(f"AUPRC for All Features Model: {allfeatures_auprc:.4f}")
 print(f"AUPRC for Rest Model: {rest_auprc:.4f}")
-print(f"AUPRC for Testing Data: {actin_auprc:.4f}")
+print(f"AUPRC for Actin Model: {actin_auprc:.4f}")
 
