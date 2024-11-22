@@ -3,7 +3,7 @@
 
 # ## Extract UMAP embeddings for CFReT CP Features
 
-# In[5]:
+# In[1]:
 
 
 import glob
@@ -22,7 +22,7 @@ from pycytominer.cyto_utils import infer_cp_features
 # 
 # Note: All plates (1-4) without filtering had a random seed of 1234. For plates with filtering, we use a random seed of 0 which is a standard for the Way lab.
 
-# In[6]:
+# In[2]:
 
 
 # Set constants (previously set prior, normally use 0 but the change in coordinates will impact already generated single-cell crops)
@@ -35,7 +35,7 @@ output_dir.mkdir(parents=True, exist_ok=True)
 
 # ### Set paths to all plates
 
-# In[7]:
+# In[3]:
 
 
 # Set input paths
@@ -51,7 +51,7 @@ fs_files
 
 # ### Generate dictionary with plate and data
 
-# In[8]:
+# In[4]:
 
 
 # Load feature data into a dictionary, keyed on plate name
@@ -62,15 +62,9 @@ print(cp_dfs.keys())
 [cp_dfs[x].shape for x in cp_dfs]
 
 
-# In[9]:
-
-
-cp_dfs
-
-
 # ### Fit UMAP for whole plates
 
-# In[10]:
+# In[5]:
 
 
 # Fit UMAP features per dataset and save
@@ -127,7 +121,7 @@ for plate in cp_dfs:
 # 
 # Note: We are filtering out single-cells from plates 3 and 4 where there is more than 1 single-cell adjacent. We are looking to see the impact on the UMAP when only including "isolated" single-cells.
 
-# In[7]:
+# In[6]:
 
 
 # Set random seed as 0 for filtered datasets
@@ -147,7 +141,7 @@ for file_path in pathlib.Path("../../../0.download_data/Images").iterdir():
 print(plate_names)
 
 
-# In[8]:
+# In[7]:
 
 
 # create plate info dictionary
@@ -180,18 +174,13 @@ print(
 )
 
 
-# In[9]:
+# In[8]:
 
 
 for plate, info in plate_info_dictionary.items():
     # Set output file for the UMAP
     output_umap_file = pathlib.Path(output_dir, f"UMAP_{plate}_fs_filtered.tsv.gz")
-
-    # # Check if the output file already exists
-    # if output_umap_file.exists():
-    #     print(f"Skipping {output_umap_file.stem} as it already exists.")
-    #     continue
-
+    
     # Give variable names to data frames
     fs_df = info["fs_data"]
     annot_df = info["annot_data"]

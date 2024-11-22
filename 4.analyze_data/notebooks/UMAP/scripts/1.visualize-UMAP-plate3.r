@@ -5,7 +5,7 @@ install.packages(c("gridExtra", "grid", "ggarrange", "patchwork"))
 suppressPackageStartupMessages(library(patchwork))
 suppressPackageStartupMessages(library(gridExtra))
 suppressPackageStartupMessages(library(grid))
-
+suppressPackageStartupMessages(library(ggExtra))
 
 # Set directory and file structure
 umap_dir <- file.path("results")
@@ -207,10 +207,6 @@ print(merged_plot)
 ggsave(output_file, merged_plot, dpi = 500, height = 12, width = 12)
 
 
-install.packages("ggExtra")
-
-library(ggExtra)
-
 # combine all dfs with TGFRi
 combined_df <- rbind(
   failing_TGFRi_df %>% mutate(Group = "Failing with TGFRi"),
@@ -219,7 +215,7 @@ combined_df <- rbind(
 )
 
 # UMAP merged plots (from above)
-output_file <- paste0(output_umap_file, "_DMSO_and_TGFRi.png")
+output_file <- paste0(output_umap_file, "_DMSO_and_TGFRi.pdf")
 
 # Create a combined data frame with the "Group" column
 combined_df <- rbind(
