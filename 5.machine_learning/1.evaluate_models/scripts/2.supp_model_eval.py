@@ -45,7 +45,6 @@ encoder_path = pathlib.Path(
     "../0.train_logistic_regression/encoder_results/label_encoder_log_reg_fs_plate_4.joblib"
 )
 
-
 # Define the subdirectory for this plot type within fig_dir
 supp_model_fig_dir = pathlib.Path("./figures/supp_model_figures")
 supp_model_fig_dir.mkdir(parents=True, exist_ok=True)  # Create subdirectory if it doesn't exist
@@ -62,6 +61,10 @@ loaded_models = {}
 
 # Loop through all files in the models directory and load the ones that start with 'actin' or 'rest'
 for model_path in models_dir.glob("*downsample.joblib"):
+    # Skip no QC models
+    if "no_QC" in model_path.parts:
+        continue
+
     if "actin" in model_path.name or "rest" in model_path.name:
         # Load the model
         model = load(model_path)
