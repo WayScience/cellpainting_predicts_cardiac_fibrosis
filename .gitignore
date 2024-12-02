@@ -61,3 +61,6 @@ runinfo
 
 # ignore single-cell crops for figure since they take up a lot of space and can be dervived through a notebook
 sc_crops*
+
+# Ignore unnecessary large data that we aren't adding to Git LFS
+large_ignored_data*
