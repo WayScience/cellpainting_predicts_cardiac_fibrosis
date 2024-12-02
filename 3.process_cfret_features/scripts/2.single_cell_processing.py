@@ -18,7 +18,7 @@ from pycytominer import annotate, normalize, feature_select
 
 # ## Set paths and variables
 
-# In[ ]:
+# In[2]:
 
 
 # Set this flag to True for cleaned data (applied QC), or False for no QC applied
