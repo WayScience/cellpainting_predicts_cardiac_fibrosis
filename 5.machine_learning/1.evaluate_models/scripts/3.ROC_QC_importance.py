@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ## Perform bootstrapping ROC AUC method to determine if QC significantly improves performance of model
+# ## Perform bootstrapping ROC AUC method to determine if performing QC within our pipelines is important and improves performance 
 # 
 # In this method, we have trained two models; one with QC'd data and the other without QC'd data (more noise). 
-# To assess quality, apply the models to a holdout dataset that both models have never seen that has been QC'd.
-# We take subsamples of this dataset to perform a bootstapping method that will calculate the ROC AUC across the QC'd holdout samples.
+# We apply the models to their respective holdout dataset (e.g., QC'd model applied to QC'd data and no-QC model applied to no QC dataset).
+# We use bootstrapping, a method that repeatedly samples the dataset with replacement to create random subsets of the same size, where some cells might be duplicated or excluded, simulating variations in the population.
+# We calculate the ROC AUC for each subsample and plot as a histogram.
 # 
-# The goal of this analysis is to see how well the models perform when applied to a new dataset that has only "good" cells, since we will be applying QC to all future plates.
-# 
+# Our goal is to evaluate if QC is important enough to perform within our workflows where we see a higher performance in classification than if we performed no QC at all.
 
 # ## Import libraries
 
@@ -30,48 +30,17 @@ import sys
 
 sys.path.append("../../utils")
 from training_utils import get_X_y_data
+from roc_auc_utils import bootstrap_roc_auc
 
 
-# ## Define function
+# ## Path for figure
 
 # In[2]:
 
 
-# Define function to preform bootstrapping
-def bootstrap_roc_auc(y_true, y_pred, n_bootstraps=1000):
-    """
-    Perform bootstrapping to compute the distribution of ROC AUC scores.
-
-    This function generates a bootstrapped distribution of ROC AUC scores by 
-    resampling the provided true labels and predicted probabilities with 
-    replacement.
-
-    Parameters:
-    ----------
-    y_true : array-like of shape (n_samples,)
-        True binary labels (0 or 1) for the dataset.
-        
-    y_pred : array-like of shape (n_samples,)
-        Predicted probabilities or scores for the positive class.
-        
-    n_bootstraps : int, optional, default=1000
-        Number of bootstrap iterations to perform.
-
-    Returns:
-    -------
-    bootstrapped_scores : np.ndarray
-        An array of bootstrapped ROC AUC scores. Each element represents the 
-        ROC AUC computed for a resampled dataset.
-    """
-
-    bootstrapped_scores = []
-    for i in range(n_bootstraps):
-        indices = resample(np.arange(len(y_true)), replace=True)
-        if len(np.unique(y_true[indices])) < 2:
-            continue
-        score = roc_auc_score(y_true[indices], y_pred[indices])
-        bootstrapped_scores.append(score)
-    return np.array(bootstrapped_scores)
+figure_path = pathlib.Path("./figures/roc_auc_plots")
+# make directory if it doesn't already exist
+figure_path.mkdir(exist_ok=True)
 
 
 # ## Load in encoder
@@ -234,12 +203,12 @@ plt.axvline(
 plt.legend(loc="upper left", fontsize=10)
 plt.xlabel("ROC AUC Score", fontsize=12)
 plt.ylabel("Frequency", fontsize=12)
-plt.title("Bootstrap ROC AUC Distributions", fontsize=14, fontweight="bold")
+plt.title("Bootstrap ROC AUC Distributions For\nQC versus No QC Data", fontsize=14, fontweight="bold")
 plt.grid(True, linestyle="--", alpha=0.6)
 plt.tight_layout()
 
 # save figure
-plt.savefig("./figures/bootstrap_plot_holdout_each_model.png", dpi=600)
+plt.savefig(f"{figure_path}/bootstrap_ROC_AUC_QC_versus_no_QC.png", dpi=600)
 
 plt.show()
 
