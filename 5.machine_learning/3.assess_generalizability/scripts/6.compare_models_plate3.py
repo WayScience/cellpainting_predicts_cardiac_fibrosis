@@ -14,6 +14,7 @@ import pathlib
 import sys
 
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
@@ -63,6 +64,10 @@ loaded_models = {}
 
 # Loop through all .joblib files in the models directory (including subfolders)
 for model_path in models_dir.rglob("*.joblib"):
+    # Skip files with "no_QC" in the name
+    if "no_QC" in model_path.name:
+        continue
+
     # Initialize model_key variable
     model_key = None
 
@@ -102,7 +107,8 @@ model_column_names = [
 ]
 
 print(len(model_column_names))
-print(model_column_names)
+# Print the first 5 column names
+print(model_column_names[:5])
 
 
 # In[5]:
@@ -278,45 +284,61 @@ pr_df.head()
 # In[8]:
 
 
-# PR curves with only DMSO cells from Plate 3
+# Set figure size and Seaborn style
 plt.figure(figsize=(12, 10))
 sns.set_style("whitegrid")
 
-# Filter data frame to only show "DMSO" data
-dmso_df = pr_df[(pr_df["Metadata_Treatment"] == "DMSO")].copy()
-dmso_df.rename(
-    columns={"Feature_Set": "Feature set", "Model_Type": "Model type"}, inplace=True
-)
-print(
-    dmso_df[
-        (dmso_df["Feature set"] == "allfeatures") & (dmso_df["Model type"] == "final")
-    ]["Metadata_Cell_Type"].value_counts()
+# Filter and prepare data for DMSO treatment
+dmso_df = pr_df[pr_df["Metadata_Treatment"] == "DMSO"].copy()
+
+# Unique feature sets and model types
+feature_sets = dmso_df["Feature_Set"].unique()
+model_types = dmso_df["Model_Type"].unique()
+
+# Define line styles and Seaborn's default color palette
+line_styles = {"final": "-", "shuffled": "--"}
+colors = sns.color_palette("deep", n_colors=3)
+
+# Plot Precision-Recall curves using plt.step
+for idx, feature_set in enumerate(feature_sets):
+    for model_type in model_types:
+        subset = dmso_df[(dmso_df["Feature_Set"] == feature_set) & (dmso_df["Model_Type"] == model_type)]
+        if not subset.empty:
+            plt.step(
+                subset["Recall"], subset["Precision"],
+                where="post",
+                label=f"{feature_set} ({model_type})",
+                color=colors[idx % len(colors)],
+                linestyle=line_styles[model_type], linewidth=2.5
+            )
+
+# Create custom legend handles for the Feature set (color) and Model type (line style)
+color_handles = [Line2D([0], [0], color=colors[idx % len(colors)], lw=2, label=feature_set) 
+                 for idx, feature_set in enumerate(feature_sets)]
+
+line_handles = [Line2D([0], [0], color="black", lw=2, linestyle=line_styles[model_type], label=model_type) 
+                for model_type in model_types]
+
+# Combine the color and line style handles for the legend
+all_handles = color_handles + line_handles
+
+# Add the combined legend
+plt.legend(
+    handles=all_handles, loc="upper right", fontsize=11, title="Feature set & Model type",
+    bbox_to_anchor=(1.0, 0.18), ncol=1, frameon=True, handlelength=2.8, handleheight=1.0
 )
 
-sns.lineplot(
-    x="Recall",
-    y="Precision",
-    hue="Feature set",
-    style="Model type",
-    dashes={"final": (1, 0), "shuffled": (2, 2)},
-    drawstyle="steps",
-    data=dmso_df,
-    linewidth=2.5,  # Adjust the line width as needed
-)
-
-plt.legend(loc="lower right", fontsize=11)
-plt.ylim(bottom=0.0, top=1.02)
+# Set axis labels, title, and formatting
+plt.ylim(0.0, 1.02)
 plt.xlabel("Recall", fontsize=18)
 plt.ylabel("Precision", fontsize=18)
 plt.title("Precision vs. Recall for Plate 3 DMSO Treatment", fontsize=18)
-
-# Adjust x-axis and y-axis ticks font size
 plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 
+# Adjust layout and save figure
 plt.tight_layout()
 plt.savefig(f"{fig_dir}/precision_recall_plate3_all_actin_rest.pdf", dpi=500)
-
 plt.show()
 
 
