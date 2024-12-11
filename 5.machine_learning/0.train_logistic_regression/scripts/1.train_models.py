@@ -21,7 +21,7 @@ from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import parallel_backend
 
-sys.path.append("../utils")
+sys.path.append("../../utils")
 from training_utils import downsample_data, get_X_y_data
 
 
@@ -66,6 +66,12 @@ df.head()
 
 # load in training plate 4 data as downsampled to lowest class
 downsample_df = downsample_data(path_to_data=training_data_path, label=label)
+
+# Export indices to a new one-column CSV file
+output_file = "training_data_indices.csv"
+pd.DataFrame(downsample_df.index, columns=["Index"]).to_csv(output_file, index=False)
+
+print(f"CSV file created at {output_file} with {len(downsample_df.index)} entries.")
 
 print(downsample_df.shape)
 print(downsample_df["Metadata_cell_type"].value_counts())

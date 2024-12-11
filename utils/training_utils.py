@@ -68,21 +68,23 @@ def load_data(
 
 
 def downsample_data(path_to_data: pathlib.Path, label: str) -> pd.DataFrame:
-    """Load in data from path and down sample to the lowest class, returning a data frame to use for retrieving X, y data
+    """Load data from the specified path and downsample to the class with the smallest sample size.
 
     Args:
-        df (pd.DataFrame): Input DataFrame.
-        label (str): Name of the Metadata column being used as the predicting class.
+        path_to_data (pathlib.Path): Path to the input CSV file.
+        label (str): Name of the metadata column being used as the predicting class.
 
     Returns:
-        pd.DataFrame: Downsampled DataFrame.
+        pd.DataFrame: Downsampled DataFrame with preserved original indices.
     """
     # Load in data frame from CSV, if not CSV file then return error
     if path_to_data.suffix.lower() == ".csv":
         # Load the CSV file
-        df = pd.read_csv(path_to_data, index_col=0)
+        df = pd.read_csv(path_to_data)
     else:
-        print("File does not have a CSV extension. Current expected input is CSV.")
+        raise ValueError(
+            "File does not have a CSV extension. Expected input is a CSV file."
+        )
 
     # Find class with lowest sample from label
     min_samples = df[label].value_counts().min()
@@ -91,5 +93,8 @@ def downsample_data(path_to_data: pathlib.Path, label: str) -> pd.DataFrame:
     df_downsampled = df.groupby(label, group_keys=False).apply(
         lambda x: x.sample(min_samples)
     )
+
+    # Ensure the original indices are preserved
+    df_downsampled = df_downsampled.set_index(df_downsampled.index)
 
     return df_downsampled

@@ -24,7 +24,7 @@ from eval_utils import (
     generate_f1_score_df,
     generate_accuracy_score_df,
 )
-from training_utils import load_data
+from training_utils import load_data, get_X_y_data
 
 
 # ## Set paths to different datasets and models
@@ -76,6 +76,9 @@ threshold_list = []
 model_type_list = []
 data_type_list = []
 
+# Path to the CSV file containing indices for training data
+training_indices_path = pathlib.Path("../0.train_logistic_regression/training_data_indices.csv")
+
 for model_path in models_dir.iterdir():
     if model_path.is_dir() or model_path.suffix != ".joblib":
         continue  # Skip directories or files that are not model files
@@ -83,25 +86,55 @@ for model_path in models_dir.iterdir():
     print("Evaluating", model_path.stem.split("_")[5], "model...")
     
     for data_path in data_dir.iterdir():
+        # Skip directories or files without the ".csv" suffix
+        if data_path.is_dir() or data_path.suffix != ".csv":
+            continue
+        
         print("Applying model to", data_path.stem, "...")
-        # load in model to apply to datasets
+        
+        # Load the dataset as a dataframe
+        df = pd.read_csv(data_path)
+
+        # If this is training data, filter rows using the training indices
+        if data_path.stem == "training_data":
+            # Skip the header row when reading the CSV
+            training_indices = pd.read_csv(training_indices_path, header=0).iloc[:, 0].tolist()
+
+            # Convert to integers to ensure compatibility
+            try:
+                training_indices = [int(idx) for idx in training_indices]
+            except ValueError as e:
+                print("Error parsing indices:", e)
+                raise
+
+            # Use .iloc if training_indices are row positions
+            df = df.iloc[training_indices]
+
+        # Extract X and y using the updated function
+        X, y = get_X_y_data(df=df, label="Metadata_cell_type")
+
+        # Load in model to apply to datasets
         model = load(model_path)
 
-        # load in label encoder
+        # Load in label encoder
         le = load(encoder_path)
-
-        # Load in X and y data from dataset
-        X, y = load_data(path_to_data=data_path, label="Metadata_cell_type")
 
         # Assign y classes to correct binary using label encoder results
         y_binary = le.transform(y)
 
-        # predict class probabilities for morphology feature data
+        # Predict class probabilities for morphology feature data
         predicted_probs = model.predict_proba(X)
+
+        # For binary classification, ensure you're getting the probabilities for the positive class
+        if predicted_probs.shape[1] == 2:  # Binary classification
+            positive_class_probs = predicted_probs[:, 1]  # Select the probability for the positive class
+        else:  # Multi-class classification
+            # Choose the probability for the class you're interested in (usually the last one)
+            positive_class_probs = predicted_probs[:, -1]
 
         # Calculate the precision, recall data
         precision, recall, threshold = precision_recall_curve(
-            y_binary, predicted_probs[:, -1]
+            y_binary, positive_class_probs
         )
         threshold = np.append(threshold, np.nan)
 
@@ -172,7 +205,7 @@ plt.xticks(fontsize=20)
 plt.yticks(fontsize=20)
 
 plt.tight_layout()
-plt.savefig(f"{pr_curves_dir}/precision_recall_plate4_downsample.png", dpi=500, bbox_inches='tight')
+plt.savefig(f"{pr_curves_dir}/precision_recall_plate4_downsample.pdf", dpi=500, bbox_inches='tight')
 
 # Avoid showing plot in notebook
 plt.close()
