@@ -67,7 +67,7 @@ df.head()
 # load in training plate 4 data as downsampled to lowest class
 downsample_df = downsample_data(path_to_data=training_data_path, label=label)
 
-# Export indices to a new one-column CSV file
+# Export sample indices used in training the model to a new one-column CSV file
 output_file = "training_data_indices.csv"
 pd.DataFrame(downsample_df.index, columns=["Index"]).to_csv(output_file, index=False)
 
