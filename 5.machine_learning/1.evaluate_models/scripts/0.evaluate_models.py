@@ -57,6 +57,12 @@ shuffled_model = load(
     pathlib.Path(f"{models_dir}/log_reg_fs_plate_4_shuffled_downsample.joblib")
 )
 
+# List of data sets to apply models to
+data_set_list = ["training", "testing", "holdout1", "holdout2"]
+
+# Path to the CSV file containing indices for training data
+training_indices_path = pathlib.Path("../0.train_logistic_regression/training_data_indices.csv")
+
 
 # ## Precision-Recall Curves
 
@@ -75,9 +81,6 @@ recall_list = []
 threshold_list = []
 model_type_list = []
 data_type_list = []
-
-# Path to the CSV file containing indices for training data
-training_indices_path = pathlib.Path("../0.train_logistic_regression/training_data_indices.csv")
 
 for model_path in models_dir.iterdir():
     if model_path.is_dir() or model_path.suffix != ".joblib":
@@ -345,26 +348,45 @@ label = "Metadata_cell_type"
 for model_path in path_list:
     if model_path.is_dir() or model_path.suffix != ".joblib":
         continue  # Skip directories or files that are not model files
-    
+
     # Iterate over each dataset
-    for data_set in data_set_list:
+    for data_set_name in data_set_list:
         print(
             "Generating plot for",
-            data_set.capitalize(),
+            data_set_name.capitalize(),
             model_path.stem.split("_")[5].capitalize(),
         )
+
+        # Load dataset
+        data_set_path = data_dir / f"{data_set_name}_data.csv"
+        data_set = pd.read_csv(data_set_path)
+
+        # If this is training data, filter rows using the training indices
+        if data_set_path.stem == "training_data":
+            # Skip the header row when reading the CSV
+            training_indices = pd.read_csv(training_indices_path, header=0).iloc[:, 0].tolist()
+
+            # Convert to integers to ensure compatibility
+            try:
+                training_indices = [int(idx) for idx in training_indices]
+            except ValueError as e:
+                print("Error parsing indices:", e)
+                raise
+
+            # Use .iloc if training_indices are row positions
+            data_set = data_set.iloc[training_indices]
+
         # Generate confusion matrix data frame
-        df = generate_confusion_matrix_df(
+        confusion_matrix_df = generate_confusion_matrix_df(
             model_path=model_path,
-            data_dir=data_dir,
+            data_df=data_set,
             encoder_path=encoder_path,
             label=label,
-            data_set=data_set,
         )
 
         # Rename binary labels to failing versus healthy
-        df["True_Label"] = df["True_Label"].replace({0: "Failing", 1: "Healthy"})
-        df["Predicted_Label"] = df["Predicted_Label"].replace(
+        confusion_matrix_df["True_Label"] = confusion_matrix_df["True_Label"].replace({0: "Failing", 1: "Healthy"})
+        confusion_matrix_df["Predicted_Label"] = confusion_matrix_df["Predicted_Label"].replace(
             {0: "Failing", 1: "Healthy"}
         )
 
@@ -373,10 +395,10 @@ for model_path in path_list:
         sns.set_style("whitegrid")
 
         heatmap = sns.heatmap(
-            data=df.pivot(
+            data=confusion_matrix_df.pivot(
                 index="True_Label", columns="Predicted_Label", values="Recall"
             ),
-            annot=df.pivot(
+            annot=confusion_matrix_df.pivot(
                 index="True_Label", columns="Predicted_Label", values="Count"
             ),
             fmt=".0f",
@@ -389,7 +411,7 @@ for model_path in path_list:
             linewidths=0.5,
             annot_kws={"size": 16},  # Adjusted annotation font size
             mask=(
-                df.pivot(
+                confusion_matrix_df.pivot(
                     index="True_Label", columns="Predicted_Label", values="Count"
                 ).isna()
             ),
@@ -402,7 +424,7 @@ for model_path in path_list:
         colorbar.ax.tick_params(labelsize=12)  # Adjust colorbar tick labels font size
 
         plt.title(
-            f"Confusion Matrix for {data_set.capitalize()} Data - Model: {model_path.stem.split('_')[5].capitalize()}",
+            f"Confusion Matrix for {data_set_name.capitalize()} Data - Model: {model_path.stem.split('_')[5].capitalize()}",
             fontsize=20,  # Adjusted title font size
         )
         plt.xticks(fontsize=14)  # Adjusted x-axis tick label font size
@@ -410,7 +432,7 @@ for model_path in path_list:
         plt.tight_layout()
 
         plt.savefig(
-            f"{con_matrix_dir}/plate4_confusion_matrix_{data_set}_{model_path.stem.split('_')[5]}_downsample.png",
+            f"{con_matrix_dir}/plate4_confusion_matrix_{data_set_name}_{model_path.stem.split('_')[5]}_downsample.png",
             dpi=500,
         )
         plt.close()
@@ -442,16 +464,34 @@ for model_path in path_list:
         continue  # Skip directories or files that are not model files
     
     # Iterate over each dataset
-    for data_set in data_set_list:
-        print(data_set.capitalize(), model_path.stem.split("_")[5].capitalize())
+    for data_set_name in data_set_list:
+        print(data_set_name.capitalize(), model_path.stem.split("_")[5].capitalize())
+
+        # Load dataset
+        data_set_path = data_dir / f"{data_set_name}_data.csv"
+        data_set = pd.read_csv(data_set_path)
+
+        # If this is training data, filter rows using the training indices
+        if data_set_path.stem == "training_data":
+            # Skip the header row when reading the CSV
+            training_indices = pd.read_csv(training_indices_path, header=0).iloc[:, 0].tolist()
+
+            # Convert to integers to ensure compatibility
+            try:
+                training_indices = [int(idx) for idx in training_indices]
+            except ValueError as e:
+                print("Error parsing indices:", e)
+                raise
+
+            # Use .iloc if training_indices are row positions
+            data_set = data_set.iloc[training_indices]
         
         # Generate f1 score data frame
         f1_scores_df = generate_f1_score_df(
-            model_path=model_path,
-            data_dir=data_dir,
-            encoder_path=encoder_path,
-            label=label,
+            model=model_path,
             data_set=data_set,
+            encoder=encoder_path,
+            label=label,
         )
 
         # Rename binary labels to failing versus healthy
@@ -459,7 +499,7 @@ for model_path in path_list:
 
         # Add columns for model and data_set
         f1_scores_df["Model"] = model_path.stem.split("_")[5].capitalize()
-        f1_scores_df["Data_Set"] = data_set.capitalize()
+        f1_scores_df["Data_Set"] = data_set_name.capitalize()
 
         # Append the DataFrame to the list
         f1_scores_dfs.append(f1_scores_df)
@@ -481,7 +521,7 @@ concat_f1_scores.head()
 # In[11]:
 
 
-# Set palette for the f1 scores plot
+# Set palette for the F1 scores plot
 palette = sns.color_palette("Paired")[:2]
 
 # Set figure size
@@ -498,6 +538,10 @@ filtered_data = concat_f1_scores[
 ax = sns.barplot(
     x="Model", y="Weighted", hue="Data_Set", data=filtered_data, palette=palette
 )
+
+# Add horizontal grid lines
+ax.yaxis.grid(True, color="gray", linestyle="--", linewidth=0.7, alpha=0.7)
+ax.set_axisbelow(True)  # Ensure grid lines are below the bars
 
 # Add the weighted values above the bars
 for p in ax.patches:
@@ -598,6 +642,21 @@ for model_path in path_list:
         data_path = data_dir / f"{data_set}_data.csv"
         data_df = pd.read_csv(data_path)
 
+        # If this is training data, filter rows using the training indices
+        if data_set == "training":
+            # Skip the header row when reading the CSV
+            training_indices = pd.read_csv(training_indices_path, header=0).iloc[:, 0].tolist()
+
+            # Convert to integers to ensure compatibility
+            try:
+                training_indices = [int(idx) for idx in training_indices]
+            except ValueError as e:
+                print("Error parsing indices:", e)
+                raise
+
+            # Use .iloc if training_indices are row positions
+            data_df = data_df.iloc[training_indices]
+
         # Group the data by heart number
         grouped_data = data_df.groupby("Metadata_heart_number")
 
@@ -605,9 +664,9 @@ for model_path in path_list:
         for heart_number, df_heart in grouped_data:
             # Generate accuracy data frame
             accuracy_df = generate_accuracy_score_df(
-                model_path=model_path,
+                model=model_path,
                 data_set=df_heart,
-                encoder_path=encoder_path,
+                encoder=encoder_path,
                 label=label,
             )
 
