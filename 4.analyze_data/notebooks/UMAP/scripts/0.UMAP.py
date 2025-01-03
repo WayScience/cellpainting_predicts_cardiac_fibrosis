@@ -10,25 +10,22 @@ import glob
 import pathlib
 import pandas as pd
 import umap
-import numpy as np
 
-from pycytominer import feature_select
 from pycytominer.cyto_utils import infer_cp_features
 
 
 # ## Generate Embeddings for Whole Plates
 
 # ### Set constant for whole plates
-# 
-# Note: All plates (1-4) without filtering had a random seed of 1234. For plates with filtering, we use a random seed of 0 which is a standard for the Way lab.
 
 # In[2]:
 
 
-# Set constants (previously set prior, normally use 0 but the change in coordinates will impact already generated single-cell crops)
-umap_random_seed = 1234
+# Set constants
+umap_random_seed = 0
 umap_n_components = 2
 
+# Set embeddings directory
 output_dir = pathlib.Path("results")
 output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -38,14 +35,15 @@ output_dir.mkdir(parents=True, exist_ok=True)
 # In[3]:
 
 
-# Set input paths
-data_dir = pathlib.Path("..", "..", "..", "3.process_cfret_features", "data", "single_cell_profiles")
+# Set input path with single-cell profiles
+data_dir = pathlib.Path("../../../3.process_cfret_features/data/single_cell_profiles/")
 
 # Select only the feature selected files
-file_suffix = "*sc_feature_selected_no_QC.parquet"
+file_suffix = "*sc_feature_selected.parquet"
 
 # Obtain file paths for all feature selected plates
 fs_files = glob.glob(f"{data_dir}/{file_suffix}")
+print(f"There are {len(fs_files)} feature selected files with the following paths:")
 fs_files
 
 
@@ -54,8 +52,11 @@ fs_files
 # In[4]:
 
 
-# Load feature data into a dictionary, keyed on plate name
-cp_dfs = {x.split("/")[-1]: pd.read_parquet(x) for x in fs_files}
+# Load feature data into a dictionary, keyed on plate name without the suffix
+cp_dfs = {
+    x.split("/")[-1].split("_sc")[0]: pd.read_parquet(x)
+    for x in fs_files
+}
 
 # Print out useful information about each dataset
 print(cp_dfs.keys())
@@ -67,175 +68,128 @@ print(cp_dfs.keys())
 # In[5]:
 
 
+# Initialize a dictionary to store UMAP embeddings for each plate
+umap_results = {}
+
 # Fit UMAP features per dataset and save
 for plate in cp_dfs:
-    # Set plate name
-    plate_name = pathlib.Path(plate).stem
     # Set output file for the UMAP
-    output_umap_file = pathlib.Path(output_dir, f"UMAP_{plate_name}_no_QC.tsv.gz")
+    output_umap_file = pathlib.Path(output_dir, f"UMAP_{plate}.parquet")
 
-    # # Check if the output file already exists
-    # if output_umap_file.exists():
-    #     print(f"Skipping {output_umap_file.stem} as it already exists.")
-    #     continue
+    # Check if the output file already exists
+    if output_umap_file.exists():
+        print(f"Skipping {output_umap_file.stem} as it already exists.")
+        continue
 
     # Make sure to reinitialize UMAP instance per plate
-    umap_fit = umap.UMAP(
-        random_state=umap_random_seed,
-        n_components=umap_n_components
-    )
-    
-    # Remove NA columns
+    umap_fit = umap.UMAP(random_state=umap_random_seed, n_components=umap_n_components, n_jobs=1)
+
+    # Set dataframe as the current plate
     cp_df = cp_dfs[plate]
-    cp_df = feature_select(
-        cp_df,
-        operation="drop_na_columns",
-        na_cutoff=0
-    )
-    
+
     # Process cp_df to separate features and metadata
     cp_features = infer_cp_features(cp_df)
     meta_features = infer_cp_features(cp_df, metadata=True)
-    
+
     # Fit UMAP and convert to pandas DataFrame
     embeddings = pd.DataFrame(
         umap_fit.fit_transform(cp_df.loc[:, cp_features]),
-        columns=[f"UMAP{x}" for x in range(0, umap_n_components)]
+        columns=[f"UMAP{x}" for x in range(0, umap_n_components)],
     )
-    print(embeddings.shape)
-    
-    # Combine with metadata
-    cp_umap_with_metadata_df = pd.concat([
-        cp_df.loc[:, meta_features],
-        embeddings
-    ], axis=1)
-    
-    # Generate output file, drop unnamed column, and save 
-    cp_umap_with_metadata_df.to_csv(output_umap_file, index=False, sep="\t")
+    print(f"{embeddings.shape}: {plate}")
 
-    # Print an example output file
-    cp_umap_with_metadata_df.head()
+    # Combine with metadata
+    cp_umap_with_metadata_df = pd.concat(
+        [cp_df.loc[:, meta_features], embeddings], axis=1
+    )
+
+    # Check and adjust dtypes dynamically
+    for col in cp_umap_with_metadata_df.columns:
+        if col in meta_features:
+            # Try converting to numeric first (if possible), if not, keep as string
+            try:
+                cp_umap_with_metadata_df[col] = pd.to_numeric(cp_umap_with_metadata_df[col], errors='raise', downcast='integer')
+            except ValueError:
+                # If can't convert to numeric, keep as string
+                cp_umap_with_metadata_df[col] = cp_umap_with_metadata_df[col].astype(str)
+        else:
+            # For UMAP embeddings, ensure they're float
+            cp_umap_with_metadata_df[col] = cp_umap_with_metadata_df[col].astype(float)
+
+    # Store the UMAP result in the dictionary
+    umap_results[plate] = cp_umap_with_metadata_df
+
+    # Generate output file, drop unnamed column, and save
+    cp_umap_with_metadata_df.to_parquet(output_umap_file, index=False)
 
 
 # ## Generate embeddings for filtered data
 # 
-# Note: We are filtering out single-cells from plates 3 and 4 where there is more than 1 single-cell adjacent. We are looking to see the impact on the UMAP when only including "isolated" single-cells.
+# Instead of processing all of the cells in each plate, in this section we are taking plate 3 (`localhost230405150001`), and filtering out cells based on conditions to generate UMAP embeddings.
+# We will be filtering out cells as follows:
+# 
+# 1. Only DMSO and TGFRi (both failing and nonfailing)
+# 2. Only DMSO and drug_x (both failing and nonfailing)
 
 # In[6]:
 
 
-# Set random seed as 0 for filtered datasets
-filtered_umap_random_seed = 0
+for plate in cp_dfs:
+    # Select only plate 3 and ignore the rest
+    if plate != 'localhost230405150001':
+        continue
 
-# Select only the feature selected files
-file_suffix = "*sc_annotated.parquet"
+    # Set dataframe as the current plate
+    cp_df = cp_dfs[plate]
 
-# Obtain file paths for all annotated plates (contains neighbors data)
-annot_files = glob.glob(f"{data_dir}/{file_suffix}")
-
-plate_names = []
-
-for file_path in pathlib.Path("../../../0.download_data/Images").iterdir():
-    plate_names.append(str(file_path.stem))
-
-print(plate_names)
-
-
-# In[7]:
-
-
-# create plate info dictionary
-plate_info_dictionary = {
-    name: {
-        "fs_data": pd.read_parquet(
-            pathlib.Path(
-                list(data_dir.rglob(f"{name}_sc_feature_selected.parquet"))[0]
-            ).resolve(strict=True)
-        ),
-        "annot_data": pd.read_parquet(
-            pathlib.Path(
-                list(data_dir.rglob(f"{name}_sc_annotated.parquet"))[0]
-            ).resolve(strict=True)
-        ),
+    # Create two new dataframes that filter cells with each condition in a dictionary
+    filtered_dfs = {
+        "DMSO_TGFRi": cp_df.loc[cp_df['Metadata_treatment'].isin(['DMSO', 'TGFRi'])].reset_index(drop=True),
+        "DMSO_drugx": cp_df.loc[cp_df['Metadata_treatment'].isin(['DMSO', 'drug_x'])].reset_index(drop=True)
     }
-    for name in plate_names
-    if name == "localhost230405150001" or name == "localhost231120090001"
-}
 
-# view the dictionary info to assess that all info is added correctly
-print(plate_info_dictionary.keys())
-print(
-    "The shapes of the feature selected data frames are:",
-    [plate_info_dictionary[x]["fs_data"].shape for x in plate_info_dictionary],
-)
-print(
-    "The shapes of the annotated data frames are:",
-    [plate_info_dictionary[x]["annot_data"].shape for x in plate_info_dictionary],
-)
+    # Loop through each filtered dataframe and process it
+    for condition, filtered_df in filtered_dfs.items():
+        # Set output file for the UMAP
+        output_umap_file = pathlib.Path(output_dir, f"UMAP_{plate}_{condition}.parquet")
 
+        # Check if the output file already exists
+        if output_umap_file.exists():
+            print(f"Skipping {output_umap_file.stem} as it already exists.")
+            continue
 
-# In[8]:
+        # Make sure to reinitialize UMAP instance per plate
+        umap_fit = umap.UMAP(random_state=umap_random_seed, n_components=umap_n_components, n_jobs=1)
 
+        # Process filtered_df to separate features and metadata
+        cp_features = infer_cp_features(filtered_df)
+        meta_features = infer_cp_features(filtered_df, metadata=True)
 
-for plate, info in plate_info_dictionary.items():
-    # Set output file for the UMAP
-    output_umap_file = pathlib.Path(output_dir, f"UMAP_{plate}_fs_filtered.tsv.gz")
-    
-    # Give variable names to data frames
-    fs_df = info["fs_data"]
-    annot_df = info["annot_data"]
+        # Fit UMAP and convert to pandas DataFrame
+        embeddings = pd.DataFrame(
+            umap_fit.fit_transform(filtered_df.loc[:, cp_features]),
+            columns=[f"UMAP{x}" for x in range(0, umap_n_components)],
+        )
+        print(f"{embeddings.shape}: {plate} - {condition}")
 
-    # Merging neighbor column onto fs_df from annot_df
-    fs_df = fs_df.merge(
-        annot_df[[
-            "Metadata_Well", "Metadata_Site", "Metadata_Nuclei_Number_Object_Number", "Cells_Neighbors_NumberOfNeighbors_Adjacent"
-        ]],
-        on=["Metadata_Well", "Metadata_Site", "Metadata_Nuclei_Number_Object_Number"],
-        how="inner",
-    )
+        # Combine with metadata
+        filtered_umap_with_metadata_df = pd.concat(
+            [filtered_df.loc[:, meta_features], embeddings], axis=1
+        )
 
-    # Rename neighbors column to include as metadata
-    fs_df = fs_df.rename(columns={"Cells_Neighbors_NumberOfNeighbors_Adjacent": "Metadata_Neighbors_Adjacent"})
+        # Check and adjust dtypes dynamically
+        for col in filtered_umap_with_metadata_df.columns:
+            if col in meta_features:
+                # Try converting to numeric first (if possible), if not, keep as string
+                try:
+                    filtered_umap_with_metadata_df[col] = pd.to_numeric(filtered_umap_with_metadata_df[col], errors='raise', downcast='integer')
+                except ValueError:
+                    # If can't convert to numeric, keep as string
+                    filtered_umap_with_metadata_df[col] = filtered_umap_with_metadata_df[col].astype(str)
+            else:
+                # For UMAP embeddings, ensure they're float
+                filtered_umap_with_metadata_df[col] = filtered_umap_with_metadata_df[col].astype(float)
 
-    # Only including rows where Metadata_Neighbors_Adjacent is less than or equal to 1 neighbor
-    filtered_fs_df = fs_df[fs_df['Metadata_Neighbors_Adjacent'] <= 1]
-
-    # Reset index to avoid any issues with concat
-    filtered_fs_df.reset_index(drop=True, inplace=True)
-
-    # Make sure to reinitialize UMAP instance per plate (uses random seed 0 and same umap components as above)
-    umap_fit = umap.UMAP(
-        random_state=filtered_umap_random_seed,
-        n_components=umap_n_components
-    )
-
-    # Remove NA columns
-    filtered_fs_df = feature_select(
-        filtered_fs_df,
-        operation="drop_na_columns",
-        na_cutoff=0
-    )
-    
-    # Process filtered_fs_df to separate features and metadata
-    cp_features = infer_cp_features(filtered_fs_df)
-    meta_features = infer_cp_features(filtered_fs_df, metadata=True)
-    
-    # Fit UMAP and convert to pandas DataFrame
-    embeddings = pd.DataFrame(
-        umap_fit.fit_transform(filtered_fs_df.loc[:, cp_features]),
-        columns=[f"UMAP{x}" for x in range(0, umap_n_components)]
-    )
-    print(embeddings.shape)
-    
-    # Combine with metadata
-    filtered_umap_with_metadata_df = pd.concat([
-        filtered_fs_df.loc[:, meta_features],
-        embeddings
-    ], axis=1)
-    
-    # Generate output file, drop unnamed column, and save 
-    filtered_umap_with_metadata_df.to_csv(output_umap_file, index=False, sep="\t")
-
-    # Print an example output file
-    filtered_umap_with_metadata_df.head()
+        # Generate output file, drop unnamed column, and save
+        filtered_umap_with_metadata_df.to_parquet(output_umap_file, index=False)
 
