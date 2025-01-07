@@ -64,3 +64,6 @@ sc_crops*
 
 # Ignore unnecessary large data that we aren't adding to Git LFS
 large_ignored_data*
+
+# Ignore files with _no_QC.parquet output to avoid extra large files added
+*_no_QC.parquet
