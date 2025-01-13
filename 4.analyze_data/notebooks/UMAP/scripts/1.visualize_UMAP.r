@@ -156,27 +156,19 @@ if (any(stringr::str_detect(names(umap_cp_df), plate_id_umap_file))) {
     plate_data <- plate_data %>%
         dplyr::mutate(Group = paste(Metadata_cell_type, Metadata_treatment, sep = " + "))
     
-    # Filter for specific combinations: healthy + DMSO, failing + DMSO, and failing + TGFRi
-    plate_data_filtered <- plate_data %>%
-        dplyr::filter(
-            (Metadata_cell_type == "healthy" & Metadata_treatment == "DMSO") |
-            (Metadata_cell_type == "failing" & Metadata_treatment == "DMSO") |
-            (Metadata_cell_type == "failing" & Metadata_treatment == "TGFRi")
-        )
-    
     # Create the main UMAP plot
-    merged_TGFRi_plot <- ggplot(plate_data_filtered, aes(x = UMAP0, y = UMAP1)) +
+    merged_TGFRi_plot <- ggplot(plate_data, aes(x = UMAP0, y = UMAP1)) +
     geom_point(size = 0.9, alpha = 0.29, aes(color = Group)) +
     geom_density_2d(aes(color = Group), alpha = 0.58, linewidth = 1.42) + # Adjust alpha and size as needed
     theme_bw(base_size = 22) +
     scale_color_manual(
         name = NA,
-        values = c("failing + TGFRi" = "#4CAF73", "failing + DMSO" = "#D78E5A", "healthy + DMSO" = "#8269dc")
+        values = c("failing + TGFRi" = "#4CAF73", "failing + DMSO" = "#D78E5A", "healthy + DMSO" = "#8269dc", "healthy + TGFRi" = "#595959")
     ) +
     guides(color = guide_legend(override.aes = list(size = 6))) +
     ylim(min(plate_data$UMAP1), max(plate_data$UMAP1)) +
     theme(
-        legend.position = c(0.15, 0.95),  # Move the legend to the top-left corner
+        legend.position = c(0.84, 0.92),  # Move the legend to the top-right corner
         legend.background = element_blank(),  # Make legend background transparent
         legend.key = element_blank(),  # Remove the background from legend keys
         legend.title = element_blank(),  # Remove the legend title
