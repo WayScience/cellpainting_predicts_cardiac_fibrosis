@@ -176,7 +176,66 @@ if (any(stringr::str_detect(names(umap_cp_df), plate_id_umap_file))) {
     guides(color = guide_legend(override.aes = list(size = 6))) +
     ylim(min(plate_data$UMAP1), max(plate_data$UMAP1)) +
     theme(
-        legend.position = c(0.15, 0.95),  # Move the legend to the top-left corner
+        legend.position = c(0.84, 0.92),  # Move the legend to the top-right corner
+        legend.background = element_blank(),  # Make legend background transparent
+        legend.key = element_blank(),  # Remove the background from legend keys
+        legend.title = element_blank(),  # Remove the legend title
+        legend.text = element_text(size = 20, face = "bold"),  # Make legend text bigger and bold
+        panel.background = element_rect(fill = "white"),  # White background inside the plot area
+        plot.background = element_blank(),  # Make the outer area transparent
+        axis.text = element_text(size = 20),  # Make axis text bigger
+        axis.title = element_text(size = 22),  # Make axis titles bigger
+        axis.ticks = element_line(linewidth = 1.5)  # Update to 'linewidth' instead of 'size'
+    )
+
+    # Add density plots in the margins
+    merged_TGFRi_plot_with_margins <- ggMarginal(
+        merged_TGFRi_plot,
+        type = "density",  # Add density plots
+        margins = "both",  # Add density plots to both x and y axes
+        groupFill = TRUE,  # Use the group colors for the density plots
+        linewidth = 5,  # Adjust the size of the marginal plots
+        colour = NA  # Remove the outline around density plots
+    )
+    
+    # Save as PNG
+    output_png_file <- paste0(output_fig_dir, "/", "UMAP_", plate_id, "_without_healthy_TGFRi.png")
+    ggsave(output_png_file, merged_TGFRi_plot_with_margins, dpi = 500, height = 12, width = 12)
+
+    # Print the plot
+    print(merged_TGFRi_plot_with_margins)
+} else {
+    message(paste("No data found for plate:", plate_id))
+}
+
+# Define the plate_id
+plate_id <- "localhost230405150001_DMSO_TGFRi"
+
+# Construct the full file name by adding the UMAP prefix and .parquet suffix
+plate_id_umap_file <- paste0("UMAP_", plate_id, ".parquet")
+
+# Check if the plate_id_umap_file is present in umap_cp_df (considering the names might include additional details)
+if (any(stringr::str_detect(names(umap_cp_df), plate_id_umap_file))) {
+    # If the plate_id is found in umap_cp_df, extract the relevant plate data
+    plate_data <- umap_cp_df[stringr::str_detect(names(umap_cp_df), plate_id_umap_file)][[1]]  # Access the first match if multiple
+
+    # Create a new column combining cell type and treatment
+    plate_data <- plate_data %>%
+        dplyr::mutate(Group = paste(Metadata_cell_type, Metadata_treatment, sep = " + "))
+    
+    # Create the main UMAP plot
+    merged_TGFRi_plot <- ggplot(plate_data, aes(x = UMAP0, y = UMAP1)) +
+    geom_point(size = 0.9, alpha = 0.29, aes(color = Group)) +
+    geom_density_2d(aes(color = Group), alpha = 0.58, linewidth = 1.42) + # Adjust alpha and size as needed
+    theme_bw(base_size = 22) +
+    scale_color_manual(
+        name = NA,
+        values = c("failing + TGFRi" = "#4CAF73", "failing + DMSO" = "#D78E5A", "healthy + DMSO" = "#8269dc", "healthy + TGFRi" = "#595959")
+    ) +
+    guides(color = guide_legend(override.aes = list(size = 6))) +
+    ylim(min(plate_data$UMAP1), max(plate_data$UMAP1)) +
+    theme(
+        legend.position = c(0.84, 0.92),  # Move the legend to the top-right corner
         legend.background = element_blank(),  # Make legend background transparent
         legend.key = element_blank(),  # Remove the background from legend keys
         legend.title = element_blank(),  # Remove the legend title
