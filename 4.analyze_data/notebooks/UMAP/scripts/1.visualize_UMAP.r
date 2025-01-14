@@ -199,7 +199,7 @@ if (any(stringr::str_detect(names(umap_cp_df), plate_id_umap_file))) {
     )
     
     # Save as PNG
-    output_png_file <- paste0(output_fig_dir, "/", "UMAP_", plate_id, "without_healthy_TGFRi.png")
+    output_png_file <- paste0(output_fig_dir, "/", "UMAP_", plate_id, "_without_healthy_TGFRi.png")
     ggsave(output_png_file, merged_TGFRi_plot_with_margins, dpi = 500, height = 12, width = 12)
 
     # Print the plot
