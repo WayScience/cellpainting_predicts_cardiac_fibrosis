@@ -176,7 +176,7 @@ if (any(stringr::str_detect(names(umap_cp_df), plate_id_umap_file))) {
     guides(color = guide_legend(override.aes = list(size = 6))) +
     ylim(min(plate_data$UMAP1), max(plate_data$UMAP1)) +
     theme(
-        legend.position = c(0.15, 0.95),  # Move the legend to the top-left corner
+        legend.position = c(0.84, 0.92),  # Move the legend to the top-right corner
         legend.background = element_blank(),  # Make legend background transparent
         legend.key = element_blank(),  # Remove the background from legend keys
         legend.title = element_blank(),  # Remove the legend title
