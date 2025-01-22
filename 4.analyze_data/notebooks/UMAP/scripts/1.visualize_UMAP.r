@@ -176,7 +176,7 @@ if (any(stringr::str_detect(names(umap_cp_df), plate_id_umap_file))) {
     guides(color = guide_legend(override.aes = list(size = 6))) +
     ylim(min(plate_data$UMAP1), max(plate_data$UMAP1)) +
     theme(
-        legend.position = c(0.84, 0.92),  # Move the legend to the top-right corner
+        legend.position = c(0.84, 0.93),  # Move the legend to the top-right corner
         legend.background = element_blank(),  # Make legend background transparent
         legend.key = element_blank(),  # Remove the background from legend keys
         legend.title = element_blank(),  # Remove the legend title
@@ -226,14 +226,15 @@ if (any(stringr::str_detect(names(umap_cp_df), plate_id_umap_file))) {
     # Create the main UMAP plot
     merged_TGFRi_plot <- ggplot(plate_data, aes(x = UMAP0, y = UMAP1)) +
     geom_point(size = 0.9, alpha = 0.29, aes(color = Group)) +
-    geom_density_2d(aes(color = Group), alpha = 0.58, linewidth = 1.42) + # Adjust alpha and size as needed
+    geom_density_2d(aes(color = Group), alpha = 0.58, linewidth = 1.42) +
     theme_bw(base_size = 22) +
     scale_color_manual(
         name = NA,
         values = c("failing + TGFRi" = "#4CAF73", "failing + DMSO" = "#D78E5A", "healthy + DMSO" = "#8269dc", "healthy + TGFRi" = "#595959")
     ) +
+    xlim(c(-2.4,7.5)) +
+    ylim(c(2.8,11.6)) +
     guides(color = guide_legend(override.aes = list(size = 6))) +
-    ylim(min(plate_data$UMAP1), max(plate_data$UMAP1)) +
     theme(
         legend.position = c(0.84, 0.92),  # Move the legend to the top-right corner
         legend.background = element_blank(),  # Make legend background transparent
@@ -254,7 +255,7 @@ if (any(stringr::str_detect(names(umap_cp_df), plate_id_umap_file))) {
         margins = "both",  # Add density plots to both x and y axes
         groupFill = TRUE,  # Use the group colors for the density plots
         linewidth = 5,  # Adjust the size of the marginal plots
-        colour = NA  # Remove the outline around density plots
+        colour = NA,  # Remove the outline around density plots
     )
     
     # Save as PNG
