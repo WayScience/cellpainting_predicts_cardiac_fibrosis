@@ -62,7 +62,6 @@ such rights in consideration of benefits the Licensor receives from
 making the Licensed Material available under these terms and
 conditions.
 
-
 ### Section 1 -- Definitions.
 
   a. Adapted Material means material subject to Copyright and Similar
@@ -132,7 +131,6 @@ conditions.
 
   l. You means the individual or entity exercising the Licensed Rights
      under this Public License. Your has a corresponding meaning.
-
 
 ### Section 2 -- Scope.
 
@@ -264,7 +262,6 @@ following conditions.
           License You apply must not prevent recipients of the Adapted
           Material from complying with this Public License.
 
-
 ### Section 4 -- Sui Generis Database Rights.
 
 Where the Licensed Rights include Sui Generis Database Rights that
@@ -315,7 +312,6 @@ Rights include other Copyright and Similar Rights.
      possible, most closely approximates an absolute disclaimer and
      waiver of all liability.
 
-
 ### Section 6 -- Term and Termination.
 
   a. This Public License applies for the term of the Copyright and
@@ -344,8 +340,7 @@ Rights include other Copyright and Similar Rights.
   d. Sections 1, 5, 6, 7, and 8 survive termination of this Public
      License.
 
-
-Section 7 -- Other Terms and Conditions.
+### Section 7 -- Other Terms and Conditions.
 
   a. The Licensor shall not be bound by any additional or different
      terms or conditions communicated by You unless expressly agreed.
