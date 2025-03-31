@@ -2,20 +2,21 @@
 
 # Cell Painting predicts cardiac fibrosis
 
-In this repository, we perform image analysis, image-based profiling, and machine learning to predict failing and non-failing cardiac fibroblasts.  
+In this repository, we perform image analysis, image-based profiling, and machine learning to predict cardiac fibroblasts from failing and non-failing hearts.  
 
 ## Goals
 
 The goals of this project are to:
 
-1. Comprehensively define cell-state differences between failing and non-failing cardiac fibroblast (CF) populations.
-2. Accurately predict CF phenotype that can generalize and be applied to a large-drug screen to find hits that make the failing cells look healthy.
+1. Comprehensively define cell-state differences between cardiac fibroblast (CF) populations from failing and non-failing hearts.
+2. Accurately predict CF phenotype that can generalize and be applied to a large-drug screen to find hits that make the cells from failing hearts look healthy.
 
 ## Cell Painting
 
-We performed a modified [Cell Painting assay](https://www.moleculardevices.com/applications/cell-imaging/cell-painting#gref) on [cardiac fibroblasts](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5588900/#:~:text=Definition%20by%20function,%2C%20and%20glycoproteins5%2C6.) from non-failing and failing human hearts. 
+We performed a modified [Cell Painting assay](https://www.nature.com/articles/nprot.2016.105) on [cardiac fibroblasts](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5588900/#:~:text=Definition%20by%20function,%2C%20and%20glycoproteins5%2C6.) from non-failing and failing human hearts.
 
-In this modified Cell Painting, there are five channels:
+In this modified Cell Painting, we remove the traditional nucleoli/cytoplasmic RNA stain for a dedicated F-actin stain.
+Here are the five channels for our experiment, with the mapping for the image file names:
 
 - `d0` (Nuclei)
 - `d1` (Endoplasmic Reticulum)
@@ -27,7 +28,8 @@ In this modified Cell Painting, there are five channels:
 
 ## Data
 
-For training a logistic regression classifier, we extracted single-cell morphology profiles from CFs of different patients with the same heart failure type and patients with non-failing hearts.
+For training a binary logistic regression classifier, we extracted single-cell morphology profiles from CFs of different patients with the same heart failure type (idiopathic dilated cardiomyopathy) and patients with non-failing hearts.
+Patient information for each heart used can be found the `metadata` folder under the [Circ Patient Information document](./metadata/Circ%20Patient%20Information.docx).
 We label wells from each patient as either "Failing" (failed heart) or "Healthy" (non-failing heart).
 There was no treatment or perturbation applied to any of the wells in this plate.
 
@@ -42,16 +44,15 @@ This plate contains two different hearts, one from a non-failing patient and the
 Wells are labelled as either "Failing" (failing heart) or "Healthy" (non-failing heart).
 There are three different treatments:
 
-- DMSO (control)
+- DMSO (negative control)
 - drug_x
-- TGRFi (TGFB inhibitor)
+- TGRFi (TGFB inhibitor, positive control)
 
 We applied the model to this dataset to evaluate its accuracy in predicting control cells and to observe how its predictions change in response to different treatments.
 
 - **localhost230405150001**
 
 ![localhost230405150001_platemap_figure.png](./metadata/platemap_figures/localhost230405150001_platemap_figure.png)
-
 
 Additionally, we include the pilot plates below in this repository that were not prepared using an optimized protocol, intended for further analysis that is not included in the manuscript.
 
