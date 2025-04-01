@@ -54,7 +54,7 @@ We applied the model to this dataset to evaluate its accuracy in predicting cont
 
 ![localhost230405150001_platemap_figure.png](./metadata/platemap_figures/localhost230405150001_platemap_figure.png)
 
-Additionally, we include the pilot plates below in this repository that were not prepared using an optimized protocol, intended for further analysis that is not included in the manuscript.
+Additionally, we include the pilot plates below in this repository that were not prepared using an optimized protocol, intended for further analysis that is not included in the Circulation manuscript.
 
 - **localhost220512140003_KK22-05-198**
 - **localhost220513100001_KK22-05-198_FactinAdjusted**
