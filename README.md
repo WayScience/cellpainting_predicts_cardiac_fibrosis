@@ -112,3 +112,7 @@ conda activate python_analysis_cfret
 # OR
 conda activate R_analysis_cfret
 ```
+
+## Licensing
+
+Any party desiring a license to use the Software and/or Modifications for commercial purposes shall contact Mary Tapolsky at cuinnovations 'at' cuanschutz 'dot' edu.
