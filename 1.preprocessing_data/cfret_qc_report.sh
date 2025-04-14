@@ -6,10 +6,10 @@ conda init bash
 conda activate cfret_data_env
 
 # convert Jupyter notebook to script
-jupyter nbconvert --to script --output-dir=scripts/ *.ipynb
+jupyter nbconvert --to script --output-dir=nbconverted/ *.ipynb
 
-# run Python scripts for QC processing and report generation 
-python scripts/0.whole_image_cfret_qc.py
-python scripts/1.evaluate_qc.py
-Rscript scripts/1.qc_report.r
+# run Python nbconverted for QC processing and report generation 
+python nbconverted/0.whole_image_cfret_qc.py
+python nbconverted/1.evaluate_qc.py
+Rscript nbconverted/1.qc_report.r
 

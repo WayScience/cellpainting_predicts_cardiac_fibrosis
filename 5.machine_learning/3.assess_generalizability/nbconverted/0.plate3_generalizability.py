@@ -22,7 +22,6 @@ from joblib import load
 from sklearn.metrics import precision_recall_curve, auc
 
 sys.path.append("../../utils")
-from eval_utils import generate_confusion_matrix_df, generate_f1_score_df
 from training_utils import get_X_y_data
 
 

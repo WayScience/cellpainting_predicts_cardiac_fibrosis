@@ -81,7 +81,7 @@ def generate_sc_crops(
     output_img_dir: pathlib.Path,
     crop_size: int,
 ) -> None:
-    """Using a dictionary with single-cell metadata info per image set, single-cell crops per channel are generated 
+    """Using a dictionary with single-cell metadata info per image set, single-cell crops per channel are generated
     and saved as PNGs in an image set folder.
 
     Args:
@@ -207,11 +207,17 @@ plate4_df.head()
 
 # Filter the DataFrame directly
 filtered_plate4_df = plate4_df[
-    (plate4_df['Metadata_Number_of_Cells_Neighbors_Adjacent'].isin([0])) &
-    (plate4_df['Metadata_Nuclei_Location_Center_X'] > crop_size // 2) &
-    (plate4_df['Metadata_Nuclei_Location_Center_X'] < (plate4_df['Metadata_Nuclei_Location_Center_X'].max() - crop_size // 2)) &
-    (plate4_df['Metadata_Nuclei_Location_Center_Y'] > crop_size // 2) &
-    (plate4_df['Metadata_Nuclei_Location_Center_Y'] < (plate4_df['Metadata_Nuclei_Location_Center_Y'].max() - crop_size // 2))
+    (plate4_df["Metadata_Number_of_Cells_Neighbors_Adjacent"].isin([0]))
+    & (plate4_df["Metadata_Nuclei_Location_Center_X"] > crop_size // 2)
+    & (
+        plate4_df["Metadata_Nuclei_Location_Center_X"]
+        < (plate4_df["Metadata_Nuclei_Location_Center_X"].max() - crop_size // 2)
+    )
+    & (plate4_df["Metadata_Nuclei_Location_Center_Y"] > crop_size // 2)
+    & (
+        plate4_df["Metadata_Nuclei_Location_Center_Y"]
+        < (plate4_df["Metadata_Nuclei_Location_Center_Y"].max() - crop_size // 2)
+    )
 ]
 
 print(filtered_plate4_df.shape)
@@ -224,9 +230,9 @@ filtered_plate4_df.head()
 
 
 # Get data frame with the top single-cell from the top healthy nuclei coefficient
-top_healthy_nuclei = filtered_plate4_df[filtered_plate4_df["Metadata_cell_type"] == "Healthy"].nlargest(
-    1, "Nuclei_Intensity_MeanIntensityEdge_Hoechst"
-)[
+top_healthy_nuclei = filtered_plate4_df[
+    filtered_plate4_df["Metadata_cell_type"] == "Healthy"
+].nlargest(1, "Nuclei_Intensity_MeanIntensityEdge_Hoechst")[
     [
         "Nuclei_Intensity_MeanIntensityEdge_Hoechst",
         "Metadata_Well",
@@ -252,9 +258,9 @@ top_healthy_nuclei
 
 
 # Get data frame with the top single-cell from the top healthy ER coefficient
-top_healthy_ER = filtered_plate4_df[filtered_plate4_df["Metadata_cell_type"] == "Healthy"].nlargest(
-    1, "Nuclei_Texture_AngularSecondMoment_ER_3_01_256"
-)[
+top_healthy_ER = filtered_plate4_df[
+    filtered_plate4_df["Metadata_cell_type"] == "Healthy"
+].nlargest(1, "Nuclei_Texture_AngularSecondMoment_ER_3_01_256")[
     [
         "Nuclei_Texture_AngularSecondMoment_ER_3_01_256",
         "Metadata_cell_type",
@@ -279,20 +285,22 @@ top_healthy_ER
 
 
 # Get data frame with the top single-cells from the top healthy PM coefficient
-top_healthy_PM = filtered_plate4_df[filtered_plate4_df["Metadata_cell_type"] == "Healthy"].nlargest(
-    5, "Nuclei_Intensity_IntegratedIntensity_PM"
-).iloc[4:5][
-    [
-        "Nuclei_Intensity_IntegratedIntensity_PM",
-        "Metadata_cell_type",
-        "Metadata_Well",
-        "Metadata_Plate",
-        "Metadata_Site",
-        "Metadata_Nuclei_Location_Center_X",
-        "Metadata_Nuclei_Location_Center_Y",
-        "Metadata_heart_number",
+top_healthy_PM = (
+    filtered_plate4_df[filtered_plate4_df["Metadata_cell_type"] == "Healthy"]
+    .nlargest(5, "Nuclei_Intensity_IntegratedIntensity_PM")
+    .iloc[4:5][
+        [
+            "Nuclei_Intensity_IntegratedIntensity_PM",
+            "Metadata_cell_type",
+            "Metadata_Well",
+            "Metadata_Plate",
+            "Metadata_Site",
+            "Metadata_Nuclei_Location_Center_X",
+            "Metadata_Nuclei_Location_Center_Y",
+            "Metadata_heart_number",
+        ]
     ]
-]
+)
 
 # Append the DataFrame and its name to the lists
 list_of_dfs.append(top_healthy_PM)
@@ -306,9 +314,9 @@ top_healthy_PM
 
 
 # Get data frame with the top single-cell from the top healthy Mitochondria coefficient
-top_healthy_mito = filtered_plate4_df[filtered_plate4_df["Metadata_cell_type"] == "Healthy"].nlargest(
-    1, "Cells_Intensity_MinIntensityEdge_Mitochondria"
-)[
+top_healthy_mito = filtered_plate4_df[
+    filtered_plate4_df["Metadata_cell_type"] == "Healthy"
+].nlargest(1, "Cells_Intensity_MinIntensityEdge_Mitochondria")[
     [
         "Cells_Intensity_MinIntensityEdge_Mitochondria",
         "Metadata_cell_type",
@@ -333,20 +341,22 @@ top_healthy_mito
 
 
 # Get data frame with the top single-cells from the top healthy Actin coefficient
-top_healthy_actin = filtered_plate4_df[filtered_plate4_df["Metadata_cell_type"] == "Healthy"].nlargest(
-    3, "Nuclei_Intensity_MinIntensity_Actin"
-).iloc[2:3][
-    [
-        "Nuclei_Intensity_MinIntensity_Actin",
-        "Metadata_cell_type",
-        "Metadata_Well",
-        "Metadata_Plate",
-        "Metadata_Site",
-        "Metadata_Nuclei_Location_Center_X",
-        "Metadata_Nuclei_Location_Center_Y",
-        "Metadata_heart_number",
+top_healthy_actin = (
+    filtered_plate4_df[filtered_plate4_df["Metadata_cell_type"] == "Healthy"]
+    .nlargest(3, "Nuclei_Intensity_MinIntensity_Actin")
+    .iloc[2:3][
+        [
+            "Nuclei_Intensity_MinIntensity_Actin",
+            "Metadata_cell_type",
+            "Metadata_Well",
+            "Metadata_Plate",
+            "Metadata_Site",
+            "Metadata_Nuclei_Location_Center_X",
+            "Metadata_Nuclei_Location_Center_Y",
+            "Metadata_heart_number",
+        ]
     ]
-]
+)
 
 # Append the DataFrame and its name to the lists
 list_of_dfs.append(top_healthy_actin)
@@ -362,9 +372,9 @@ top_healthy_actin
 
 
 # Get data frame with the top single-cell from the top failing nuclei coefficient
-top_failing_nuclei = filtered_plate4_df[filtered_plate4_df["Metadata_cell_type"] == "Failing"].nlargest(
-    1, "Cells_Intensity_StdIntensityEdge_Hoechst"
-)[
+top_failing_nuclei = filtered_plate4_df[
+    filtered_plate4_df["Metadata_cell_type"] == "Failing"
+].nlargest(1, "Cells_Intensity_StdIntensityEdge_Hoechst")[
     [
         "Cells_Intensity_StdIntensityEdge_Hoechst",
         "Metadata_cell_type",
@@ -389,9 +399,9 @@ top_failing_nuclei
 
 
 # Get data frame with the top single-cell from the top failing ER coefficient
-top_failing_ER = filtered_plate4_df[filtered_plate4_df["Metadata_cell_type"] == "Failing"].nlargest(
-    1, "Cytoplasm_Texture_InverseDifferenceMoment_ER_3_01_256"
-)[
+top_failing_ER = filtered_plate4_df[
+    filtered_plate4_df["Metadata_cell_type"] == "Failing"
+].nlargest(1, "Cytoplasm_Texture_InverseDifferenceMoment_ER_3_01_256")[
     [
         "Cytoplasm_Texture_InverseDifferenceMoment_ER_3_01_256",
         "Metadata_cell_type",
@@ -416,9 +426,9 @@ top_failing_ER
 
 
 # Get data frame with the top single-cell from the top failing PM coefficient
-top_failing_PM = filtered_plate4_df[filtered_plate4_df["Metadata_cell_type"] == "Failing"].nlargest(
-    1, "Cytoplasm_Texture_InfoMeas1_PM_3_00_256"
-)[
+top_failing_PM = filtered_plate4_df[
+    filtered_plate4_df["Metadata_cell_type"] == "Failing"
+].nlargest(1, "Cytoplasm_Texture_InfoMeas1_PM_3_00_256")[
     [
         "Cytoplasm_Texture_InfoMeas1_PM_3_00_256",
         "Metadata_cell_type",
@@ -443,20 +453,22 @@ top_failing_PM
 
 
 # Get data frame with the top single-cells from the top failing Mitochondria coefficient
-top_failing_mito = filtered_plate4_df[filtered_plate4_df["Metadata_cell_type"] == "Failing"].nlargest(
-    9, "Nuclei_Intensity_IntegratedIntensity_Mitochondria"
-).iloc[8:9][
-    [
-        "Nuclei_Intensity_IntegratedIntensity_Mitochondria",
-        "Metadata_cell_type",
-        "Metadata_Well",
-        "Metadata_Plate",
-        "Metadata_Site",
-        "Metadata_Nuclei_Location_Center_X",
-        "Metadata_Nuclei_Location_Center_Y",
-        "Metadata_heart_number",
+top_failing_mito = (
+    filtered_plate4_df[filtered_plate4_df["Metadata_cell_type"] == "Failing"]
+    .nlargest(9, "Nuclei_Intensity_IntegratedIntensity_Mitochondria")
+    .iloc[8:9][
+        [
+            "Nuclei_Intensity_IntegratedIntensity_Mitochondria",
+            "Metadata_cell_type",
+            "Metadata_Well",
+            "Metadata_Plate",
+            "Metadata_Site",
+            "Metadata_Nuclei_Location_Center_X",
+            "Metadata_Nuclei_Location_Center_Y",
+            "Metadata_heart_number",
+        ]
     ]
-]
+)
 
 # Append the DataFrame and its name to the lists
 list_of_dfs.append(top_failing_mito)
@@ -470,9 +482,9 @@ top_failing_mito
 
 
 # Get data frame with the top single-cell from the top failing Actin coefficient
-top_failing_actin = filtered_plate4_df[filtered_plate4_df["Metadata_cell_type"] == "Failing"].nlargest(
-    1, "Cells_Intensity_IntegratedIntensityEdge_Actin"
-)[
+top_failing_actin = filtered_plate4_df[
+    filtered_plate4_df["Metadata_cell_type"] == "Failing"
+].nlargest(1, "Cells_Intensity_IntegratedIntensityEdge_Actin")[
     [
         "Cells_Intensity_IntegratedIntensityEdge_Actin",
         "Metadata_cell_type",
@@ -505,5 +517,10 @@ pprint(list(sc_dict.items())[:2], indent=4)
 # In[18]:
 
 
-generate_sc_crops(sc_dict=sc_dict, images_dir=images_dir, output_img_dir=output_img_dir, crop_size=crop_size)
+generate_sc_crops(
+    sc_dict=sc_dict,
+    images_dir=images_dir,
+    output_img_dir=output_img_dir,
+    crop_size=crop_size,
+)
 

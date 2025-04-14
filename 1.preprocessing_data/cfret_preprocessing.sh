@@ -6,7 +6,7 @@ conda init bash
 conda activate cfret_data_env
 
 # convert Jupyter notebook to Python script
-jupyter nbconvert --to python --output-dir=scripts/ *.ipynb
+jupyter nbconvert --to python --output-dir=nbconverted/ *.ipynb
 
 # run Python script for IC processing 
-python scripts/2.cfret_ic.py
+python nbconverted/2.cfret_ic.py

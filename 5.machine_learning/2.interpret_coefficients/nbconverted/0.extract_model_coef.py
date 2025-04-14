@@ -34,7 +34,7 @@ path_to_training_data = pathlib.Path(f"{data_dir}/training_data.csv")
 all_columns = pd.read_csv(path_to_training_data, nrows=0).columns
 
 # Filter columns that start with 'Metadata_' to only get feature columns from CellProfiler
-feature_columns = [col for col in all_columns if not col.startswith('Metadata_')]
+feature_columns = [col for col in all_columns if not col.startswith("Metadata_")]
 
 print(len(feature_columns))
 feature_columns
@@ -49,7 +49,9 @@ for example_column in feature_columns[:5]:
 
 
 # path to the final model joblib file
-path_to_final_model = pathlib.Path("../0.train_logistic_regression/models/log_reg_fs_plate_4_final_downsample.joblib").resolve(strict=True)
+path_to_final_model = pathlib.Path(
+    "../0.train_logistic_regression/models/log_reg_fs_plate_4_final_downsample.joblib"
+).resolve(strict=True)
 
 # load in final model
 final_model = load(path_to_final_model)
@@ -69,13 +71,17 @@ print(coefficients.shape)
 if coefficients.shape[1] == len(feature_columns):
     print("The number of coefficients matches the number of feature columns.")
 else:
-    print("Warning: The number of coefficients does not match the number of feature columns.")
+    print(
+        "Warning: The number of coefficients does not match the number of feature columns."
+    )
 
 # Create a DataFrame with the coefficients and features
-coefficients_df = pd.DataFrame({'Feature': feature_columns, 'Coefficient': coefficients.flatten()})
+coefficients_df = pd.DataFrame(
+    {"Feature": feature_columns, "Coefficient": coefficients.flatten()}
+)
 
 # Save the all coefficient data into a CSV file prior to splitting
-coefficients_df.to_csv(f'{coeff_dir}/all_coeffs.csv', index=False)
+coefficients_df.to_csv(f"{coeff_dir}/all_coeffs.csv", index=False)
 
 # Print the DataFrame
 coefficients_df.head()
@@ -87,22 +93,22 @@ coefficients_df.head()
 
 
 # Split into DataFrames with positive, negative, and zero coefficients
-positive_coeffs_df = coefficients_df[coefficients_df['Coefficient'] > 0].copy()
-negative_coeffs_df = coefficients_df[coefficients_df['Coefficient'] < 0].copy()
-zero_coeffs_df = coefficients_df[coefficients_df['Coefficient'] == 0].copy()
+positive_coeffs_df = coefficients_df[coefficients_df["Coefficient"] > 0].copy()
+negative_coeffs_df = coefficients_df[coefficients_df["Coefficient"] < 0].copy()
+zero_coeffs_df = coefficients_df[coefficients_df["Coefficient"] == 0].copy()
 
 # Make the values in negative_coeffs_df positive to prevent issues during plotting
-negative_coeffs_df['Coefficient'] = abs(negative_coeffs_df['Coefficient'])
+negative_coeffs_df["Coefficient"] = abs(negative_coeffs_df["Coefficient"])
 
 # Rename the columns
-positive_coeffs_df.columns = ['Feature', 'Healthy_Coeffs']
-negative_coeffs_df.columns = ['Feature', 'Failing_Coeffs']
-zero_coeffs_df.columns = ['Feature', 'Zero_Coeffs']
+positive_coeffs_df.columns = ["Feature", "Healthy_Coeffs"]
+negative_coeffs_df.columns = ["Feature", "Failing_Coeffs"]
+zero_coeffs_df.columns = ["Feature", "Zero_Coeffs"]
 
 # Save the coef data into the "/coeff_data" folder
-positive_coeffs_df.to_csv(f'{coeff_dir}/healthy_coeffs.csv', index=False)
-negative_coeffs_df.to_csv(f'{coeff_dir}/failing_coeffs.csv', index=False)
-zero_coeffs_df.to_csv(f'{coeff_dir}/zero_coeffs.csv', index=False)
+positive_coeffs_df.to_csv(f"{coeff_dir}/healthy_coeffs.csv", index=False)
+negative_coeffs_df.to_csv(f"{coeff_dir}/failing_coeffs.csv", index=False)
+zero_coeffs_df.to_csv(f"{coeff_dir}/zero_coeffs.csv", index=False)
 
 
 # Print or use the resulting DataFrames
@@ -118,11 +124,11 @@ negative_coeffs_df.head()
 
 
 # Find the row with the highest coefficient value
-max_row = coefficients_df.loc[coefficients_df['Coefficient'].idxmax()]
+max_row = coefficients_df.loc[coefficients_df["Coefficient"].idxmax()]
 
 # Extract the feature and coefficient values
-max_feature = max_row['Feature']
-max_coefficient_value = max_row['Coefficient']
+max_feature = max_row["Feature"]
+max_coefficient_value = max_row["Coefficient"]
 
 # Print or use the result
 print("Feature with the highest coefficient:", max_feature)
@@ -133,7 +139,7 @@ print("Coefficient value:", max_coefficient_value)
 
 
 # Sort the DataFrame based on the coefficient values (from most positive to most negative)
-coefficients_healthy_df = coefficients_df.sort_values(by='Coefficient', ascending=False)
+coefficients_healthy_df = coefficients_df.sort_values(by="Coefficient", ascending=False)
 
 # Show the top ten ranking features for predicting "Healthy" class
 coefficients_healthy_df.head(10)
@@ -143,11 +149,11 @@ coefficients_healthy_df.head(10)
 
 
 # Find the row with the most negative coefficient value
-min_row = coefficients_df.loc[coefficients_df['Coefficient'].idxmin()]
+min_row = coefficients_df.loc[coefficients_df["Coefficient"].idxmin()]
 
 # Extract the feature and coefficient values
-min_feature = min_row['Feature']
-min_coefficient_value = min_row['Coefficient']
+min_feature = min_row["Feature"]
+min_coefficient_value = min_row["Coefficient"]
 
 # Print or use the result
 print("Feature with the most negative coefficient:", min_feature)
@@ -158,7 +164,7 @@ print("Coefficient value:", min_coefficient_value)
 
 
 # Sort the DataFrame based on the coefficient values (from most negative to most positive)
-coefficients_failing_df = coefficients_df.sort_values(by='Coefficient', ascending=True)
+coefficients_failing_df = coefficients_df.sort_values(by="Coefficient", ascending=True)
 
 # Show the top ten ranking features for predicting "Failing" class
 coefficients_failing_df.head(10)
@@ -172,13 +178,13 @@ coefficients_failing_df.head(10)
 
 
 # Sort coefficients_df by descending order
-coefficients_df = coefficients_df.sort_values(by='Coefficient', ascending=False)
+coefficients_df = coefficients_df.sort_values(by="Coefficient", ascending=False)
 
 # Add a new column 'Rank'
-coefficients_df['Rank'] = range(1, len(coefficients_df) + 1)
+coefficients_df["Rank"] = range(1, len(coefficients_df) + 1)
 
 # Save the ranked df
-coefficients_df.to_csv(f'{coeff_dir}/ranked_coeffs.csv', index=False)
+coefficients_df.to_csv(f"{coeff_dir}/ranked_coeffs.csv", index=False)
 
 # Show df to assess if the ranking was performed correctly
 print(coefficients_df.shape)

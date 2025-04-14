@@ -23,7 +23,6 @@ from joblib import load
 from sklearn.metrics import precision_recall_curve, auc
 
 sys.path.append("../../utils")
-from eval_utils import generate_confusion_matrix_df, generate_f1_score_df
 from training_utils import get_X_y_data
 
 
@@ -281,7 +280,7 @@ print(pr_df.shape)
 pr_df.head()
 
 
-# In[8]:
+# In[ ]:
 
 
 # Set figure size and Seaborn style
@@ -302,30 +301,53 @@ colors = sns.color_palette("deep", n_colors=3)
 # Plot Precision-Recall curves using plt.step
 for idx, feature_set in enumerate(feature_sets):
     for model_type in model_types:
-        subset = dmso_df[(dmso_df["Feature_Set"] == feature_set) & (dmso_df["Model_Type"] == model_type)]
+        subset = dmso_df[
+            (dmso_df["Feature_Set"] == feature_set)
+            & (dmso_df["Model_Type"] == model_type)
+        ]
         if not subset.empty:
             plt.step(
-                subset["Recall"], subset["Precision"],
+                subset["Recall"],
+                subset["Precision"],
                 where="post",
                 label=f"{feature_set} ({model_type})",
                 color=colors[idx % len(colors)],
-                linestyle=line_styles[model_type], linewidth=2.5
+                linestyle=line_styles[model_type],
+                linewidth=2.5,
             )
 
 # Create custom legend handles for the Feature set (color) and Model type (line style)
-color_handles = [Line2D([0], [0], color=colors[idx % len(colors)], lw=2, label=feature_set) 
-                 for idx, feature_set in enumerate(feature_sets)]
+color_handles = [
+    Line2D([0], [0], color=colors[idx % len(colors)], lw=2, label=feature_set)
+    for idx, feature_set in enumerate(feature_sets)
+]
 
-line_handles = [Line2D([0], [0], color="black", lw=2, linestyle=line_styles[model_type], label=model_type) 
-                for model_type in model_types]
+line_handles = [
+    Line2D(
+        [0],
+        [0],
+        color="black",
+        lw=2,
+        linestyle=line_styles[model_type],
+        label=model_type,
+    )
+    for model_type in model_types
+]
 
 # Combine the color and line style handles for the legend
 all_handles = color_handles + line_handles
 
 # Add the combined legend
 plt.legend(
-    handles=all_handles, loc="upper right", fontsize=11, title="Feature set & Model type",
-    bbox_to_anchor=(1.0, 0.18), ncol=1, frameon=True, handlelength=2.8, handleheight=1.0
+    handles=all_handles,
+    loc="upper right",
+    fontsize=11,
+    title="Feature set & Model type",
+    bbox_to_anchor=(1.0, 0.18),
+    ncol=1,
+    frameon=True,
+    handlelength=2.8,
+    handleheight=1.0,
 )
 
 # Set axis labels, title, and formatting

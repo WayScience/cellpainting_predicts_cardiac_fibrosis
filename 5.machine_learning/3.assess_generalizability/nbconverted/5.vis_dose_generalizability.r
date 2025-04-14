@@ -38,8 +38,8 @@ width <- 20
 options(repr.plot.width = width, repr.plot.height = height)
 
 # Define colors for the doses
-zero_dose_color <- brewer.pal(8, "Dark2")[7],  # Unique color for 0 uM
-all_other_doses_color <- brewer.pal(8, "Dark2")[4], # Same color for all other doses
+zero_dose_color <- brewer.pal(8, "Dark2")[7]  # Unique color for 0 uM
+all_other_doses_color <- brewer.pal(8, "Dark2")[4] # Same color for all other doses
 dose_colors <- c(
   "0 uM" = zero_dose_color,
   "0.005 uM" = all_other_doses_color,
@@ -51,6 +51,7 @@ dose_colors <- c(
   "3.33 uM" = all_other_doses_color,
   "5 uM" = all_other_doses_color,
   "10 uM" = all_other_doses_color
+)
 
 # Basic plot with custom colors
 ridge_plot_healthy <- ggplot(combined_probabilities_df, aes(
@@ -80,7 +81,6 @@ ridge_plot_healthy <- ggplot(combined_probabilities_df, aes(
 ggsave("./figures/healthy_prob_ridge_plot_plates_1_2.png", ridge_plot_healthy, height = 6, width = 18, dpi = 500)
 
 ridge_plot_healthy
-
 
 bar_plot_predictions <- (
   ggplot(combined_probabilities_df, aes(x = Metadata_heart_number)) +

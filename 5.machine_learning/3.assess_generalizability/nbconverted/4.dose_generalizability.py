@@ -3,7 +3,7 @@
 
 # # Assess generalizability of the model by using drug dose curve data
 # 
-# **NOTE:** For assess generalizability based on a drug dose response, we will be using Plates 1 and 2, split by heart number (all failing hearts).
+# **NOTE:** For assess generalizability based on a drug dose response, we will be using Plates 1 and 2, split by heart number (all failing hearts). We will extract predicted probabilities using the trained model to generate plots.
 
 # ## Import libraries
 
@@ -13,16 +13,11 @@
 import pathlib
 import sys
 
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
-import seaborn as sns
 from joblib import load
-from sklearn.metrics import precision_recall_curve
 
 sys.path.append("../utils")
-from eval_utils import generate_confusion_matrix_df, generate_f1_score_df
 from training_utils import get_X_y_data
 
 
@@ -103,14 +98,18 @@ concatenated_df.head()
 
 # ## Filter the concat data to only include metadata and filtered feature columns
 
-# In[5]:
+# In[ ]:
 
 
 # Extract metadata columns from the plate
-metadata_columns = [col for col in concatenated_df.columns if col.startswith("Metadata_")]
+metadata_columns = [
+    col for col in concatenated_df.columns if col.startswith("Metadata_")
+]
 
 # Extract feature columns that don't start with "Metadata_"
-feature_columns = [col for col in concatenated_df.columns if not col.startswith("Metadata_")]
+feature_columns = [
+    col for col in concatenated_df.columns if not col.startswith("Metadata_")
+]
 
 # Filter columns in data frame to only include those in the model
 filtered_feature_columns = [
@@ -146,7 +145,7 @@ plate_1_2_dfs_dict["heart_9"] = {"data_df": nine_df}
 
 # ## Extract final model predicted probabilities for each heart number
 
-# In[7]:
+# In[ ]:
 
 
 # Create an empty DataFrame to store the results
@@ -155,7 +154,7 @@ combined_prob_df = pd.DataFrame()
 for model_path in models_dir.iterdir():
     if model_path.is_dir() or model_path.suffix != ".joblib":
         continue  # Skip directories or files that are not model files
-    
+
     model_type = model_path.stem.split("_")[5]  # Get the model type
 
     for data, info in plate_1_2_dfs_dict.items():
@@ -211,5 +210,7 @@ for model_path in models_dir.iterdir():
         combined_prob_df = pd.concat([combined_prob_df, prob_df], ignore_index=True)
 
 # Save combined prob data
-combined_prob_df.to_csv(f"{prob_dir}/combined_plates_1_2_predicted_proba.csv", index=False)
+combined_prob_df.to_csv(
+    f"{prob_dir}/combined_plates_1_2_predicted_proba.csv", index=False
+)
 
