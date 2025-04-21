@@ -5,15 +5,15 @@ conda init bash
 # activate the machine learning conda environment
 conda activate machine_learning_cfret
 
-# convert all notebooks to python files into the scripts folder
-jupyter nbconvert --to script --output-dir=scripts/ *.ipynb
+# convert all notebooks to python files into the nbconverted folder
+jupyter nbconvert --to script --output-dir=nbconverted/ *.ipynb
 
-# run python scripts to evaluate the model perforamnce
-python scripts/0.evaluate_models.py
+# run python nbconverted to evaluate the model perforamnce
+python nbconverted/0.evaluate_models.py
 
 # change to R env
 conda deactivate
 conda activate r_analysis_cfret
 
 # run R script to visualize accuracy scores
-Rscript scripts/1.vis_accuracy_scores.r
+Rscript nbconverted/1.vis_accuracy_scores.r

@@ -29,7 +29,3 @@ dependencies:
 - conda-forge::sentry-sdk=0.18.0
 - pip:
     - cellprofiler==4.2.4
-    - Cytotable
-    - pycytominer
-    - coSMicQC
-

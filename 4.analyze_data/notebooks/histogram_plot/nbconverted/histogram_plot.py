@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # Generate histogram plots using the number of neighbors using the whole cell segmentation 
+# # Generate histogram plots with the number of neighbors per heart using the whole cell segmentation 
+# 
+# These plots are generated after quality control, so we expect that the number of isolated cells (0 cell neighbors) will be low as we found most isolated cells were under-segmented.
 
 # ## Import libraries
 

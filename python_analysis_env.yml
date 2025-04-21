@@ -19,4 +19,4 @@ dependencies:
   - pip:
     - pycytominer
     - Cytotable
-    - coSMicQC
+    - coSMicQC>0.0.17

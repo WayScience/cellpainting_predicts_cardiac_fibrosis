@@ -15,7 +15,8 @@ def generate_confusion_matrix_df(
     data_dir: pathlib.Path,
     encoder_path: pathlib.Path,
     label: str,
-    data_set: str,
+    data_set: str = None,
+    data_df: pd.DataFrame = None,
 ) -> pd.DataFrame:
     """Generate a data frame with the info for a confusion matrix
 
@@ -24,41 +25,47 @@ def generate_confusion_matrix_df(
         data_dir (pathlib.Path): path to directory with the datasets to evaluate
         encoder_path (pathlib.Path): path to encoder output to use for applying class to label
         label (str): name of the metadata column used for classification to load in the data
-        data_set (str): name of the data set you want to find confusion matrix data for 
+        data_set (str, optional): name of the data set you want to find confusion matrix data for (if loading from file)
+        data_df (pd.DataFrame, optional): preloaded dataframe to use instead of loading from file
 
     Returns:
         pd.DataFrame: data frame containing the confusion matrix data for a given data set
     """
-    # load in model to apply to data sets
+    # Load model
     model = load(model_path)
 
-    # load in label encoder
+    # Load label encoder
     le = load(pathlib.Path(encoder_path))
 
-    # set path to specific data set
-    data_path = pathlib.Path(f"{data_dir}/{data_set}_data.csv")
+    # Load data
+    if data_df is None:
+        if data_set is None:
+            raise ValueError("Either 'df' or 'data_set' must be provided.")
+        data_path = data_dir / f"{data_set}_data.csv"
+        df = load_data(path_to_data=data_path, label=label)
 
-    # load in X and y data from dataset
-    X, y = load_data(path_to_data=data_path, label=label)
+    # Ensure dataframe contains the required label column
+    if label not in df.columns:
+        raise ValueError(f"Column '{label}' not found in the provided dataframe.")
 
-    # Assign y classes to correct binary using label encoder results
+    # Extract features and labels
+    X, y = df.drop(columns=[label]), df[label]
+
+    # Encode labels
     y_binary = le.transform(y)
 
-    # predictions for morphology feature data
+    # Model predictions
     y_predict = model.predict(X)
 
-    # create confusion matrix
+    # Create confusion matrix
     conf_mat = confusion_matrix(y_binary, y_predict, labels=model.classes_)
     conf_mat = pd.DataFrame(conf_mat, columns=model.classes_, index=model.classes_)
 
-    # use stack to restructure dataframe into tidy long format
-    conf_mat = conf_mat.stack()
-    # reset index must be used to make indexes at level 0 and 1 into individual columns
-    # these columns correspond to true label and predicted label, and are set as indexes after using stack()
-    conf_mat = pd.DataFrame(conf_mat).reset_index(level=[0, 1])
+    # Reshape to long format
+    conf_mat = conf_mat.stack().reset_index()
     conf_mat.columns = ["True_Label", "Predicted_Label", "Count"]
 
-    # calculate recall for each class
+    # Calculate recall
     conf_mat["Recall"] = conf_mat.apply(
         lambda row: (
             row["Count"]
@@ -122,6 +129,7 @@ def generate_f1_score_df(
 
     return scores
 
+
 def generate_accuracy_score_df(
     model_path: pathlib.Path,
     data_set: pd.DataFrame,
@@ -156,7 +164,7 @@ def generate_accuracy_score_df(
 
     # Get accuracy score data
     accuracy = accuracy_score(y_binary, y_predict)
-    
+
     scores = pd.DataFrame([accuracy], columns=["Accuracy"])
 
     return scores
