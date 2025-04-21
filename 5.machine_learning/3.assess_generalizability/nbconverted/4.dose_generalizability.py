@@ -17,7 +17,7 @@ import pandas as pd
 import pyarrow.parquet as pq
 from joblib import load
 
-sys.path.append("../utils")
+sys.path.append("../../utils")
 from training_utils import get_X_y_data
 
 
@@ -27,10 +27,10 @@ from training_utils import get_X_y_data
 
 
 # Directory with plate datasets
-data_dir = pathlib.Path("../3.process_cfret_features/data/single_cell_profiles")
+data_dir = pathlib.Path("../../3.process_cfret_features/data/single_cell_profiles")
 
 # Directory with models
-models_dir = pathlib.Path("./models")
+models_dir = pathlib.Path("../0.train_logistic_regression/models")
 
 # Directory for model figures output
 fig_dir = pathlib.Path("./figures")
@@ -98,7 +98,7 @@ concatenated_df.head()
 
 # ## Filter the concat data to only include metadata and filtered feature columns
 
-# In[ ]:
+# In[5]:
 
 
 # Extract metadata columns from the plate
@@ -145,7 +145,7 @@ plate_1_2_dfs_dict["heart_9"] = {"data_df": nine_df}
 
 # ## Extract final model predicted probabilities for each heart number
 
-# In[ ]:
+# In[7]:
 
 
 # Create an empty DataFrame to store the results
@@ -167,7 +167,7 @@ for model_path in models_dir.iterdir():
 
         # Load in label encoder
         le = load(
-            pathlib.Path("./encoder_results/label_encoder_log_reg_fs_plate_4.joblib")
+            pathlib.Path("../0.train_logistic_regression/encoder_results/label_encoder_log_reg_fs_plate_4.joblib")
         )
 
         # Get unique cell types and their corresponding encoded values

@@ -12,7 +12,7 @@
 
 # ## Import libraries
 
-# In[1]:
+# In[ ]:
 
 
 import pathlib
@@ -22,7 +22,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_auc_score
-from sklearn.utils import resample
 import matplotlib.colors as mcolors
 from scipy.stats import ttest_ind
 
@@ -176,7 +175,7 @@ print(f"Mean ROC AUC for Model QC: {np.mean(scores_model2)}")
 
 # ## Create histogram plot with the AUC ROC bootstrap distributions
 
-# In[9]:
+# In[ ]:
 
 
 # Define darker colors for the mean lines
@@ -203,7 +202,11 @@ plt.axvline(
 plt.legend(loc="upper left", fontsize=10)
 plt.xlabel("ROC AUC Score", fontsize=12)
 plt.ylabel("Frequency", fontsize=12)
-plt.title("Bootstrap ROC AUC Distributions For\nQC versus No QC Data", fontsize=14, fontweight="bold")
+plt.title(
+    "Bootstrap ROC AUC Distributions For\nQC versus No QC Data",
+    fontsize=14,
+    fontweight="bold",
+)
 plt.grid(True, linestyle="--", alpha=0.6)
 plt.tight_layout()
 

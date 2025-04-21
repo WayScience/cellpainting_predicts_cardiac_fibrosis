@@ -24,7 +24,7 @@ from eval_utils import (
     generate_f1_score_df,
     generate_accuracy_score_df,
 )
-from training_utils import load_data, get_X_y_data
+from training_utils import get_X_y_data
 
 
 # ## Set paths to different datasets and models
@@ -39,7 +39,9 @@ data_dir = pathlib.Path("../0.train_logistic_regression/data")
 models_dir = pathlib.Path("../0.train_logistic_regression/models")
 
 # Path to encoder file
-encoder_path = pathlib.Path("../0.train_logistic_regression/encoder_results/label_encoder_log_reg_fs_plate_4.joblib")
+encoder_path = pathlib.Path(
+    "../0.train_logistic_regression/encoder_results/label_encoder_log_reg_fs_plate_4.joblib"
+)
 
 # Directory for model figures output
 fig_dir = pathlib.Path("./figures")
@@ -61,7 +63,9 @@ shuffled_model = load(
 data_set_list = ["training", "testing", "holdout1", "holdout2"]
 
 # Path to the CSV file containing indices for training data
-training_indices_path = pathlib.Path("../0.train_logistic_regression/training_data_indices.csv")
+training_indices_path = pathlib.Path(
+    "../0.train_logistic_regression/training_data_indices.csv"
+)
 
 
 # ## Precision-Recall Curves
@@ -73,7 +77,9 @@ training_indices_path = pathlib.Path("../0.train_logistic_regression/training_da
 
 # Define the subdirectory for this plot type within fig_dir
 pr_curves_dir = fig_dir / "pr_curves"
-pr_curves_dir.mkdir(parents=True, exist_ok=True)  # Create subdirectory if it doesn't exist
+pr_curves_dir.mkdir(
+    parents=True, exist_ok=True
+)  # Create subdirectory if it doesn't exist
 
 # Initialize empty lists to store data for each iteration
 precision_list = []
@@ -87,21 +93,23 @@ for model_path in models_dir.iterdir():
         continue  # Skip directories or files that are not model files
 
     print("Evaluating", model_path.stem.split("_")[5], "model...")
-    
+
     for data_path in data_dir.iterdir():
         # Skip directories or files without the ".csv" suffix
         if data_path.is_dir() or data_path.suffix != ".csv":
             continue
-        
+
         print("Applying model to", data_path.stem, "...")
-        
+
         # Load the dataset as a dataframe
         df = pd.read_csv(data_path)
 
         # If this is training data, filter rows using the training indices
         if data_path.stem == "training_data":
             # Skip the header row when reading the CSV
-            training_indices = pd.read_csv(training_indices_path, header=0).iloc[:, 0].tolist()
+            training_indices = (
+                pd.read_csv(training_indices_path, header=0).iloc[:, 0].tolist()
+            )
 
             # Convert to integers to ensure compatibility
             try:
@@ -130,7 +138,9 @@ for model_path in models_dir.iterdir():
 
         # For binary classification, ensure you're getting the probabilities for the positive class
         if predicted_probs.shape[1] == 2:  # Binary classification
-            positive_class_probs = predicted_probs[:, 1]  # Select the probability for the positive class
+            positive_class_probs = predicted_probs[
+                :, 1
+            ]  # Select the probability for the positive class
         else:  # Multi-class classification
             # Choose the probability for the class you're interested in (usually the last one)
             positive_class_probs = predicted_probs[:, -1]
@@ -194,7 +204,7 @@ sns.lineplot(
 )
 
 # Set legend location
-plt.legend(loc='lower right')
+plt.legend(loc="lower right")
 
 plt.ylim(bottom=0.0, top=1.02)
 plt.xlabel("Recall", fontsize=24)
@@ -208,7 +218,11 @@ plt.xticks(fontsize=20)
 plt.yticks(fontsize=20)
 
 plt.tight_layout()
-plt.savefig(f"{pr_curves_dir}/precision_recall_plate4_downsample.pdf", dpi=500, bbox_inches='tight')
+plt.savefig(
+    f"{pr_curves_dir}/precision_recall_plate4_downsample.pdf",
+    dpi=500,
+    bbox_inches="tight",
+)
 
 # Avoid showing plot in notebook
 plt.close()
@@ -237,7 +251,7 @@ sns.lineplot(
     dashes={"final": (1, 0), "shuffled": (2, 2)},
     palette=colors,
     data=filtered_df,
-    linewidth=2.5  # Adjust the line width as needed
+    linewidth=2.5,  # Adjust the line width as needed
 )
 
 plt.legend(loc="lower right", fontsize=15)
@@ -253,7 +267,9 @@ plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 
 plt.tight_layout()
-plt.savefig(f"{pr_curves_dir}/precision_recall_plate4_downsample_only_training.png", dpi=500)
+plt.savefig(
+    f"{pr_curves_dir}/precision_recall_plate4_downsample_only_training.png", dpi=500
+)
 
 # Avoid showing plot in notebook
 plt.close()
@@ -302,7 +318,7 @@ sns.lineplot(
     dashes={"final": (1, 0), "shuffled": (2, 2)},
     data=filtered_df,
     linewidth=4,  # Adjust the line width as needed
-    palette=custom_colors  # Apply the custom color palette
+    palette=custom_colors,  # Apply the custom color palette
 )
 
 plt.legend(loc="lower right", fontsize=13)
@@ -318,7 +334,9 @@ plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 
 plt.tight_layout()
-plt.savefig(f"{pr_curves_dir}/precision_recall_plate4_holdout_data_downsample.png", dpi=500)
+plt.savefig(
+    f"{pr_curves_dir}/precision_recall_plate4_holdout_data_downsample.png", dpi=500
+)
 
 # Close the plot to avoid showing it in the notebook
 plt.close()
@@ -333,7 +351,9 @@ plt.close()
 
 # Define the subdirectory for this plot type within fig_dir
 con_matrix_dir = fig_dir / "confusion_matrices"
-con_matrix_dir.mkdir(parents=True, exist_ok=True)  # Create subdirectory if it doesn't exist
+con_matrix_dir.mkdir(
+    parents=True, exist_ok=True
+)  # Create subdirectory if it doesn't exist
 
 # List of paths that contains each model
 path_list = list(models_dir.glob("*"))
@@ -364,7 +384,9 @@ for model_path in path_list:
         # If this is training data, filter rows using the training indices
         if data_set_path.stem == "training_data":
             # Skip the header row when reading the CSV
-            training_indices = pd.read_csv(training_indices_path, header=0).iloc[:, 0].tolist()
+            training_indices = (
+                pd.read_csv(training_indices_path, header=0).iloc[:, 0].tolist()
+            )
 
             # Convert to integers to ensure compatibility
             try:
@@ -385,10 +407,12 @@ for model_path in path_list:
         )
 
         # Rename binary labels to failing versus healthy
-        confusion_matrix_df["True_Label"] = confusion_matrix_df["True_Label"].replace({0: "Failing", 1: "Healthy"})
-        confusion_matrix_df["Predicted_Label"] = confusion_matrix_df["Predicted_Label"].replace(
+        confusion_matrix_df["True_Label"] = confusion_matrix_df["True_Label"].replace(
             {0: "Failing", 1: "Healthy"}
         )
+        confusion_matrix_df["Predicted_Label"] = confusion_matrix_df[
+            "Predicted_Label"
+        ].replace({0: "Failing", 1: "Healthy"})
 
         # Plot confusion matrix
         plt.figure(figsize=(12, 10))
@@ -442,12 +466,14 @@ for model_path in path_list:
 
 # ### Concat F1 scores from all datasets and model types
 
-# In[9]:
+# In[ ]:
 
 
 # Define the subdirectory for this plot type within fig_dir
 f1_scores_dir = fig_dir / "f1_scores"
-f1_scores_dir.mkdir(parents=True, exist_ok=True)  # Create subdirectory if it doesn't exist
+f1_scores_dir.mkdir(
+    parents=True, exist_ok=True
+)  # Create subdirectory if it doesn't exist
 
 # List of paths that contains each model
 path_list = list(models_dir.glob("*"))
@@ -462,7 +488,7 @@ f1_scores_dfs = []
 for model_path in path_list:
     if model_path.is_dir() or model_path.suffix != ".joblib":
         continue  # Skip directories or files that are not model files
-    
+
     # Iterate over each dataset
     for data_set_name in data_set_list:
         print(data_set_name.capitalize(), model_path.stem.split("_")[5].capitalize())
@@ -474,7 +500,9 @@ for model_path in path_list:
         # If this is training data, filter rows using the training indices
         if data_set_path.stem == "training_data":
             # Skip the header row when reading the CSV
-            training_indices = pd.read_csv(training_indices_path, header=0).iloc[:, 0].tolist()
+            training_indices = (
+                pd.read_csv(training_indices_path, header=0).iloc[:, 0].tolist()
+            )
 
             # Convert to integers to ensure compatibility
             try:
@@ -485,7 +513,7 @@ for model_path in path_list:
 
             # Use .iloc if training_indices are row positions
             data_set = data_set.iloc[training_indices]
-        
+
         # Generate f1 score data frame
         f1_scores_df = generate_f1_score_df(
             model=model_path,
@@ -509,7 +537,7 @@ concat_f1_scores = pd.concat(f1_scores_dfs, ignore_index=True)
 
 # ### Check if output looks correct
 
-# In[10]:
+# In[ ]:
 
 
 print(concat_f1_scores.shape)
@@ -518,7 +546,7 @@ concat_f1_scores.head()
 
 # ### Plot F1 scores for only testing and training data
 
-# In[11]:
+# In[ ]:
 
 
 # Set palette for the F1 scores plot
@@ -570,7 +598,7 @@ plt.close()
 
 # ### Plot F1 scores for holdout data
 
-# In[12]:
+# In[ ]:
 
 
 # Set palette for the f1 scores plot
@@ -618,7 +646,7 @@ plt.close()
 
 # ## Generate accuracy scores specifically from the whole plate 4 dataset per heart and save CSV
 
-# In[13]:
+# In[ ]:
 
 
 # List of paths that contains each model
@@ -645,7 +673,9 @@ for model_path in path_list:
         # If this is training data, filter rows using the training indices
         if data_set == "training":
             # Skip the header row when reading the CSV
-            training_indices = pd.read_csv(training_indices_path, header=0).iloc[:, 0].tolist()
+            training_indices = (
+                pd.read_csv(training_indices_path, header=0).iloc[:, 0].tolist()
+            )
 
             # Convert to integers to ensure compatibility
             try:
@@ -685,5 +715,7 @@ for model_path in path_list:
 concat_accuracy_scores = pd.concat(accuracy_dfs, ignore_index=True)
 
 # Save results for visualization
-concat_accuracy_scores.to_csv(f"{results_dir}/accuracy_scores_per_heart.csv", index=False)
+concat_accuracy_scores.to_csv(
+    f"{results_dir}/accuracy_scores_per_heart.csv", index=False
+)
 

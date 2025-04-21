@@ -159,22 +159,23 @@ metadata_neighbors_list = []
 metadata_cell_type_list = []
 metadata_treatment_list = []  # New list for metadata_treatment
 
-# Loop over each model in the models directory
-for model_path in models_dir.iterdir():
-    if model_path.is_dir() or model_path.suffix != ".joblib":
-        continue  # Skip directories or files that are not model files
+# Define your loaded models in a dictionary with their type names
+loaded_models = {
+    "final": final_model,
+    "shuffled": shuffled_model,
+}
 
-    print("Evaluating", model_path.stem.split("_")[5], "model...")
-    model_type = model_path.stem.split("_")[5]  # Extract model type
+# Load the encoder once
+le = load(encoder_path)
+
+# Loop through the models directly
+for model_type, model in loaded_models.items():
+    print("Evaluating", model_type, "model...")
 
     # Initialize empty lists to store data for each model
     model_precision_list = []
     model_recall_list = []
     model_threshold_list = []
-
-    # Load in model and label encoder once, since they don't change across iterations
-    model = load(model_path)
-    le = load(encoder_path)
 
     print(plate_3_df.shape)
 
@@ -365,7 +366,7 @@ plt.show()
 
 # ## Extract final model predicted probabilities for each treatment
 
-# In[11]:
+# In[ ]:
 
 
 # Create an empty DataFrame to store the results
@@ -427,7 +428,7 @@ for model_path in models_dir.iterdir():
 combined_prob_df.to_csv(f"{prob_dir}/combined_plate_3_predicted_proba.csv", index=False)
 
 
-# In[12]:
+# In[ ]:
 
 
 # Filter for rows where treatment is "TGFRi" and cell type is "Failing"

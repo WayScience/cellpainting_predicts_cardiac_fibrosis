@@ -21,11 +21,7 @@ from joblib import load
 from sklearn.metrics import precision_recall_curve, auc
 
 sys.path.append("../../utils")
-from eval_utils import (
-    generate_confusion_matrix_df,
-    generate_f1_score_df,
-    generate_accuracy_score_df,
-)
+from eval_utils import generate_accuracy_score_df
 from training_utils import get_X_y_data
 
 
@@ -47,7 +43,9 @@ encoder_path = pathlib.Path(
 
 # Define the subdirectory for this plot type within fig_dir
 supp_model_fig_dir = pathlib.Path("./figures/supp_model_figures")
-supp_model_fig_dir.mkdir(parents=True, exist_ok=True)  # Create subdirectory if it doesn't exist
+supp_model_fig_dir.mkdir(
+    parents=True, exist_ok=True
+)  # Create subdirectory if it doesn't exist
 
 # Directory for result outputs (accuracy scores)
 results_dir = pathlib.Path("./results")
@@ -81,17 +79,14 @@ for model_path in models_dir.glob("*downsample.joblib"):
             loaded_models[model_key] = []
 
         # Append a dictionary containing the model and its path to the list
-        loaded_models[model_key].append({
-            "model": model,
-            "model_path": model_path
-        })
+        loaded_models[model_key].append({"model": model, "model_path": model_path})
 
         print(f"Loaded model: {model_path.name} as {model_key}")
 
 
 # ## Extract precision and recall data from the data splits
 
-# In[7]:
+# In[3]:
 
 
 # Initialize empty lists to store data for each iteration
@@ -118,6 +113,8 @@ for category, models in loaded_models.items():
 
         # Iterate through datasets in the data directory
         for data_path in data_dir.iterdir():
+            if data_path.is_dir():
+                continue
             print(f"Applying {model_type} to {data_path.stem}...")
 
             # Load in label encoder
@@ -252,7 +249,11 @@ plt.yticks(fontsize=18)
 plt.tight_layout()
 
 # Save the plot
-plt.savefig(f"{supp_model_fig_dir}/actin_model_precision_recall_plate4_downsample.png", dpi=500, bbox_inches='tight')
+plt.savefig(
+    f"{supp_model_fig_dir}/actin_model_precision_recall_plate4_downsample.png",
+    dpi=500,
+    bbox_inches="tight",
+)
 
 plt.show()
 
@@ -328,8 +329,12 @@ plt.yticks(fontsize=18)
 # Adjust layout to prevent clipping
 plt.tight_layout()
 
-# Save the plot 
-plt.savefig(f"{supp_model_fig_dir}/rest_model_precision_recall_plate4_downsample.png", dpi=500, bbox_inches='tight')
+# Save the plot
+plt.savefig(
+    f"{supp_model_fig_dir}/rest_model_precision_recall_plate4_downsample.png",
+    dpi=500,
+    bbox_inches="tight",
+)
 
 plt.show()
 
@@ -363,9 +368,9 @@ print(f"AUPRC for Testing Data: {testing_auprc:.4f}")
 # Create a custom color palette: darker for training, lighter for testing
 palette = {
     "training (rest)": "#1560bd",  # Darker blue
-    "testing (rest)": "#85c0f9",   # Lighter blue
-    "training (actin)": "#e6550d",   # Darker orange
-    "testing (actin)": "#ff9c3d",    # Lighter orange
+    "testing (rest)": "#85c0f9",  # Lighter blue
+    "training (actin)": "#e6550d",  # Darker orange
+    "testing (actin)": "#ff9c3d",  # Lighter orange
 }
 
 # PR curves with both training and testing data for all feature sets
@@ -378,10 +383,12 @@ filtered_df = pr_df[
 ].copy()  # Make a copy of the filtered dataframe to avoid SettingWithCopyWarning
 
 # Create a new column 'Data_Type_Feature' by combining Data_Type and Feature_Set
-filtered_df['Data Split'] = filtered_df['Data_Type'] + ' (' + filtered_df['Feature_Set'] + ')'
+filtered_df["Data Split"] = (
+    filtered_df["Data_Type"] + " (" + filtered_df["Feature_Set"] + ")"
+)
 
 # Rename the column 'Model_Type' to something else if needed
-filtered_df = filtered_df.rename(columns={'Model_Type': 'Model Type'})
+filtered_df = filtered_df.rename(columns={"Model_Type": "Model Type"})
 
 # Create a line plot for Precision vs Recall
 sns.lineplot(
@@ -418,8 +425,12 @@ plt.yticks(fontsize=18)
 # Adjust layout to prevent clipping
 plt.tight_layout()
 
-# Save the plot 
-plt.savefig(f"{supp_model_fig_dir}/precision_recall_actin_versus_rest.pdf", dpi=500, bbox_inches='tight')
+# Save the plot
+plt.savefig(
+    f"{supp_model_fig_dir}/precision_recall_actin_versus_rest.pdf",
+    dpi=500,
+    bbox_inches="tight",
+)
 
 plt.show()
 
@@ -449,11 +460,15 @@ for category, models in loaded_models.items():
     # Iterate over each model in the current category
     for model_info in models:
         model_path = model_info["model_path"]
-        print(f"Evaluating {model_type.capitalize()} model in {feature_set} feature set...")
+        print(
+            f"Evaluating {model_type.capitalize()} model in {feature_set} feature set..."
+        )
 
         # Loop over each dataset
         for data_set in data_set_list:
-            print(f"Applying {model_type.capitalize()} model to {data_set} dataset in {feature_set} feature set...")
+            print(
+                f"Applying {model_type.capitalize()} model to {data_set} dataset in {feature_set} feature set..."
+            )
 
             # Load the dataset
             data_path = data_dir / f"{data_set}_data.csv"
@@ -512,7 +527,9 @@ for category, models in loaded_models.items():
 concat_accuracy_scores = pd.concat(accuracy_dfs, ignore_index=True)
 
 # Save results for visualization
-concat_accuracy_scores.to_csv(f"{results_dir}/actin_and_rest_accuracy_scores_per_heart.csv", index=False)
+concat_accuracy_scores.to_csv(
+    f"{results_dir}/actin_and_rest_accuracy_scores_per_heart.csv", index=False
+)
 
 
 # ## Create bar plot of the accuracies across hearts and data splits and the model type (actin or rest)
@@ -524,16 +541,16 @@ concat_accuracy_scores.to_csv(f"{results_dir}/actin_and_rest_accuracy_scores_per
 heart_order = [2, 7, 4, 19, 23, 29]
 
 # Set a taller plot size for the overall figure
-plt.figure(figsize=(16, 12))  
+plt.figure(figsize=(16, 12))
 
 # Create a seaborn catplot with facetting by Feature_Set
 g = sns.catplot(
-    x='Heart_Number',  # Heart_Number on the x-axis
-    y='Accuracy',  # Accuracy on the y-axis (replace with the actual column name for accuracy scores)
-    hue='Data_Set',  # Data_Set as the hue
-    col='Feature_Set',  # Facet by Feature_Set
+    x="Heart_Number",  # Heart_Number on the x-axis
+    y="Accuracy",  # Accuracy on the y-axis (replace with the actual column name for accuracy scores)
+    hue="Data_Set",  # Data_Set as the hue
+    col="Feature_Set",  # Facet by Feature_Set
     data=concat_accuracy_scores,
-    kind='bar',  # Specify the type of plot (bar plot)
+    kind="bar",  # Specify the type of plot (bar plot)
     errorbar=None,  # Disable confidence intervals if you don't need them
     height=7,  # Increase the height of each facet
     aspect=1.5,  # Aspect ratio to make the plots wider
@@ -541,7 +558,7 @@ g = sns.catplot(
 )
 
 # Customize the axis labels, titles, and ticks with larger font sizes
-g.set_axis_labels('Heart Number', 'Accuracy')  # Set axis labels for all facets
+g.set_axis_labels("Heart Number", "Accuracy")  # Set axis labels for all facets
 g.set_titles(col_template="{col_name} Feature Set", size=20)
 g.set_xlabels("Heart Number", fontsize=18)
 g.set_ylabels("Accuracy", fontsize=18)
@@ -549,21 +566,27 @@ g.set_ylabels("Accuracy", fontsize=18)
 # Set the y-axis limits and customize tick label sizes for all axes
 for ax in g.axes.flat:
     ax.set_ylim(0, 1)
-    ax.axhline(0.88, color='r', linestyle='--', linewidth=2) # average accuracy of final all feature models across hearts and splits
-    ax.tick_params(axis='x', labelsize=18)
-    ax.tick_params(axis='y', labelsize=18) 
+    ax.axhline(
+        0.88, color="r", linestyle="--", linewidth=2
+    )  # average accuracy of final all feature models across hearts and splits
+    ax.tick_params(axis="x", labelsize=18)
+    ax.tick_params(axis="y", labelsize=18)
 
 # Customize the legend font size and location
 g.legend.set_bbox_to_anchor((1.08, 0.5))  # Move legend outside of the plot
-g.legend.set_title('Data Set', prop={'size': 20})
+g.legend.set_title("Data Set", prop={"size": 20})
 for text in g.legend.texts:
-    text.set_fontsize(18) 
+    text.set_fontsize(18)
 
 # Adjust the layout to ensure everything fits
 plt.tight_layout()
 
 # Save the plot with a little extra padding around the figure
-plt.savefig(f"{supp_model_fig_dir}/rest_versus_actin_model_accuracy_hearts.png", dpi=500, bbox_inches='tight')
+plt.savefig(
+    f"{supp_model_fig_dir}/rest_versus_actin_model_accuracy_hearts.png",
+    dpi=500,
+    bbox_inches="tight",
+)
 
 # Show the plot
 plt.show()
@@ -580,7 +603,8 @@ data = pd.read_csv(data_path)
 
 # Filter out columns based on the conditions
 feature_columns = [
-    col for col in data.columns
+    col
+    for col in data.columns
     if not col.startswith("Metadata_") and not ("Actin" in col and "Correlation" in col)
 ]
 
@@ -613,18 +637,24 @@ if rest_final_model_info:
     if coefficients.shape[1] == len(feature_columns):
         print("The number of coefficients matches the number of feature columns.")
     else:
-        print("Warning: The number of coefficients does not match the number of feature columns.")
+        print(
+            "Warning: The number of coefficients does not match the number of feature columns."
+        )
 
     # Create a DataFrame with the coefficients and features
-    coefficients_df = pd.DataFrame({"Feature": feature_columns, "Coefficient": coefficients.flatten()})
+    coefficients_df = pd.DataFrame(
+        {"Feature": feature_columns, "Coefficient": coefficients.flatten()}
+    )
 
     # Find the row with the most negative or lowest coefficient
-    lowest_coefficient_row = coefficients_df.loc[coefficients_df['Coefficient'].idxmin()]
+    lowest_coefficient_row = coefficients_df.loc[
+        coefficients_df["Coefficient"].idxmin()
+    ]
 
     # Print the lowest row
     print("Row with the most negative coefficient:")
     print(lowest_coefficient_row)
-    
+
 else:
     print("No 'rest_final' model found in the dictionary.")
 

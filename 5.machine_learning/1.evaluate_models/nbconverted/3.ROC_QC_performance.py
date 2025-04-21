@@ -23,7 +23,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_auc_score
-from sklearn.utils import resample
 import matplotlib.colors as mcolors
 from scipy.stats import ttest_ind
 
@@ -103,8 +102,11 @@ plate_4_data_filtered = plate_4_QC_data[all_filtered_columns]
 # - Metadata_heart_number == 7 and Metadata_treatment == "DMSO"
 # - OR Metadata_heart_number == 29
 holdout_data_no_QC_model = plate_4_data_filtered[
-    ((plate_4_data_filtered["Metadata_heart_number"] == 7) & (plate_4_data_filtered["Metadata_treatment"] == "DMSO")) |
-    (plate_4_data_filtered["Metadata_heart_number"] == 29)
+    (
+        (plate_4_data_filtered["Metadata_heart_number"] == 7)
+        & (plate_4_data_filtered["Metadata_treatment"] == "DMSO")
+    )
+    | (plate_4_data_filtered["Metadata_heart_number"] == 29)
 ]
 
 # Load in X and y data from QC'd data with the features for the no QC model
@@ -237,7 +239,11 @@ plt.axvline(
 plt.legend(loc="upper left", fontsize=10)
 plt.xlabel("ROC AUC Score", fontsize=12)
 plt.ylabel("Frequency", fontsize=12)
-plt.title("Bootstrap ROC AUC Distributions For\nApplying to the Same Dataset", fontsize=14, fontweight="bold")
+plt.title(
+    "Bootstrap ROC AUC Distributions For\nApplying to the Same Dataset",
+    fontsize=14,
+    fontweight="bold",
+)
 plt.grid(True, linestyle="--", alpha=0.6)
 plt.tight_layout()
 
