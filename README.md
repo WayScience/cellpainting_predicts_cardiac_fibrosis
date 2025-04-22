@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13333207.svg)](https://doi.org/10.5281/zenodo.13333207)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15263030.svg)](https://doi.org/10.5281/zenodo.15263030)
 
 # Cell Painting predicts cardiac fibrosis
 
