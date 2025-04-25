@@ -10,6 +10,7 @@ import glob
 import pathlib
 import pandas as pd
 import umap
+import sys
 
 from pycytominer.cyto_utils import infer_cp_features
 
@@ -53,10 +54,7 @@ fs_files
 
 
 # Load feature data into a dictionary, keyed on plate name without the suffix
-cp_dfs = {
-    x.split("/")[-1].split("_sc")[0]: pd.read_parquet(x)
-    for x in fs_files
-}
+cp_dfs = {x.split("/")[-1].split("_sc")[0]: pd.read_parquet(x) for x in fs_files}
 
 # Print out useful information about each dataset
 print(cp_dfs.keys())
@@ -82,7 +80,9 @@ for plate in cp_dfs:
         continue
 
     # Make sure to reinitialize UMAP instance per plate
-    umap_fit = umap.UMAP(random_state=umap_random_seed, n_components=umap_n_components, n_jobs=1)
+    umap_fit = umap.UMAP(
+        random_state=umap_random_seed, n_components=umap_n_components, n_jobs=1
+    )
 
     # Set dataframe as the current plate
     cp_df = cp_dfs[plate]
@@ -108,10 +108,14 @@ for plate in cp_dfs:
         if col in meta_features:
             # Try converting to numeric first (if possible), if not, keep as string
             try:
-                cp_umap_with_metadata_df[col] = pd.to_numeric(cp_umap_with_metadata_df[col], errors='raise', downcast='integer')
+                cp_umap_with_metadata_df[col] = pd.to_numeric(
+                    cp_umap_with_metadata_df[col], errors="raise", downcast="integer"
+                )
             except ValueError:
                 # If can't convert to numeric, keep as string
-                cp_umap_with_metadata_df[col] = cp_umap_with_metadata_df[col].astype(str)
+                cp_umap_with_metadata_df[col] = cp_umap_with_metadata_df[col].astype(
+                    str
+                )
         else:
             # For UMAP embeddings, ensure they're float
             cp_umap_with_metadata_df[col] = cp_umap_with_metadata_df[col].astype(float)
@@ -136,7 +140,7 @@ for plate in cp_dfs:
 
 for plate in cp_dfs:
     # Select only plate 3 and ignore the rest
-    if plate != 'localhost230405150001':
+    if plate != "localhost230405150001":
         continue
 
     # Set dataframe as the current plate
@@ -144,8 +148,12 @@ for plate in cp_dfs:
 
     # Create two new dataframes that filter cells with each condition in a dictionary
     filtered_dfs = {
-        "DMSO_TGFRi": cp_df.loc[cp_df['Metadata_treatment'].isin(['DMSO', 'TGFRi'])].reset_index(drop=True),
-        "DMSO_drugx": cp_df.loc[cp_df['Metadata_treatment'].isin(['DMSO', 'drug_x'])].reset_index(drop=True)
+        "DMSO_TGFRi": cp_df.loc[
+            cp_df["Metadata_treatment"].isin(["DMSO", "TGFRi"])
+        ].reset_index(drop=True),
+        "DMSO_drugx": cp_df.loc[
+            cp_df["Metadata_treatment"].isin(["DMSO", "drug_x"])
+        ].reset_index(drop=True),
     }
 
     # Loop through each filtered dataframe and process it
@@ -159,7 +167,9 @@ for plate in cp_dfs:
             continue
 
         # Make sure to reinitialize UMAP instance per plate
-        umap_fit = umap.UMAP(random_state=umap_random_seed, n_components=umap_n_components, n_jobs=1)
+        umap_fit = umap.UMAP(
+            random_state=umap_random_seed, n_components=umap_n_components, n_jobs=1
+        )
 
         # Process filtered_df to separate features and metadata
         cp_features = infer_cp_features(filtered_df)
@@ -182,14 +192,112 @@ for plate in cp_dfs:
             if col in meta_features:
                 # Try converting to numeric first (if possible), if not, keep as string
                 try:
-                    filtered_umap_with_metadata_df[col] = pd.to_numeric(filtered_umap_with_metadata_df[col], errors='raise', downcast='integer')
+                    filtered_umap_with_metadata_df[col] = pd.to_numeric(
+                        filtered_umap_with_metadata_df[col],
+                        errors="raise",
+                        downcast="integer",
+                    )
                 except ValueError:
                     # If can't convert to numeric, keep as string
-                    filtered_umap_with_metadata_df[col] = filtered_umap_with_metadata_df[col].astype(str)
+                    filtered_umap_with_metadata_df[col] = (
+                        filtered_umap_with_metadata_df[col].astype(str)
+                    )
             else:
                 # For UMAP embeddings, ensure they're float
-                filtered_umap_with_metadata_df[col] = filtered_umap_with_metadata_df[col].astype(float)
+                filtered_umap_with_metadata_df[col] = filtered_umap_with_metadata_df[
+                    col
+                ].astype(float)
 
         # Generate output file, drop unnamed column, and save
         filtered_umap_with_metadata_df.to_parquet(output_umap_file, index=False)
+
+
+# ## Generate UMAP embeddings for Plate 1 and 2 merged
+# 
+# Plates 1 and 2 are technically one plate, but one part of the plate had to be re-imaged due to over-blown phalloidin stain (F-actin).
+# We look at the UMAPs per "plate" separately above, but also merge them to visualize how the UMAP looks.
+
+# In[7]:
+
+
+pilot_plate_dfs = []
+
+for plate_name, df in cp_dfs.items():
+    if "KK22-05-198" not in plate_name:
+        continue
+    pilot_plate_dfs.append(df)
+
+# Find common non-metadata columns
+non_meta_cols = set.intersection(
+    *[
+        set(df.columns[~df.columns.str.startswith("Metadata_")])
+        for df in pilot_plate_dfs
+    ]
+)
+
+# Collect all metadata columns (they might vary a bit, but we include them all)
+meta_cols = sorted(
+    {col for df in pilot_plate_dfs for col in df.columns if col.startswith("Metadata_")}
+)
+
+# Define final column order
+final_cols = meta_cols + sorted(non_meta_cols)
+
+# Concatenate
+combined_df = pd.concat([df[final_cols] for df in pilot_plate_dfs], ignore_index=True)
+
+# Set output file for the UMAP
+output_umap_file = pathlib.Path(
+    output_dir, "UMAP_plates_1_2_combined_KK22-05-198.parquet"
+)
+
+# Check if the output file already exists
+if output_umap_file.exists():
+    print(f"Skipping {output_umap_file.stem} as it already exists.")
+    sys.exit()
+
+# Make sure to reinitialize UMAP instance per plate
+umap_fit = umap.UMAP(
+    random_state=22, n_components=umap_n_components, n_jobs=1
+)  # update seed for improved visualization
+
+# Process dataframe to separate features and metadata
+cp_features = infer_cp_features(combined_df)
+meta_features = infer_cp_features(combined_df, metadata=True)
+
+# Fit UMAP and convert to pandas DataFrame
+embeddings = pd.DataFrame(
+    umap_fit.fit_transform(combined_df.loc[:, cp_features]),
+    columns=[f"UMAP{x}" for x in range(0, umap_n_components)],
+)
+print(f"{embeddings.shape}: combined pilot plates")
+
+# Combine with metadata
+combined_umap_with_metadata_df = pd.concat(
+    [combined_df.loc[:, meta_features], embeddings], axis=1
+)
+
+# Check and adjust dtypes dynamically
+for col in combined_umap_with_metadata_df.columns:
+    if col in meta_features:
+        # Try converting to numeric first (if possible), if not, keep as string
+        try:
+            combined_umap_with_metadata_df[col] = pd.to_numeric(
+                combined_umap_with_metadata_df[col],
+                errors="raise",
+                downcast="integer",
+            )
+        except ValueError:
+            # If can't convert to numeric, keep as string
+            combined_umap_with_metadata_df[col] = combined_umap_with_metadata_df[
+                col
+            ].astype(str)
+    else:
+        # For UMAP embeddings, ensure they're float
+        combined_umap_with_metadata_df[col] = combined_umap_with_metadata_df[
+            col
+        ].astype(float)
+
+# Generate output file, drop unnamed column, and save
+combined_umap_with_metadata_df.to_parquet(output_umap_file, index=False)
 

@@ -11,6 +11,7 @@ jupyter nbconvert --to script --output-dir=nbconverted/ *.ipynb
 # run python nbconverted to extract apply model to hold out plates 1, 2, and 3
 python nbconverted/0.plate3_generalizability.py
 python nbconverted/4.dose_generalizability.py
+python nbconverted/7.drug_x_probabilities_plate3.py
 
 # change to R env
 conda deactivate
