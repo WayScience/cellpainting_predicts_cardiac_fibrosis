@@ -26,4 +26,4 @@ dependencies:
   - conda-forge::r-arrow
   - conda-forge::r-ggridges
   - conda-forge::r-ggextra
-
+  - conda-forge::r-gifski
