@@ -10,6 +10,7 @@ import glob
 import pathlib
 import pandas as pd
 import umap
+import sys
 
 from pycytominer.cyto_utils import infer_cp_features
 
@@ -53,10 +54,7 @@ fs_files
 
 
 # Load feature data into a dictionary, keyed on plate name without the suffix
-cp_dfs = {
-    x.split("/")[-1].split("_sc")[0]: pd.read_parquet(x)
-    for x in fs_files
-}
+cp_dfs = {x.split("/")[-1].split("_sc")[0]: pd.read_parquet(x) for x in fs_files}
 
 # Print out useful information about each dataset
 print(cp_dfs.keys())
@@ -82,7 +80,9 @@ for plate in cp_dfs:
         continue
 
     # Make sure to reinitialize UMAP instance per plate
-    umap_fit = umap.UMAP(random_state=umap_random_seed, n_components=umap_n_components, n_jobs=1)
+    umap_fit = umap.UMAP(
+        random_state=umap_random_seed, n_components=umap_n_components, n_jobs=1
+    )
 
     # Set dataframe as the current plate
     cp_df = cp_dfs[plate]
@@ -108,10 +108,14 @@ for plate in cp_dfs:
         if col in meta_features:
             # Try converting to numeric first (if possible), if not, keep as string
             try:
-                cp_umap_with_metadata_df[col] = pd.to_numeric(cp_umap_with_metadata_df[col], errors='raise', downcast='integer')
+                cp_umap_with_metadata_df[col] = pd.to_numeric(
+                    cp_umap_with_metadata_df[col], errors="raise", downcast="integer"
+                )
             except ValueError:
                 # If can't convert to numeric, keep as string
-                cp_umap_with_metadata_df[col] = cp_umap_with_metadata_df[col].astype(str)
+                cp_umap_with_metadata_df[col] = cp_umap_with_metadata_df[col].astype(
+                    str
+                )
         else:
             # For UMAP embeddings, ensure they're float
             cp_umap_with_metadata_df[col] = cp_umap_with_metadata_df[col].astype(float)
@@ -136,7 +140,7 @@ for plate in cp_dfs:
 
 for plate in cp_dfs:
     # Select only plate 3 and ignore the rest
-    if plate != 'localhost230405150001':
+    if plate != "localhost230405150001":
         continue
 
     # Set dataframe as the current plate
@@ -144,8 +148,12 @@ for plate in cp_dfs:
 
     # Create two new dataframes that filter cells with each condition in a dictionary
     filtered_dfs = {
-        "DMSO_TGFRi": cp_df.loc[cp_df['Metadata_treatment'].isin(['DMSO', 'TGFRi'])].reset_index(drop=True),
-        "DMSO_drugx": cp_df.loc[cp_df['Metadata_treatment'].isin(['DMSO', 'drug_x'])].reset_index(drop=True)
+        "DMSO_TGFRi": cp_df.loc[
+            cp_df["Metadata_treatment"].isin(["DMSO", "TGFRi"])
+        ].reset_index(drop=True),
+        "DMSO_drugx": cp_df.loc[
+            cp_df["Metadata_treatment"].isin(["DMSO", "drug_x"])
+        ].reset_index(drop=True),
     }
 
     # Loop through each filtered dataframe and process it
@@ -159,7 +167,9 @@ for plate in cp_dfs:
             continue
 
         # Make sure to reinitialize UMAP instance per plate
-        umap_fit = umap.UMAP(random_state=umap_random_seed, n_components=umap_n_components, n_jobs=1)
+        umap_fit = umap.UMAP(
+            random_state=umap_random_seed, n_components=umap_n_components, n_jobs=1
+        )
 
         # Process filtered_df to separate features and metadata
         cp_features = infer_cp_features(filtered_df)
@@ -182,13 +192,21 @@ for plate in cp_dfs:
             if col in meta_features:
                 # Try converting to numeric first (if possible), if not, keep as string
                 try:
-                    filtered_umap_with_metadata_df[col] = pd.to_numeric(filtered_umap_with_metadata_df[col], errors='raise', downcast='integer')
+                    filtered_umap_with_metadata_df[col] = pd.to_numeric(
+                        filtered_umap_with_metadata_df[col],
+                        errors="raise",
+                        downcast="integer",
+                    )
                 except ValueError:
                     # If can't convert to numeric, keep as string
-                    filtered_umap_with_metadata_df[col] = filtered_umap_with_metadata_df[col].astype(str)
+                    filtered_umap_with_metadata_df[col] = (
+                        filtered_umap_with_metadata_df[col].astype(str)
+                    )
             else:
                 # For UMAP embeddings, ensure they're float
-                filtered_umap_with_metadata_df[col] = filtered_umap_with_metadata_df[col].astype(float)
+                filtered_umap_with_metadata_df[col] = filtered_umap_with_metadata_df[
+                    col
+                ].astype(float)
 
         # Generate output file, drop unnamed column, and save
         filtered_umap_with_metadata_df.to_parquet(output_umap_file, index=False)
