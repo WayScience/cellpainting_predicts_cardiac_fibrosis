@@ -79,8 +79,8 @@ def generate_sc_crops(
         file_paths = []
 
         # Create file paths with well, site, and channel
-        for i in range(5):  # Update the range to start from 0 and end at 4
-            filename = f"{images_dir}/{info['plate']}_{info['well']}{info['site']}d{i}_illumcorrect.tiff"
+        for fov_number in range(5):  # Update the range to start from 0 and end at 4
+            filename = f"{images_dir}/{info['plate']}_{info['well']}{info['site']}d{fov_number}_illumcorrect.tiff"
             file_paths.append(filename)
 
             # Read the image
@@ -114,8 +114,12 @@ def generate_sc_crops(
                 key_dir.mkdir(exist_ok=True, parents=True)
 
                 # Save the cropped image with single_cell and channel information
-                output_filename = str(pathlib.Path(f"{key_dir}/{key}_d{i}_cropped.png"))
+                output_filename = str(
+                    pathlib.Path(f"{key_dir}/{key}_d{fov_number}_cropped.png")
+                )
                 cv2.imwrite(output_filename, cropped_channel)
+
+    return None
 
 
 # ## Set paths and variables

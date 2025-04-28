@@ -100,6 +100,13 @@ proportion_healthy = (
     .reset_index(name="proportion_healthy")
 )
 
+# Save as CSV file
+proportion_healthy.to_csv(
+    "./prob_data/proportion_healthy_plate3_grouped.csv", index=False, header=True
+)
+
+# Print output shape and display
+print(proportion_healthy.shape)
 proportion_healthy
 
 

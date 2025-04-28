@@ -1,5 +1,6 @@
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(arrow))
 suppressPackageStartupMessages(library(ggExtra))
 
@@ -87,21 +88,48 @@ for (plate in kk22_plates) {
         levels = paste0(unique_sorted_doses, " uM")
     )
 
+    # Count total cells per dose
+    dose_counts <- umap_cp_df[[plate]] %>%
+        count(Metadata_dose, name = "total_cells")
+
+    # Create labels like "2.5 uM (n=1450)"
+    dose_labels <- setNames(
+        paste0(dose_counts$Metadata_dose, " (n=", dose_counts$total_cells, ")"),
+        dose_counts$Metadata_dose
+    )
+
     # Dose UMAP
     output_file <- output_umap_files[[plate]]
     output_file <- paste0(output_file, "_dose_facet.png")
 
+    # Create a dataset where every point is duplicated for every dose
+    background_df <- umap_cp_df[[plate]] %>%
+        select(-Metadata_dose) %>%
+        crossing(Metadata_dose = unique(umap_cp_df[[plate]]$Metadata_dose))
+
     umap_dose_gg <- (
-        ggplot(umap_cp_df[[plate]], aes(x = UMAP0, y = UMAP1))
+        ggplot()
         +
+            # background points: duplicated for all doses
             geom_point(
-                aes(color = Metadata_Cell_Count),
-                size = 0.4, alpha = 0.7
+                data = background_df,
+                aes(x = UMAP0, y = UMAP1),
+                color = "lightgray",
+                size = 0.4,
+                alpha = 0.3
             )
             +
-            theme_bw()
+            # colored points: real data, faceted
+            geom_point(
+                data = umap_cp_df[[plate]],
+                aes(x = UMAP0, y = UMAP1, color = Metadata_Cell_Count),
+                size = 0.4,
+                alpha = 0.7
+            )
             +
-            facet_wrap("~Metadata_dose")
+            facet_wrap(~Metadata_dose, nrow = 2, labeller = labeller(Metadata_dose = dose_labels))
+            +
+            theme_bw()
             +
             theme(
                 strip.background = element_rect(colour = "black", fill = "#fdfff4")
@@ -113,7 +141,7 @@ for (plate in kk22_plates) {
             )
     )
 
-    ggsave(output_file, umap_dose_gg, dpi = 500, height = 6, width = 6)
+    ggsave(output_file, umap_dose_gg, dpi = 500, height = 6, width = 10)
 }
 
 
