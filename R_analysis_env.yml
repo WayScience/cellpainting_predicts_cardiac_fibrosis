@@ -27,3 +27,6 @@ dependencies:
   - conda-forge::r-ggridges
   - conda-forge::r-ggextra
   - conda-forge::r-gifski
+  - conda-forge::r-png
+  - conda-forge::r-ggplotify
+
