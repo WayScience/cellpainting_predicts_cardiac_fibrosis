@@ -1,5 +1,7 @@
 # Figure generation
 
-In this module, figure(s) are generated for a manuscript, where plots are patchworked together with R.
+In this module, we generate figures for a manuscript and patchwork them together with R.
 
-Currently, there is one figure generated demonstrating the results of image based profiling on a plate with one healthy and one failing heart.
+Currently, we generate one figure demonstrating the results of image based profiling on "Plate 3".
+We visualize the shift in morphology when cells from a failing heart are treated with "drug_x".
+We show that our model can predict cells with this treatment as more "healthy".

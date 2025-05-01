@@ -78,8 +78,8 @@ UMAP_results_df <- UMAP_results_df %>%
 
 # Store the main UMAP plot as a ggplot object
 umap_drugx_gg <- ggplot(UMAP_results_df, aes(x = UMAP0, y = UMAP1)) +
-    geom_point(aes(color = Group), size = 0.9, alpha = 0.4) +
-    geom_density_2d(aes(color = Group), alpha = 0.58, linewidth = 1.42) +
+    geom_point(aes(color = Group), size = 0.9, alpha = 0.25) +
+    geom_density_2d(aes(color = Group), alpha = 0.6, linewidth = 1.42) +
     # coord_fixed() +
     theme_bw() +
     theme(
@@ -91,7 +91,7 @@ umap_drugx_gg <- ggplot(UMAP_results_df, aes(x = UMAP0, y = UMAP1)) +
         legend.text = element_text(face = "bold"),
     ) +
     scale_color_manual(
-        values = c("failing + drug_x" = "#E7298A", "failing + DMSO" = "#BA5A31", "healthy + DMSO" = "#8269dc", "healthy + drug_x" = "#E6AB02"),
+        values = c("failing + drug_x" = "#E7298A", "failing + DMSO" = "#D55E00", "healthy + DMSO" = "#8269dc", "healthy + drug_x" = "#E6AB02"),
     ) +
     guides(color = guide_legend(override.aes = list(size = 6))) +
     ylim(min(UMAP_results_df$UMAP1), max(UMAP_results_df$UMAP1)) +
@@ -177,12 +177,14 @@ bar_plot <- ggplot(prob_results_df, aes(x = Metadata_heart_number, y = proportio
         axis.text.y = element_text(size = 20),
         axis.title.x = element_text(size = 20),
         axis.title.y = element_text(size = 20),
-        legend.position = "none"
+        legend.position = "right",
+        legend.text = element_text(size = 16),
     ) +
     scale_fill_manual(
+        name = NULL,
         values = c(
             "failing + drug_x" = "#E7298A",
-            "failing + DMSO" = "#BA5A31",
+            "failing + DMSO" = "#D55E00",
             "healthy + DMSO" = "#8269dc",
             "healthy + drug_x" = "#E6AB02"
         )
@@ -224,8 +226,8 @@ width <- 5
 options(repr.plot.width = width, repr.plot.height = height)
 
 # Define colors for the doses
-zero_dose_color <- "#1B9E77" # Unique color for 0 uM
-all_other_doses_color <- "#4C6FA3" # Same color for all other doses
+zero_dose_color <- "#D55E00" # Unique color for 0 uM
+all_other_doses_color <- "#E7298A" # Same color for all other doses
 dose_colors <- c(
     "0\nuM" = zero_dose_color,
     "0.005\nuM" = all_other_doses_color,
