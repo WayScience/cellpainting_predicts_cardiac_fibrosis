@@ -316,6 +316,7 @@ main_figure <- (
 
 # Save figure
 ggsave(output_main_figure, main_figure, height = height, width = width, dpi = 500)
+ggsave(sub("\\.[^.]+$", ".pdf", output_main_figure), main_figure, height = height, width = width, dpi = 500)
 
 main_figure
 
