@@ -79,8 +79,7 @@ UMAP_results_df <- UMAP_results_df %>%
 # Store the main UMAP plot as a ggplot object
 umap_drugx_gg <- ggplot(UMAP_results_df, aes(x = UMAP0, y = UMAP1)) +
     geom_point(aes(color = Group), size = 0.9, alpha = 0.25) +
-    geom_density_2d(aes(color = Group), alpha = 0.6, linewidth = 1.42) +
-    # coord_fixed() +
+    geom_density_2d(aes(color = Group), alpha = 0.65, linewidth = 1.42) +
     theme_bw() +
     theme(
         strip.background = element_rect(color = "black", fill = "#fdfff4"),
@@ -94,14 +93,15 @@ umap_drugx_gg <- ggplot(UMAP_results_df, aes(x = UMAP0, y = UMAP1)) +
         values = c("failing + drug_x" = "#E7298A", "failing + DMSO" = "#D55E00", "healthy + DMSO" = "#8269dc", "healthy + drug_x" = "#E6AB02"),
     ) +
     guides(color = guide_legend(override.aes = list(size = 6))) +
-    ylim(min(UMAP_results_df$UMAP1), max(UMAP_results_df$UMAP1)) +
-    xlim(min(UMAP_results_df$UMAP0), max(UMAP_results_df$UMAP0)) +
+    # Increase the size of the axes by 5%
+    ylim(range(UMAP_results_df$UMAP1) + c(-1, 1) * 0.05 * diff(range(UMAP_results_df$UMAP1))) +
+    xlim(range(UMAP_results_df$UMAP0) + c(-1, 1) * 0.05 * diff(range(UMAP_results_df$UMAP0))) +
     theme(
-        legend.position.inside = c(0.85, 0.90),
+        legend.position.inside = c(0.86, 0.92),
         legend.background = element_blank(),
         legend.key = element_blank(),
         legend.title = element_blank(),
-        legend.text = element_text(size = 13, face = "bold"),
+        legend.text = element_text(size = 16),
         panel.background = element_rect(fill = "white"),
         plot.background = element_blank(),
         axis.text = element_text(size = 22),
@@ -122,6 +122,9 @@ merged_drugx_plot_with_margins <- ggMarginal(
 
 # update to ggplot object
 ggplot_drugx_plot_with_margins <- as.ggplot(merged_drugx_plot_with_margins)
+
+# Save figure
+ggsave("./figures/panel_c_umap.pdf", merged_drugx_plot_with_margins, height = height, width = width, dpi = 500)
 
 # print plot
 print(ggplot_drugx_plot_with_margins)
@@ -190,6 +193,9 @@ bar_plot <- ggplot(prob_results_df, aes(x = Metadata_heart_number, y = proportio
         )
     )
 
+# Save figure
+ggsave("./figures/panel_d_bar_plot_proportion.pdf", bar_plot, height = height, width = width, dpi = 500)
+
 # Print the plot
 bar_plot
 
@@ -206,7 +212,8 @@ pilot_results_df <- readr::read_csv(pilot_results_file)
 
 # Update the heart numbers to match manuscript
 pilot_results_df <- pilot_results_df %>%
-  mutate(Metadata_heart_number = recode(Metadata_heart_number, `3` = "F2", `8` = "F4", `9` = "F5"))
+  mutate(Metadata_heart_number = recode(Metadata_heart_number, `3` = "F2", `8` = "F4", `9` = "F5")) %>%
+  filter(!Metadata_heart_number %in% c("F4", "F5"))
 
 # Add "uM" to all values in the Metadata_dose column
 pilot_results_df$Metadata_dose <- paste0(as.character(pilot_results_df$Metadata_dose), "\nuM")
@@ -221,7 +228,7 @@ dim(pilot_results_df)
 head(pilot_results_df)
 
 
-height <- 20
+height <- 16
 width <- 5
 options(repr.plot.width = width, repr.plot.height = height)
 
@@ -268,6 +275,9 @@ ridge_plot_healthy <- ggplot(pilot_results_df, aes(
             fill = "#fdfff4"
         )
     )
+
+# Save figure
+ggsave("./figures/panel_e_ridge_plot.pdf", ridge_plot_healthy, height = height, width = width, dpi = 500)
 
 # Show plot
 ridge_plot_healthy
