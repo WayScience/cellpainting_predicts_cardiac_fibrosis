@@ -65,9 +65,6 @@ print(dim(lm_df))
 head(lm_df, 3)
 
 
-# # Specify order so that the organelles match the correct color (red, green, blue)
-# color_order <- c("Actin", "PM", "ER", "Mito", "Nucleus", "other")
-
 width <- 8
 height <- 7
 options(repr.plot.width = width, repr.plot.height = height)
