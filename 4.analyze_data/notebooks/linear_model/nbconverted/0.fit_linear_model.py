@@ -17,7 +17,8 @@ from pycytominer.cyto_utils import infer_cp_features
 
 # Define inputs and outputs
 plate = "localhost220512140003_KK22-05-198"  # Focusing on plate 1 (with same disease etiology heart)
-file_suffix = "_sc_feature_selected.parquet"
+# all features instead pretty please :)))))
+file_suffix = "_sc_normalized.parquet"
 
 data_dir = pathlib.Path(
     "../../../3.process_cfret_features/data/single_cell_profiles"
@@ -48,6 +49,7 @@ cp_df = cell_count_df.merge(cp_df, on=["Metadata_Well"])
 
 # Define CellProfiler features
 cp_features = infer_cp_features(cp_df)
+cp_df = cp_df.dropna(subset=cp_features)
 
 print(f"We are testing {len(cp_features)} CellProfiler features")
 print(cp_df.shape)

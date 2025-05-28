@@ -57,10 +57,18 @@ print(dim(lm_df))
 head(lm_df, 3)
 
 
-# Specify order so that the organelles match the correct color (red, green, blue)
-color_order <- c("Actin", "PM", "ER", "Mito", "Nucleus", "other")
+# Drop rows with specific feature_group values
+lm_df <- lm_df %>%
+    dplyr::filter(!feature_group %in% c("Neighbors", "Location", "Parent", "Children", "Number"))
 
-width <- 7
+print(dim(lm_df))
+head(lm_df, 3)
+
+
+# # Specify order so that the organelles match the correct color (red, green, blue)
+# color_order <- c("Actin", "PM", "ER", "Mito", "Nucleus", "other")
+
+width <- 8
 height <- 7
 options(repr.plot.width = width, repr.plot.height = height)
 
@@ -68,11 +76,11 @@ options(repr.plot.width = width, repr.plot.height = height)
 lm_fig_gg <- (
     ggplot(lm_df, aes(x = cell_count_coef, y = dose_coef))
     +
-        geom_point(aes(size = r2_score, color = factor(channel_cleaned, levels = color_order)), alpha = 0.7)
+        geom_point(aes(size = r2_score, color = factor(feature_group), shape = channel_cleaned), alpha = 0.7)
         +
         geom_vline(xintercept = 0, linetype = "dashed", color = "red")
         +
-        geom_density2d(color = "black", show.legend = FALSE)
+        geom_density2d(color = "black", show.legend = FALSE, alpha = 0.7)
         +
         theme_bw()
         +
@@ -84,8 +92,9 @@ lm_fig_gg <- (
         )
         +
         guides(
-            color = guide_legend(title = "Channel\n(if applicable)", order = 1),
-            size = guide_legend(title = "R2 score")
+            color = guide_legend(title = "Measurement", order = 1),
+            size = guide_legend(title = "R2 score"),
+            shape = guide_legend(title = "Channel\n(if applicable)", order = 2)
         )
         +
         ylab("drug_x dose contribution\n(LM beta coefficient)")
@@ -102,6 +111,4 @@ ggsave(lm_fig_pdf, lm_fig_gg, dpi = 500, height = height, width = width)
 
 # Show figure
 lm_fig_gg
-
-
 
