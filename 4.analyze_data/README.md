@@ -11,3 +11,5 @@ In the [notebooks folder](./notebooks/), we have two different folders for analy
 - [histogram_plot](./notebooks/histogram_plot/): Generate histogram plot comparing the number of neighbors adjacent to each single-cell per heart number to view the distribution of neighbors across hearts.
 
 - [ks_test](./notebooks/ks_test/): Generate ks-test volcano plot(s) comparing DMSO versus media treatment on healthy heart #7 to see how different the features are.
+
+- [EMD_analysis](./notebooks/EMD_analysis/): Perform an earth mover's distance analysis (inspired by work in the [SPACe paper](https://www.nature.com/articles/s41467-024-54264-4)) per feature in three different population comparisons using control and drug_x treated cells.
