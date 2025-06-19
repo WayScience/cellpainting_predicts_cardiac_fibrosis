@@ -23,7 +23,7 @@ import numpy as np
 
 # ## Helper function to compute directional (signed) EMD score
 
-# In[2]:
+# In[ ]:
 
 
 def compute_signed_emd_per_feature(

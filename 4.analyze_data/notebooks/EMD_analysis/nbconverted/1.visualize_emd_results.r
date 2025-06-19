@@ -8,6 +8,10 @@ if (!dir.exists(output_dir)) {
     dir.create(output_dir, recursive = TRUE)
 }
 
+# Set thresholds for EMD values that represent "no change"
+emd_positive_threshold <- 0.1
+emd_negative_threshold <- -0.1
+
 failing_vs_failing_drug_x_emd_df <- read_parquet("emd_results/failing_vs_failing_drug_x_emd.parquet")
 
 dim(failing_vs_failing_drug_x_emd_df)
@@ -20,7 +24,9 @@ options(repr.plot.width = width, repr.plot.height = height)
 failing_vs_failing_drug_x_plot <- ggplot(failing_vs_failing_drug_x_emd_df, aes(x = feature_group, y = signed_emd)) +
     geom_violin(trim = FALSE, fill = "grey60", color = NA, alpha = 0.7) +
     geom_jitter(aes(color = organelle), width = 0.2, alpha = 0.4, size = 2.5) +
-    geom_hline(yintercept = 0, linetype = "dotted", color = "black", size = 0.7) +
+    geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 0.7, alpha = 0.5) +
+    geom_hline(yintercept = emd_positive_threshold, linetype = "dashed", color = "#D62728", size = 0.7, alpha = 0.5) +
+    geom_hline(yintercept = emd_negative_threshold, linetype = "dashed", color = "#D62728", size = 0.7, alpha = 0.5) +
     facet_wrap(~ compartment) +
     theme_bw() +
     labs(
@@ -52,8 +58,8 @@ failing_vs_failing_drug_x_plot
 
 emd_direction_fraction <- failing_vs_failing_drug_x_emd_df %>%
   mutate(direction = case_when(
-    signed_emd > 0.05 ~ "increased",
-    signed_emd < -0.05 ~ "decreased",
+    signed_emd > emd_positive_threshold ~ "increased",
+    signed_emd < emd_negative_threshold ~ "decreased",
     TRUE ~ "no change"
   )) %>%
   group_by(feature_group, compartment, direction) %>%
@@ -74,7 +80,7 @@ emd_direction_fraction_plot <- ggplot(emd_direction_fraction, aes(x = fraction, 
     scale_x_continuous(limits = c(0, 1), expand = c(0, 0)) +
     labs(
         title = "Failing DMSO vs failing drug_x EMD direction fraction",
-        x = "Fraction of measurements",
+        x = "Proportion of features",
         y = "Feature group",
         fill = "Direction"
     ) +
@@ -118,7 +124,9 @@ options(repr.plot.width = width, repr.plot.height = height)
 healthy_vs_failing_drug_x_plot <- ggplot(healthy_vs_failing_drug_x_emd_df, aes(x = feature_group, y = signed_emd)) +
     geom_violin(trim = FALSE, fill = "grey60", color = NA, alpha = 0.7) +
     geom_jitter(aes(color = organelle), width = 0.2, alpha = 0.4, size = 2.5) +
-    geom_hline(yintercept = 0, linetype = "dotted", color = "black", size = 0.7) +
+    geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 0.7, alpha = 0.5) +
+    geom_hline(yintercept = emd_positive_threshold, linetype = "dashed", color = "#D62728", size = 0.7, alpha = 0.5) +
+    geom_hline(yintercept = emd_negative_threshold, linetype = "dashed", color = "#D62728", size = 0.7, alpha = 0.5) +
     facet_wrap(~ compartment) +
     theme_bw() +
     labs(
@@ -150,8 +158,8 @@ healthy_vs_failing_drug_x_plot
 
 hvf_emd_direction_fraction <- healthy_vs_failing_drug_x_emd_df %>%
   mutate(direction = case_when(
-    signed_emd > 0.05 ~ "increased",
-    signed_emd < -0.05 ~ "decreased",
+    signed_emd > emd_positive_threshold ~ "increased",
+    signed_emd < emd_negative_threshold ~ "decreased",
     TRUE ~ "no change"
   )) %>%
   group_by(feature_group, compartment, direction) %>%
@@ -216,7 +224,9 @@ options(repr.plot.width = width, repr.plot.height = height)
 failing_vs_healthy_DMSO_plot <- ggplot(failing_vs_healthy_DMSO_emd_df, aes(x = feature_group, y = signed_emd)) +
     geom_violin(trim = FALSE, fill = "grey60", color = NA, alpha = 0.7) +
     geom_jitter(aes(color = organelle), width = 0.2, alpha = 0.4, size = 2.5) +
-    geom_hline(yintercept = 0, linetype = "dotted", color = "black", size = 0.7) +
+    geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 0.7, alpha = 0.5) +
+    geom_hline(yintercept = emd_positive_threshold, linetype = "dashed", color = "#D62728", size = 0.7, alpha = 0.5) +
+    geom_hline(yintercept = emd_negative_threshold, linetype = "dashed", color = "#D62728", size = 0.7, alpha = 0.5) +
     facet_wrap(~ compartment) +
     theme_bw() +
     labs(
@@ -248,8 +258,8 @@ failing_vs_healthy_DMSO_plot
 
 fvh_emd_direction_fraction <- failing_vs_healthy_DMSO_emd_df %>%
   mutate(direction = case_when(
-    signed_emd > 0.05 ~ "increased",
-    signed_emd < -0.05 ~ "decreased",
+    signed_emd > emd_positive_threshold ~ "increased",
+    signed_emd < emd_negative_threshold ~ "decreased",
     TRUE ~ "no change"
   )) %>%
   group_by(feature_group, compartment, direction) %>%
