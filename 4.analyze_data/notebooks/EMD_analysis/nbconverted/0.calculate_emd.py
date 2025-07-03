@@ -24,7 +24,7 @@ import sys
 
 sys.path.append("../../../utils")
 
-from emd_utils import compute_signed_emd_per_feature
+from emd_utils import compute_signed_emd_per_feature, compute_median_baseline_emd
 
 
 # ## Set output directory for calculated EMD per comparison
@@ -34,6 +34,13 @@ from emd_utils import compute_signed_emd_per_feature
 
 output_dir = pathlib.Path("./emd_results")
 output_dir.mkdir(parents=True, exist_ok=True)
+
+# Output file for EMD thresholds
+output_emd_thresholds = pathlib.Path(f"{output_dir}/emd_thresholds.csv")
+# Define the columns you want
+columns = ["Reference", "Comparison", "EMD_threshold_value"]
+# Create an empty DataFrame with just the header
+pd.DataFrame(columns=columns).to_csv(output_emd_thresholds, index=False)
 
 
 # ## Load in data with drug_x and controls
@@ -99,6 +106,35 @@ print("Failing DMSO shape:", failing_DMSO_df.shape)
 # In[5]:
 
 
+# Compute the median baseline EMD between healthy DMSO and failing drug X
+hvfd_threshold_value = compute_median_baseline_emd(
+    reference_df=healthy_DMSO_df, comparison_df=failing_drug_x_df, num_permutations=20
+)
+
+# Create one-row dataframe to save threshold value to CSV file
+hvfd_row = pd.DataFrame(
+    [
+        {
+            "Reference": "healthy_DMSO",
+            "Comparison": "failing_drug_x",
+            "EMD_threshold_value": hvfd_threshold_value,
+        }
+    ]
+)
+
+# Append to existing CSV file
+print("Writing to:", output_emd_thresholds.resolve())
+hvfd_row.to_csv(output_emd_thresholds, mode="a", index=False, header=False)
+print("Appended row for comparison: failing_DMSO vs failing_drug_x")
+
+
+# Print the threshold value
+print("EMD threshold value:", hvfd_threshold_value)
+
+
+# In[6]:
+
+
 # Compute the signed EMD for each feature
 healthy_vs_failing_drug_x_emd = compute_signed_emd_per_feature(
     reference_df=healthy_DMSO_df, comparison_df=failing_drug_x_df
@@ -111,7 +147,7 @@ healthy_vs_failing_drug_x_emd.sort_values("signed_emd", ascending=False).head()
 
 # ### Split feature column into parts
 
-# In[6]:
+# In[7]:
 
 
 # Split the 'feature' column into new columns as requested (not as a function)
@@ -139,7 +175,35 @@ healthy_vs_failing_drug_x_emd.head()
 
 # ## Compute EMD comparing failing drug_x cells to the failing DMSO cells (reference)
 
-# In[7]:
+# In[8]:
+
+
+# Compute the median baseline EMD between healthy DMSO and failing drug X
+fvfd_threshold_value = compute_median_baseline_emd(
+    reference_df=failing_DMSO_df, comparison_df=failing_drug_x_df, num_permutations=20
+)
+
+# Create one-row dataframe to save threshold value to CSV file
+fvfd_row = pd.DataFrame(
+    [
+        {
+            "Reference": "failing_DMSO",
+            "Comparison": "failing_drug_x",
+            "EMD_threshold_value": fvfd_threshold_value,
+        }
+    ]
+)
+
+# Append without header
+print("Writing to:", output_emd_thresholds.resolve())
+fvfd_row.to_csv(output_emd_thresholds, mode="a", index=False, header=False)
+print("Appended row for comparison: failing_DMSO vs failing_drug_x")
+
+# Print the threshold value
+print("EMD threshold value:", fvfd_threshold_value)
+
+
+# In[9]:
 
 
 # Compute the signed EMD for each feature
@@ -154,7 +218,7 @@ failing_vs_failing_drug_x_emd.sort_values("signed_emd", ascending=False).head()
 
 # ### Split feature column into parts
 
-# In[8]:
+# In[10]:
 
 
 # Split the 'feature' column into new columns as requested (not as a function)
@@ -182,7 +246,35 @@ failing_vs_failing_drug_x_emd.head()
 
 # ## Compute EMD comparing healthy DMSO cells to the failing DMSO cells (reference)
 
-# In[9]:
+# In[11]:
+
+
+# Compute the median baseline EMD between healthy DMSO and failing drug X
+hvf_threshold_value = compute_median_baseline_emd(
+    reference_df=failing_DMSO_df, comparison_df=healthy_DMSO_df, num_permutations=20
+)
+
+# Create one-row dataframe to save threshold value to CSV file
+hvf_row = pd.DataFrame(
+    [
+        {
+            "Reference": "failing_DMSO",
+            "Comparison": "healthy_DMSO",
+            "EMD_threshold_value": hvf_threshold_value,
+        }
+    ]
+)
+
+# Append without header
+print("Writing to:", output_emd_thresholds.resolve())
+hvf_row.to_csv(output_emd_thresholds, mode="a", index=False, header=False)
+print("Appended row for comparison: failing_DMSO vs failing_drug_x")
+
+# Print the threshold value
+print("EMD threshold value:", hvf_threshold_value)
+
+
+# In[12]:
 
 
 # Compute the signed EMD for each feature
@@ -197,7 +289,7 @@ failing_vs_healthy_DMSO_emd.sort_values("signed_emd", ascending=False).head()
 
 # ### Split feature column into parts
 
-# In[10]:
+# In[13]:
 
 
 # Split the 'feature' column into new columns as requested (not as a function)

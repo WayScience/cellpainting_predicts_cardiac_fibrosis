@@ -8,14 +8,23 @@ if (!dir.exists(output_dir)) {
     dir.create(output_dir, recursive = TRUE)
 }
 
-# Set thresholds for EMD values that represent "no change"
-emd_positive_threshold <- 0.1
-emd_negative_threshold <- -0.1
+emd_thresholds <- read.csv("emd_results/emd_thresholds.csv")
+
+# Assign each threshold to a separate variable
+emd_threshold_healthy_v_failing_drug_x <- emd_thresholds$EMD_threshold_value[1]
+emd_threshold_failing_v_failing_drug_x <- emd_thresholds$EMD_threshold_value[2]
+emd_threshold_failing_v_healthy_DMSO <- emd_thresholds$EMD_threshold_value[3]
+
+emd_thresholds
 
 failing_vs_failing_drug_x_emd_df <- read_parquet("emd_results/failing_vs_failing_drug_x_emd.parquet")
 
 dim(failing_vs_failing_drug_x_emd_df)
 head(failing_vs_failing_drug_x_emd_df)
+
+# Set thresholds for EMD values that represent "no change"
+emd_positive_threshold <- emd_threshold_failing_v_failing_drug_x
+emd_negative_threshold <- -emd_threshold_failing_v_failing_drug_x
 
 height <- 10
 width <- 20
@@ -62,9 +71,9 @@ emd_direction_fraction <- failing_vs_failing_drug_x_emd_df %>%
     signed_emd < emd_negative_threshold ~ "decreased",
     TRUE ~ "no change"
   )) %>%
-  group_by(feature_group, compartment, direction) %>%
+  group_by(feature_group, organelle, direction) %>%
   summarise(count = n(), .groups = "drop") %>%
-  group_by(feature_group, compartment) %>%
+  group_by(feature_group, organelle) %>%
   mutate(fraction = count / sum(count)) %>%
   ungroup()
 
@@ -84,7 +93,7 @@ emd_direction_fraction_plot <- ggplot(emd_direction_fraction, aes(x = fraction, 
         y = "Feature group",
         fill = "Direction"
     ) +
-    facet_wrap(~ compartment, scales = "free_y") +
+    facet_wrap(~ organelle, scales = "free_y") +
     theme_bw(base_size = 18) +
     scale_fill_manual(
     values = c(
@@ -113,6 +122,10 @@ ggsave(
 emd_direction_fraction_plot
 
 healthy_vs_failing_drug_x_emd_df <- read_parquet("emd_results/healthy_vs_failing_drug_x_emd.parquet")
+
+# Set thresholds for EMD values that represent "no change"
+emd_positive_threshold <- emd_threshold_healthy_v_failing_drug_x
+emd_negative_threshold <- -emd_threshold_healthy_v_failing_drug_x
 
 dim(healthy_vs_failing_drug_x_emd_df)
 head(healthy_vs_failing_drug_x_emd_df)
@@ -162,9 +175,9 @@ hvf_emd_direction_fraction <- healthy_vs_failing_drug_x_emd_df %>%
     signed_emd < emd_negative_threshold ~ "decreased",
     TRUE ~ "no change"
   )) %>%
-  group_by(feature_group, compartment, direction) %>%
+  group_by(feature_group, organelle, direction) %>%
   summarise(count = n(), .groups = "drop") %>%
-  group_by(feature_group, compartment) %>%
+  group_by(feature_group, organelle) %>%
   mutate(fraction = count / sum(count)) %>%
   ungroup()
 
@@ -184,7 +197,7 @@ hvf_emd_direction_fraction_plot <- ggplot(hvf_emd_direction_fraction, aes(x = fr
         y = "Feature group",
         fill = "Direction"
     ) +
-    facet_wrap(~ compartment, scales = "free_y") +
+    facet_wrap(~ organelle, scales = "free_y") +
     theme_bw(base_size = 18) +
     scale_fill_manual(
     values = c(
@@ -213,6 +226,10 @@ ggsave(
 hvf_emd_direction_fraction_plot
 
 failing_vs_healthy_DMSO_emd_df <- read_parquet("emd_results/failing_vs_healthy_DMSO_emd.parquet")
+
+# Set thresholds for EMD values that represent "no change"
+emd_positive_threshold <- emd_threshold_failing_v_healthy_DMSO
+emd_negative_threshold <- -emd_threshold_failing_v_healthy_DMSO
 
 dim(failing_vs_healthy_DMSO_emd_df)
 head(failing_vs_healthy_DMSO_emd_df)
@@ -262,9 +279,9 @@ fvh_emd_direction_fraction <- failing_vs_healthy_DMSO_emd_df %>%
     signed_emd < emd_negative_threshold ~ "decreased",
     TRUE ~ "no change"
   )) %>%
-  group_by(feature_group, compartment, direction) %>%
+  group_by(feature_group, organelle, direction) %>%
   summarise(count = n(), .groups = "drop") %>%
-  group_by(feature_group, compartment) %>%
+  group_by(feature_group, organelle) %>%
   mutate(fraction = count / sum(count)) %>%
   ungroup()
 
@@ -284,7 +301,7 @@ fvh_emd_direction_fraction_plot <- ggplot(fvh_emd_direction_fraction, aes(x = fr
         y = "Feature group",
         fill = "Direction"
     ) +
-    facet_wrap(~ compartment, scales = "free_y") +
+    facet_wrap(~ organelle, scales = "free_y") +
     theme_bw(base_size = 18) +
     scale_fill_manual(
     values = c(
