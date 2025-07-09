@@ -15,8 +15,9 @@ def compute_null_emd_range(
     random_seed: int = 0,
 ) -> Tuple[float, float]:
     """
-    Estimate the expected range of signed EMDs under the null hypothesis
-    by independently shuffling each feature column.
+    Calculate the expected range of signed EMDs under the null hypothesis
+    that the two populations are not different by independently shuffling 
+    each feature column.
 
     Args:
         reference_df (pd.DataFrame): DataFrame for the reference group.
