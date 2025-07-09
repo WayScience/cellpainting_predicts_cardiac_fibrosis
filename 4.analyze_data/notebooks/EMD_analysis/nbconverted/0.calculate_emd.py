@@ -24,7 +24,7 @@ import sys
 
 sys.path.append("../../../utils")
 
-from emd_utils import compute_signed_emd_per_feature, compute_median_baseline_emd
+from emd_utils import compute_signed_emd_per_feature, compute_null_emd_range
 
 
 # ## Set output directory for calculated EMD per comparison
@@ -38,7 +38,7 @@ output_dir.mkdir(parents=True, exist_ok=True)
 # Output file for EMD thresholds
 output_emd_thresholds = pathlib.Path(f"{output_dir}/emd_thresholds.csv")
 # Define the columns you want
-columns = ["Reference", "Comparison", "EMD_threshold_value"]
+columns = ["Reference", "Comparison", "EMD_threshold_lower", "EMD_threshold_upper"]
 # Create an empty DataFrame with just the header
 pd.DataFrame(columns=columns).to_csv(output_emd_thresholds, index=False)
 
@@ -106,30 +106,35 @@ print("Failing DMSO shape:", failing_DMSO_df.shape)
 # In[5]:
 
 
-# Compute the median baseline EMD between healthy DMSO and failing drug X
-hvfd_threshold_value = compute_median_baseline_emd(
-    reference_df=healthy_DMSO_df, comparison_df=failing_drug_x_df, num_permutations=20
+# Reference conditions to split the shuffled data
+reference_conditions = {"Metadata_cell_type": "healthy", "Metadata_treatment": "DMSO"}
+
+# Compute the baseline null range for EMD (5th and 95th percentiles)
+hvfd_threshold_lower, hvfd_threshold_upper = compute_null_emd_range(
+    reference_df=healthy_DMSO_df,
+    comparison_df=failing_drug_x_df,
+    reference_conditions=reference_conditions,
+    num_permutations=20,
 )
 
-# Create one-row dataframe to save threshold value to CSV file
+# Create one-row dataframe to save threshold range to CSV
 hvfd_row = pd.DataFrame(
     [
         {
             "Reference": "healthy_DMSO",
             "Comparison": "failing_drug_x",
-            "EMD_threshold_value": hvfd_threshold_value,
+            "EMD_threshold_lower": hvfd_threshold_lower,
+            "EMD_threshold_upper": hvfd_threshold_upper,
         }
     ]
 )
 
-# Append to existing CSV file
+# Append to existing CSV file (no header, append mode)
 print("Writing to:", output_emd_thresholds.resolve())
 hvfd_row.to_csv(output_emd_thresholds, mode="a", index=False, header=False)
-print("Appended row for comparison: failing_DMSO vs failing_drug_x")
 
-
-# Print the threshold value
-print("EMD threshold value:", hvfd_threshold_value)
+# Print the threshold range
+print(f"EMD threshold range: [{hvfd_threshold_lower:.4f}, {hvfd_threshold_upper:.4f}]")
 
 
 # In[6]:
@@ -178,29 +183,35 @@ healthy_vs_failing_drug_x_emd.head()
 # In[8]:
 
 
-# Compute the median baseline EMD between healthy DMSO and failing drug X
-fvfd_threshold_value = compute_median_baseline_emd(
-    reference_df=failing_DMSO_df, comparison_df=failing_drug_x_df, num_permutations=20
+# Reference conditions to split the shuffled data
+reference_conditions = {"Metadata_cell_type": "failing", "Metadata_treatment": "DMSO"}
+
+# Compute the baseline null range for EMD (5th and 95th percentiles)
+fvfd_threshold_lower, fvfd_threshold_upper = compute_null_emd_range(
+    reference_df=failing_DMSO_df,
+    comparison_df=failing_drug_x_df,
+    reference_conditions=reference_conditions,
+    num_permutations=20,
 )
 
-# Create one-row dataframe to save threshold value to CSV file
+# Create one-row dataframe to save threshold range to CSV
 fvfd_row = pd.DataFrame(
     [
         {
             "Reference": "failing_DMSO",
             "Comparison": "failing_drug_x",
-            "EMD_threshold_value": fvfd_threshold_value,
+            "EMD_threshold_lower": fvfd_threshold_lower,
+            "EMD_threshold_upper": fvfd_threshold_upper,
         }
     ]
 )
 
-# Append without header
+# Append to existing CSV file (no header, append mode)
 print("Writing to:", output_emd_thresholds.resolve())
 fvfd_row.to_csv(output_emd_thresholds, mode="a", index=False, header=False)
-print("Appended row for comparison: failing_DMSO vs failing_drug_x")
 
-# Print the threshold value
-print("EMD threshold value:", fvfd_threshold_value)
+# Print the threshold range
+print(f"EMD threshold range: [{fvfd_threshold_lower:.4f}, {fvfd_threshold_upper:.4f}]")
 
 
 # In[9]:
@@ -249,29 +260,35 @@ failing_vs_failing_drug_x_emd.head()
 # In[11]:
 
 
-# Compute the median baseline EMD between healthy DMSO and failing drug X
-hvf_threshold_value = compute_median_baseline_emd(
-    reference_df=failing_DMSO_df, comparison_df=healthy_DMSO_df, num_permutations=20
+# Reference conditions to split the shuffled data
+reference_conditions = {"Metadata_cell_type": "failing", "Metadata_treatment": "DMSO"}
+
+# Compute the baseline null range for EMD (5th and 95th percentiles)
+hvf_threshold_lower, hvf_threshold_upper = compute_null_emd_range(
+    reference_df=failing_DMSO_df,
+    comparison_df=healthy_DMSO_df,
+    reference_conditions=reference_conditions,
+    num_permutations=20,
 )
 
-# Create one-row dataframe to save threshold value to CSV file
+# Create one-row dataframe to save threshold range to CSV
 hvf_row = pd.DataFrame(
     [
         {
             "Reference": "failing_DMSO",
             "Comparison": "healthy_DMSO",
-            "EMD_threshold_value": hvf_threshold_value,
+            "EMD_threshold_lower": hvf_threshold_lower,
+            "EMD_threshold_upper": hvf_threshold_upper,
         }
     ]
 )
 
-# Append without header
+# Append to existing CSV file (no header, append mode)
 print("Writing to:", output_emd_thresholds.resolve())
 hvf_row.to_csv(output_emd_thresholds, mode="a", index=False, header=False)
-print("Appended row for comparison: failing_DMSO vs failing_drug_x")
 
-# Print the threshold value
-print("EMD threshold value:", hvf_threshold_value)
+# Print the threshold range
+print(f"EMD threshold range: [{hvf_threshold_lower:.4f}, {hvf_threshold_upper:.4f}]")
 
 
 # In[12]:

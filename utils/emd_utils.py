@@ -5,78 +5,62 @@ This collection of functions performs signed Earth Mover's Distance (EMD) calcul
 import pandas as pd
 import numpy as np
 from scipy.stats import wasserstein_distance
+from typing import Tuple, Dict
 
-def compute_median_baseline_emd(
+def compute_null_emd_range(
     reference_df: pd.DataFrame,
     comparison_df: pd.DataFrame,
-    num_permutations: int = 100,
+    reference_conditions: Dict[str, str],
+    num_permutations: int = 1000,
     random_seed: int = 0,
-) -> float:
-    """Calculate the baseline median Earth Mover's Distance (EMD) between two dataframes using permutation testing.
-    This represents the value at which we would expect no change in the features between the two groups.
-    EMD is not signed, so we get one value that we will then add sign to later as a range.
+) -> Tuple[float, float]:
+    """
+    Estimate the expected range of signed EMDs under the null hypothesis
+    by independently shuffling each feature column.
 
     Args:
-        reference_df (pd.DataFrame): The pandas DataFrame containing the "reference" data or
-            what is being used as the base to compare to.
-        comparison_df (pd.DataFrame): The pandas DataFrame containing the "comparison" data or
-            what is being compared against the reference.
-        num_permutations (int, optional): Number of permutations of the data that will be performed.
-            Defaults to 100.
+        reference_df (pd.DataFrame): DataFrame for the reference group.
+        comparison_df (pd.DataFrame): DataFrame for the comparison group.
+        reference_conditions (dict): Metadata column-value pairs defining the reference group.
+            Example: {"Metadata_cell_type": "healthy", "Metadata_treatment": "DMSO"}
+        num_permutations (int): Number of shuffles to perform.
+        random_seed (int): Seed for reproducibility.
 
     Returns:
-        float: Median EMD value representing the baseline distance for no change between the two groups.
+        (float, float): 5th and 95th percentiles of signed EMDs across all permutations and features.
     """
-    # Filter out metadata columns (won't be used in EMD calculation)
-    df1_features = reference_df.loc[
-        :, ~reference_df.columns.str.startswith("Metadata_")
-    ]
-    df2_features = comparison_df.loc[
-        :, ~comparison_df.columns.str.startswith("Metadata_")
-    ]
+    combined_df = pd.concat([reference_df, comparison_df], ignore_index=True)
+    feature_cols = [col for col in combined_df.columns if not col.startswith("Metadata_")]
 
-    # Get the shared features between the two dataframes (sanity check)
-    shared_features = df1_features.columns.intersection(df2_features.columns)
+    all_signed_emds = []
 
-    # Combine the two dataframes for permutation testing
-    # This allows us to shuffle the data while keeping the same features
-    combined_df = pd.concat(
-        [df1_features[shared_features], df2_features[shared_features]],
-        ignore_index=True,
-    )
-    # Collect the number of rows from the reference dataframe (df1)
-    n1 = len(df1_features)
-
-    # Instantiate a list to hold the EMD values for each permutation (for median calculation)
-    emd_per_permutation = []
-
-    # Perform the permutation test
     for i in range(num_permutations):
-        # Shuffle the combined dataframe for entire rows not per column (maintains structure and distribution)
-        # This simulates the null hypothesis that there is no difference between the two groups
-        permuted = combined_df.sample(
-            frac=1, replace=False, random_state=random_seed + i
-        ).reset_index(drop=True)
-        # Split the permuted dataframe back into two groups (same size as original groups)
-        group1 = permuted.iloc[:n1]
-        group2 = permuted.iloc[n1:]
+        shuffled_df = combined_df.copy()
+        rng = np.random.default_rng(seed=random_seed + i)
+        for col in feature_cols:
+            shuffled_df[col] = rng.permutation(shuffled_df[col].values)
 
-        # Instantiate a list to hold the EMD values for each feature within each permutation
-        emd_per_feature = []
-        # Compute EMD for each shared feature
-        for col in shared_features:
+        # Dynamically build the reference mask
+        ref_rows = pd.Series(True, index=shuffled_df.index)
+        for col, val in reference_conditions.items():
+            ref_rows &= shuffled_df[col] == val
+
+        group1 = shuffled_df[ref_rows]
+        group2 = shuffled_df[~ref_rows]
+
+        for col in feature_cols:
             vals1 = group1[col].dropna()
             vals2 = group2[col].dropna()
             if len(vals1) == 0 or len(vals2) == 0:
                 continue
             emd = wasserstein_distance(vals1, vals2)
-            emd_per_feature.append(emd)
+            sign = np.sign(np.mean(vals2) - np.mean(vals1))
+            all_signed_emds.append(sign * emd)
 
-        # Calculate the median EMD for this permutation
-        emd_per_permutation.append(np.median(emd_per_feature))
+    lower = np.percentile(all_signed_emds, 5)
+    upper = np.percentile(all_signed_emds, 95)
+    return lower, upper
 
-    # Return the median EMD across all permutations
-    return np.median(emd_per_permutation)
 
 def compute_signed_emd_per_feature(
     reference_df: pd.DataFrame, comparison_df: pd.DataFrame

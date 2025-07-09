@@ -11,9 +11,12 @@ if (!dir.exists(output_dir)) {
 emd_thresholds <- read.csv("emd_results/emd_thresholds.csv")
 
 # Assign each threshold to a separate variable
-emd_threshold_healthy_v_failing_drug_x <- emd_thresholds$EMD_threshold_value[1]
-emd_threshold_failing_v_failing_drug_x <- emd_thresholds$EMD_threshold_value[2]
-emd_threshold_failing_v_healthy_DMSO <- emd_thresholds$EMD_threshold_value[3]
+emd_lower_threshold_healthy_v_failing_drug_x <- emd_thresholds$EMD_threshold_lower[1]
+emd_upper_threshold_healthy_v_failing_drug_x <- emd_thresholds$EMD_threshold_upper[1]
+emd_lower_threshold_failing_v_failing_drug_x <- emd_thresholds$EMD_threshold_lower[2]
+emd_upper_threshold_failing_v_failing_drug_x <- emd_thresholds$EMD_threshold_upper[2]
+emd_lower_threshold_failing_v_healthy_DMSO <- emd_thresholds$EMD_threshold_lower[3]
+emd_upper_threshold_failing_v_healthy_DMSO <- emd_thresholds$EMD_threshold_upper[3]
 
 emd_thresholds
 
@@ -23,8 +26,8 @@ dim(failing_vs_failing_drug_x_emd_df)
 head(failing_vs_failing_drug_x_emd_df)
 
 # Set thresholds for EMD values that represent "no change"
-emd_positive_threshold <- emd_threshold_failing_v_failing_drug_x
-emd_negative_threshold <- -emd_threshold_failing_v_failing_drug_x
+emd_positive_threshold <- emd_upper_threshold_healthy_v_failing_drug_x
+emd_negative_threshold <- emd_lower_threshold_healthy_v_failing_drug_x
 
 height <- 10
 width <- 20
@@ -124,8 +127,8 @@ emd_direction_fraction_plot
 healthy_vs_failing_drug_x_emd_df <- read_parquet("emd_results/healthy_vs_failing_drug_x_emd.parquet")
 
 # Set thresholds for EMD values that represent "no change"
-emd_positive_threshold <- emd_threshold_healthy_v_failing_drug_x
-emd_negative_threshold <- -emd_threshold_healthy_v_failing_drug_x
+emd_positive_threshold <- emd_upper_threshold_healthy_v_failing_drug_x
+emd_negative_threshold <- emd_lower_threshold_healthy_v_failing_drug_x
 
 dim(healthy_vs_failing_drug_x_emd_df)
 head(healthy_vs_failing_drug_x_emd_df)
@@ -228,8 +231,8 @@ hvf_emd_direction_fraction_plot
 failing_vs_healthy_DMSO_emd_df <- read_parquet("emd_results/failing_vs_healthy_DMSO_emd.parquet")
 
 # Set thresholds for EMD values that represent "no change"
-emd_positive_threshold <- emd_threshold_failing_v_healthy_DMSO
-emd_negative_threshold <- -emd_threshold_failing_v_healthy_DMSO
+emd_positive_threshold <- emd_upper_threshold_failing_v_healthy_DMSO
+emd_negative_threshold <- emd_lower_threshold_failing_v_healthy_DMSO
 
 dim(failing_vs_healthy_DMSO_emd_df)
 head(failing_vs_healthy_DMSO_emd_df)
