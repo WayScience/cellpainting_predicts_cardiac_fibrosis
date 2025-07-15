@@ -12,6 +12,7 @@ import pathlib
 import sys
 
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -183,11 +184,16 @@ pr_df.head()
 
 
 # PR curves with only testing and training data
-plt.figure(figsize=(12, 8))
+plt.figure(figsize=(14, 8))
 sns.set_style("whitegrid")
 
 # Filter data frame to only show training versus testing
 filtered_df = pr_df[pr_df["Data_Type"].isin(["training", "testing"])]
+
+# Change column names for legend
+filtered_df = filtered_df.rename(
+    columns={"Data_Type": "Data split", "Model_Type": "Model type"}
+)
 
 # Define color for data splits
 colors = {"training": "#D55E00", "testing": "#009E73"}
@@ -195,8 +201,8 @@ colors = {"training": "#D55E00", "testing": "#009E73"}
 sns.lineplot(
     x="Recall",
     y="Precision",
-    hue="Data_Type",
-    style="Model_Type",
+    hue="Data split",
+    style="Model type",
     dashes={"final": (1, 0), "shuffled": (2, 2)},
     palette=colors,
     data=filtered_df,
@@ -204,7 +210,12 @@ sns.lineplot(
 )
 
 # Set legend location
-plt.legend(loc="lower right")
+plt.legend(
+    bbox_to_anchor=(1.05, 0.5),
+    loc="center left",
+    borderaxespad=0,
+    fontsize=16,
+)
 
 plt.ylim(bottom=0.0, top=1.02)
 plt.xlabel("Recall", fontsize=24)
@@ -218,8 +229,15 @@ plt.xticks(fontsize=20)
 plt.yticks(fontsize=20)
 
 plt.tight_layout()
+
+# Save the figure as pdf and png files
 plt.savefig(
     f"{pr_curves_dir}/precision_recall_plate4_downsample.pdf",
+    dpi=500,
+    bbox_inches="tight",
+)
+plt.savefig(
+    f"{pr_curves_dir}/precision_recall_plate4_downsample.png",
     dpi=500,
     bbox_inches="tight",
 )
@@ -466,7 +484,7 @@ for model_path in path_list:
 
 # ### Concat F1 scores from all datasets and model types
 
-# In[ ]:
+# In[9]:
 
 
 # Define the subdirectory for this plot type within fig_dir
@@ -516,9 +534,9 @@ for model_path in path_list:
 
         # Generate f1 score data frame
         f1_scores_df = generate_f1_score_df(
-            model=model_path,
-            data_set=data_set,
-            encoder=encoder_path,
+            model_path=model_path,
+            data_df=data_set,
+            encoder_path=encoder_path,
             label=label,
         )
 
@@ -537,7 +555,7 @@ concat_f1_scores = pd.concat(f1_scores_dfs, ignore_index=True)
 
 # ### Check if output looks correct
 
-# In[ ]:
+# In[10]:
 
 
 print(concat_f1_scores.shape)
@@ -546,7 +564,7 @@ concat_f1_scores.head()
 
 # ### Plot F1 scores for only testing and training data
 
-# In[ ]:
+# In[11]:
 
 
 # Set palette for the F1 scores plot
@@ -598,7 +616,7 @@ plt.close()
 
 # ### Plot F1 scores for holdout data
 
-# In[ ]:
+# In[12]:
 
 
 # Set palette for the f1 scores plot
@@ -646,7 +664,7 @@ plt.close()
 
 # ## Generate accuracy scores specifically from the whole plate 4 dataset per heart and save CSV
 
-# In[ ]:
+# In[13]:
 
 
 # List of paths that contains each model
@@ -694,9 +712,9 @@ for model_path in path_list:
         for heart_number, df_heart in grouped_data:
             # Generate accuracy data frame
             accuracy_df = generate_accuracy_score_df(
-                model=model_path,
+                model_path=model_path,
                 data_set=df_heart,
-                encoder=encoder_path,
+                encoder_path=encoder_path,
                 label=label,
             )
 

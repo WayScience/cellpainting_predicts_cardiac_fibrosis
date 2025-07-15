@@ -12,20 +12,20 @@ from training_utils import load_data, get_X_y_data
 
 def generate_confusion_matrix_df(
     model_path: pathlib.Path,
-    data_dir: pathlib.Path,
     encoder_path: pathlib.Path,
     label: str,
     data_set: str = None,
+    data_dir: pathlib.Path = None,
     data_df: pd.DataFrame = None,
 ) -> pd.DataFrame:
     """Generate a data frame with the info for a confusion matrix
 
     Args:
         model_path (pathlib.Path): path to the model to load in and apply to dataset (either "final" or "shuffled")
-        data_dir (pathlib.Path): path to directory with the datasets to evaluate
         encoder_path (pathlib.Path): path to encoder output to use for applying class to label
         label (str): name of the metadata column used for classification to load in the data
         data_set (str, optional): name of the data set you want to find confusion matrix data for (if loading from file)
+        data_dir (pathlib.Path, optional): path to directory with the datasets to evaluate
         data_df (pd.DataFrame, optional): preloaded dataframe to use instead of loading from file
 
     Returns:
@@ -40,16 +40,20 @@ def generate_confusion_matrix_df(
     # Load data
     if data_df is None:
         if data_set is None:
-            raise ValueError("Either 'df' or 'data_set' must be provided.")
+            raise ValueError("Either 'data_df' or 'data_set' must be provided.")
+        if data_dir is None:
+            raise ValueError("Must provide 'data_dir' if 'data_df' is not given.")
         data_path = data_dir / f"{data_set}_data.csv"
         df = load_data(path_to_data=data_path, label=label)
+    else:
+        df = data_df
 
     # Ensure dataframe contains the required label column
     if label not in df.columns:
         raise ValueError(f"Column '{label}' not found in the provided dataframe.")
 
     # Extract features and labels
-    X, y = df.drop(columns=[label]), df[label]
+    X, y = get_X_y_data(df=df, label=label)
 
     # Encode labels
     y_binary = le.transform(y)
@@ -81,39 +85,49 @@ def generate_confusion_matrix_df(
 
 def generate_f1_score_df(
     model_path: pathlib.Path,
-    data_dir: pathlib.Path,
-    encoder_path: pathlib.Path,
-    label: str,
-    data_set: str,
+    data_dir: pathlib.Path = None,
+    encoder_path: pathlib.Path = None,
+    label: str = None,
+    data_set: str = None,
+    data_df: pd.DataFrame = None,
 ) -> pd.DataFrame:
     """Generate a data frame with the info for a F1 score plot
 
     Args:
         model_path (pathlib.Path): path to the model to load in and apply to dataset (either "final" or "shuffled")
-        data_dir (pathlib.Path): path to directory with dataset to evaluate
+        data_dir (pathlib.Path, optional): path to directory with dataset to evaluate
         encoder_path (pathlib.Path): path to encoder output to use for applying class to label
         label (str): name of the metadata column used for classification to load in the data
-        data_set (str): name of the data set you want to find f1 score data for
+        data_set (str, optional): name of the data set you want to find f1 score data for
+        data_df (pd.DataFrame, optional): preloaded dataframe to use instead of loading from file
 
     Returns:
         pd.DataFrame: data frame containing the f1 score data for a given data set
     """
-    # load in model to apply to data sets
+    # Load model
     model = load(model_path)
 
-    # load in label encoder
+    # Load label encoder
     le = load(pathlib.Path(encoder_path))
 
-    # set path to specific data set
-    data_path = pathlib.Path(f"{data_dir}/{data_set}_data.csv")
+    # Load data
+    if data_df is None:
+        if data_set is None:
+            raise ValueError("Either 'data_df' or 'data_set' must be provided.")
+        if data_dir is None:
+            raise ValueError("Must provide 'data_dir' if 'data_df' is not given.")
+        data_path = data_dir / f"{data_set}_data.csv"
+        df = load_data(path_to_data=data_path, label=label)
+    else:
+        df = data_df
 
-    # load in X and y data from dataset
-    X, y = load_data(path_to_data=data_path, label=label)
+    # Extract features and labels
+    X, y = get_X_y_data(df=df, label=label)
 
-    # Assign y classes to correct binary using label encoder results
+    # Encode labels
     y_binary = le.transform(y)
 
-    # predictions for morphology feature data
+    # Model predictions
     y_predict = model.predict(X)
 
     # Get F1 score data

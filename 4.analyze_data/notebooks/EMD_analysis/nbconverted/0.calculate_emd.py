@@ -24,7 +24,7 @@ import sys
 
 sys.path.append("../../../utils")
 
-from emd_utils import compute_signed_emd_per_feature
+from emd_utils import compute_signed_emd_per_feature, compute_null_emd_range
 
 
 # ## Set output directory for calculated EMD per comparison
@@ -34,6 +34,13 @@ from emd_utils import compute_signed_emd_per_feature
 
 output_dir = pathlib.Path("./emd_results")
 output_dir.mkdir(parents=True, exist_ok=True)
+
+# Output file for EMD thresholds
+output_emd_thresholds = pathlib.Path(f"{output_dir}/emd_thresholds.csv")
+# Define the columns you want
+columns = ["Reference", "Comparison", "EMD_threshold_lower", "EMD_threshold_upper"]
+# Create an empty DataFrame with just the header
+pd.DataFrame(columns=columns).to_csv(output_emd_thresholds, index=False)
 
 
 # ## Load in data with drug_x and controls
@@ -99,6 +106,40 @@ print("Failing DMSO shape:", failing_DMSO_df.shape)
 # In[5]:
 
 
+# Reference query to split the shuffled data
+reference_query = '(Metadata_cell_type == "healthy") & (Metadata_treatment == "DMSO")'
+
+# Compute the baseline null range for EMD (5th and 95th percentiles)
+hvfd_threshold_lower, hvfd_threshold_upper = compute_null_emd_range(
+    reference_df=healthy_DMSO_df,
+    comparison_df=failing_drug_x_df,
+    reference_query=reference_query,
+    num_permutations=20,
+)
+
+# Create one-row dataframe to save threshold range to CSV
+hvfd_row = pd.DataFrame(
+    [
+        {
+            "Reference": "healthy_DMSO",
+            "Comparison": "failing_drug_x",
+            "EMD_threshold_lower": hvfd_threshold_lower,
+            "EMD_threshold_upper": hvfd_threshold_upper,
+        }
+    ]
+)
+
+# Append to existing CSV file (no header, append mode)
+print("Writing to:", output_emd_thresholds.resolve())
+hvfd_row.to_csv(output_emd_thresholds, mode="a", index=False, header=False)
+
+# Print the threshold range
+print(f"EMD threshold range: [{hvfd_threshold_lower:.4f}, {hvfd_threshold_upper:.4f}]")
+
+
+# In[6]:
+
+
 # Compute the signed EMD for each feature
 healthy_vs_failing_drug_x_emd = compute_signed_emd_per_feature(
     reference_df=healthy_DMSO_df, comparison_df=failing_drug_x_df
@@ -111,7 +152,7 @@ healthy_vs_failing_drug_x_emd.sort_values("signed_emd", ascending=False).head()
 
 # ### Split feature column into parts
 
-# In[6]:
+# In[7]:
 
 
 # Split the 'feature' column into new columns as requested (not as a function)
@@ -139,7 +180,41 @@ healthy_vs_failing_drug_x_emd.head()
 
 # ## Compute EMD comparing failing drug_x cells to the failing DMSO cells (reference)
 
-# In[7]:
+# In[8]:
+
+
+# Reference query to split the shuffled data
+reference_query = '(Metadata_cell_type == "failing") & (Metadata_treatment == "DMSO")'
+
+# Compute the baseline null range for EMD (5th and 95th percentiles)
+fvfd_threshold_lower, fvfd_threshold_upper = compute_null_emd_range(
+    reference_df=failing_DMSO_df,
+    comparison_df=failing_drug_x_df,
+    reference_query=reference_query,
+    num_permutations=20,
+)
+
+# Create one-row dataframe to save threshold range to CSV
+fvfd_row = pd.DataFrame(
+    [
+        {
+            "Reference": "failing_DMSO",
+            "Comparison": "failing_drug_x",
+            "EMD_threshold_lower": fvfd_threshold_lower,
+            "EMD_threshold_upper": fvfd_threshold_upper,
+        }
+    ]
+)
+
+# Append to existing CSV file (no header, append mode)
+print("Writing to:", output_emd_thresholds.resolve())
+fvfd_row.to_csv(output_emd_thresholds, mode="a", index=False, header=False)
+
+# Print the threshold range
+print(f"EMD threshold range: [{fvfd_threshold_lower:.4f}, {fvfd_threshold_upper:.4f}]")
+
+
+# In[9]:
 
 
 # Compute the signed EMD for each feature
@@ -154,7 +229,7 @@ failing_vs_failing_drug_x_emd.sort_values("signed_emd", ascending=False).head()
 
 # ### Split feature column into parts
 
-# In[8]:
+# In[10]:
 
 
 # Split the 'feature' column into new columns as requested (not as a function)
@@ -182,7 +257,41 @@ failing_vs_failing_drug_x_emd.head()
 
 # ## Compute EMD comparing healthy DMSO cells to the failing DMSO cells (reference)
 
-# In[9]:
+# In[11]:
+
+
+# Reference query to split the shuffled data
+reference_query = '(Metadata_cell_type == "failing") & (Metadata_treatment == "DMSO")'
+
+# Compute the baseline null range for EMD (5th and 95th percentiles)
+hvf_threshold_lower, hvf_threshold_upper = compute_null_emd_range(
+    reference_df=failing_DMSO_df,
+    comparison_df=healthy_DMSO_df,
+    reference_query=reference_query,
+    num_permutations=20,
+)
+
+# Create one-row dataframe to save threshold range to CSV
+hvf_row = pd.DataFrame(
+    [
+        {
+            "Reference": "failing_DMSO",
+            "Comparison": "healthy_DMSO",
+            "EMD_threshold_lower": hvf_threshold_lower,
+            "EMD_threshold_upper": hvf_threshold_upper,
+        }
+    ]
+)
+
+# Append to existing CSV file (no header, append mode)
+print("Writing to:", output_emd_thresholds.resolve())
+hvf_row.to_csv(output_emd_thresholds, mode="a", index=False, header=False)
+
+# Print the threshold range
+print(f"EMD threshold range: [{hvf_threshold_lower:.4f}, {hvf_threshold_upper:.4f}]")
+
+
+# In[12]:
 
 
 # Compute the signed EMD for each feature
@@ -197,7 +306,7 @@ failing_vs_healthy_DMSO_emd.sort_values("signed_emd", ascending=False).head()
 
 # ### Split feature column into parts
 
-# In[10]:
+# In[13]:
 
 
 # Split the 'feature' column into new columns as requested (not as a function)
