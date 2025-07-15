@@ -106,14 +106,14 @@ print("Failing DMSO shape:", failing_DMSO_df.shape)
 # In[5]:
 
 
-# Reference conditions to split the shuffled data
-reference_conditions = {"Metadata_cell_type": "healthy", "Metadata_treatment": "DMSO"}
+# Reference query to split the shuffled data
+reference_query = '(Metadata_cell_type == "healthy") & (Metadata_treatment == "DMSO")'
 
 # Compute the baseline null range for EMD (5th and 95th percentiles)
 hvfd_threshold_lower, hvfd_threshold_upper = compute_null_emd_range(
     reference_df=healthy_DMSO_df,
     comparison_df=failing_drug_x_df,
-    reference_conditions=reference_conditions,
+    reference_query=reference_query,
     num_permutations=20,
 )
 
@@ -183,14 +183,14 @@ healthy_vs_failing_drug_x_emd.head()
 # In[8]:
 
 
-# Reference conditions to split the shuffled data
-reference_conditions = {"Metadata_cell_type": "failing", "Metadata_treatment": "DMSO"}
+# Reference query to split the shuffled data
+reference_query = '(Metadata_cell_type == "failing") & (Metadata_treatment == "DMSO")'
 
 # Compute the baseline null range for EMD (5th and 95th percentiles)
 fvfd_threshold_lower, fvfd_threshold_upper = compute_null_emd_range(
     reference_df=failing_DMSO_df,
     comparison_df=failing_drug_x_df,
-    reference_conditions=reference_conditions,
+    reference_query=reference_query,
     num_permutations=20,
 )
 
@@ -260,14 +260,14 @@ failing_vs_failing_drug_x_emd.head()
 # In[11]:
 
 
-# Reference conditions to split the shuffled data
-reference_conditions = {"Metadata_cell_type": "failing", "Metadata_treatment": "DMSO"}
+# Reference query to split the shuffled data
+reference_query = '(Metadata_cell_type == "failing") & (Metadata_treatment == "DMSO")'
 
 # Compute the baseline null range for EMD (5th and 95th percentiles)
 hvf_threshold_lower, hvf_threshold_upper = compute_null_emd_range(
     reference_df=failing_DMSO_df,
     comparison_df=healthy_DMSO_df,
-    reference_conditions=reference_conditions,
+    reference_query=reference_query,
     num_permutations=20,
 )
 

@@ -22,6 +22,14 @@ emd_thresholds
 
 failing_vs_failing_drug_x_emd_df <- read_parquet("emd_results/failing_vs_failing_drug_x_emd.parquet")
 
+# Update organelle names
+failing_vs_failing_drug_x_emd_df <- failing_vs_failing_drug_x_emd_df %>%
+    mutate(organelle = case_when(
+        organelle == "Hoechst" ~ "Nuclei",
+        organelle == "PM" ~ "Plasma membrane",
+        TRUE ~ organelle  # fallback to original value
+    ))
+
 dim(failing_vs_failing_drug_x_emd_df)
 head(failing_vs_failing_drug_x_emd_df)
 
@@ -37,8 +45,14 @@ failing_vs_failing_drug_x_plot <- ggplot(failing_vs_failing_drug_x_emd_df, aes(x
     geom_violin(trim = FALSE, fill = "grey60", color = NA, alpha = 0.7) +
     geom_jitter(aes(color = organelle), width = 0.2, alpha = 0.4, size = 2.5) +
     geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 0.7, alpha = 0.5) +
-    geom_hline(yintercept = emd_positive_threshold, linetype = "dashed", color = "#D62728", size = 0.7, alpha = 0.5) +
-    geom_hline(yintercept = emd_negative_threshold, linetype = "dashed", color = "#D62728", size = 0.7, alpha = 0.5) +
+    geom_hline(aes(yintercept = emd_positive_threshold, linetype = "No change threshold"), 
+           color = "#D62728", size = 0.7, alpha = 0.5) +
+    geom_hline(aes(yintercept = emd_negative_threshold, linetype = "No change threshold"), 
+            color = "#D62728", size = 0.7, alpha = 0.5) +
+    scale_linetype_manual(
+    name = NULL,
+    values = c("No change threshold" = "dashed")
+    ) +
     facet_wrap(~ compartment) +
     theme_bw() +
     labs(
@@ -87,16 +101,30 @@ height <- 8
 width <- 15
 options(repr.plot.width = width, repr.plot.height = height)
 
+emd_direction_fraction$organelle <- factor(
+    emd_direction_fraction$organelle,
+    levels = c(setdiff(unique(emd_direction_fraction$organelle), "Other"), "Other")
+)
+
+emd_direction_fraction$direction <- factor(
+    emd_direction_fraction$direction,
+    levels = c("decreased", "no change", "increased")
+)
+
 emd_direction_fraction_plot <- ggplot(emd_direction_fraction, aes(x = fraction, y = feature_group, fill = direction)) +
     geom_bar(stat = "identity", position = "stack") +
-    scale_x_continuous(limits = c(0, 1), expand = c(0, 0)) +
+    scale_x_continuous(
+    limits = c(0, 1),
+    labels = c("0", "0.25", "0.5", "0.75", "1"),
+    expand = c(0, 0)
+    ) +
     labs(
-        title = "Failing DMSO vs failing drug_x EMD direction fraction",
+        title = "Failing DMSO vs failing drug_x",
         x = "Proportion of features",
         y = "Feature group",
-        fill = "Direction"
+        fill = "Earth movers distance\ndirection of change"
     ) +
-    facet_wrap(~ organelle, scales = "free_y") +
+    facet_wrap(~ organelle) +
     theme_bw(base_size = 18) +
     scale_fill_manual(
     values = c(
@@ -109,6 +137,7 @@ emd_direction_fraction_plot <- ggplot(emd_direction_fraction, aes(x = fraction, 
         plot.title = element_text(size = 22, face = "bold", hjust = 0.5),
         axis.title = element_text(size = 18),
         axis.text = element_text(size = 14),
+        axis.text.x = element_text(angle = 9, hjust = 1),
         legend.title = element_text(size = 16),
         legend.text = element_text(size = 14)
     )
@@ -126,6 +155,14 @@ emd_direction_fraction_plot
 
 healthy_vs_failing_drug_x_emd_df <- read_parquet("emd_results/healthy_vs_failing_drug_x_emd.parquet")
 
+# Update organelle names
+healthy_vs_failing_drug_x_emd_df <- healthy_vs_failing_drug_x_emd_df %>%
+    mutate(organelle = case_when(
+        organelle == "Hoechst" ~ "Nuclei",
+        organelle == "PM" ~ "Plasma membrane",
+        TRUE ~ organelle  # fallback to original value
+    ))
+
 # Set thresholds for EMD values that represent "no change"
 emd_positive_threshold <- emd_upper_threshold_healthy_v_failing_drug_x
 emd_negative_threshold <- emd_lower_threshold_healthy_v_failing_drug_x
@@ -141,8 +178,14 @@ healthy_vs_failing_drug_x_plot <- ggplot(healthy_vs_failing_drug_x_emd_df, aes(x
     geom_violin(trim = FALSE, fill = "grey60", color = NA, alpha = 0.7) +
     geom_jitter(aes(color = organelle), width = 0.2, alpha = 0.4, size = 2.5) +
     geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 0.7, alpha = 0.5) +
-    geom_hline(yintercept = emd_positive_threshold, linetype = "dashed", color = "#D62728", size = 0.7, alpha = 0.5) +
-    geom_hline(yintercept = emd_negative_threshold, linetype = "dashed", color = "#D62728", size = 0.7, alpha = 0.5) +
+    geom_hline(aes(yintercept = emd_positive_threshold, linetype = "No change threshold"), 
+               color = "#D62728", size = 0.7, alpha = 0.5) +
+    geom_hline(aes(yintercept = emd_negative_threshold, linetype = "No change threshold"), 
+               color = "#D62728", size = 0.7, alpha = 0.5) +
+    scale_linetype_manual(
+        name = NULL,
+        values = c("No change threshold" = "dashed")
+    ) +
     facet_wrap(~ compartment) +
     theme_bw() +
     labs(
@@ -191,28 +234,43 @@ height <- 8
 width <- 15
 options(repr.plot.width = width, repr.plot.height = height)
 
+hvf_emd_direction_fraction$organelle <- factor(
+    hvf_emd_direction_fraction$organelle,
+    levels = c(setdiff(unique(hvf_emd_direction_fraction$organelle), "Other"), "Other")
+)
+
+hvf_emd_direction_fraction$direction <- factor(
+    hvf_emd_direction_fraction$direction,
+    levels = c("decreased", "no change", "increased")
+)
+
 hvf_emd_direction_fraction_plot <- ggplot(hvf_emd_direction_fraction, aes(x = fraction, y = feature_group, fill = direction)) +
     geom_bar(stat = "identity", position = "stack") +
-    scale_x_continuous(limits = c(0, 1), expand = c(0, 0)) +
-    labs(
-        title = "Healthy DMSO vs failing drug_x EMD direction fraction",
-        x = "Fraction of measurements",
-        y = "Feature group",
-        fill = "Direction"
+    scale_x_continuous(
+        limits = c(0, 1),
+        labels = c("0", "0.25", "0.5", "0.75", "1"),
+        expand = c(0, 0)
     ) +
-    facet_wrap(~ organelle, scales = "free_y") +
+    labs(
+        title = "Healthy DMSO vs failing drug_x",
+        x = "Proportion of features",
+        y = "Feature group",
+        fill = "Earth movers distance\ndirection of change"
+    ) +
+    facet_wrap(~ organelle) +
     theme_bw(base_size = 18) +
     scale_fill_manual(
-    values = c(
-        "increased" = "#D62728",  # red
-        "decreased" = "#1F77B4",  # blue
-        "no change" = "grey60"
+        values = c(
+            "increased" = "#D62728",  # red
+            "decreased" = "#1F77B4",  # blue
+            "no change" = "grey60"
         )
     ) +
     theme(
         plot.title = element_text(size = 22, face = "bold", hjust = 0.5),
         axis.title = element_text(size = 18),
         axis.text = element_text(size = 14),
+        axis.text.x = element_text(angle = 9, hjust = 1),
         legend.title = element_text(size = 16),
         legend.text = element_text(size = 14)
     )
@@ -230,6 +288,14 @@ hvf_emd_direction_fraction_plot
 
 failing_vs_healthy_DMSO_emd_df <- read_parquet("emd_results/failing_vs_healthy_DMSO_emd.parquet")
 
+# Update organelle names
+failing_vs_healthy_DMSO_emd_df <- failing_vs_healthy_DMSO_emd_df %>%
+    mutate(organelle = case_when(
+        organelle == "Hoechst" ~ "Nuclei",
+        organelle == "PM" ~ "Plasma membrane",
+        TRUE ~ organelle  # fallback to original value
+    ))
+
 # Set thresholds for EMD values that represent "no change"
 emd_positive_threshold <- emd_upper_threshold_failing_v_healthy_DMSO
 emd_negative_threshold <- emd_lower_threshold_failing_v_healthy_DMSO
@@ -245,8 +311,14 @@ failing_vs_healthy_DMSO_plot <- ggplot(failing_vs_healthy_DMSO_emd_df, aes(x = f
     geom_violin(trim = FALSE, fill = "grey60", color = NA, alpha = 0.7) +
     geom_jitter(aes(color = organelle), width = 0.2, alpha = 0.4, size = 2.5) +
     geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 0.7, alpha = 0.5) +
-    geom_hline(yintercept = emd_positive_threshold, linetype = "dashed", color = "#D62728", size = 0.7, alpha = 0.5) +
-    geom_hline(yintercept = emd_negative_threshold, linetype = "dashed", color = "#D62728", size = 0.7, alpha = 0.5) +
+    geom_hline(aes(yintercept = emd_positive_threshold, linetype = "No change threshold"), 
+               color = "#D62728", size = 0.7, alpha = 0.5) +
+    geom_hline(aes(yintercept = emd_negative_threshold, linetype = "No change threshold"), 
+               color = "#D62728", size = 0.7, alpha = 0.5) +
+    scale_linetype_manual(
+        name = NULL,
+        values = c("No change threshold" = "dashed")
+    ) +
     facet_wrap(~ compartment) +
     theme_bw() +
     labs(
@@ -295,28 +367,43 @@ height <- 8
 width <- 15
 options(repr.plot.width = width, repr.plot.height = height)
 
+fvh_emd_direction_fraction$organelle <- factor(
+    fvh_emd_direction_fraction$organelle,
+    levels = c(setdiff(unique(fvh_emd_direction_fraction$organelle), "Other"), "Other")
+)
+
+fvh_emd_direction_fraction$direction <- factor(
+    fvh_emd_direction_fraction$direction,
+    levels = c("decreased", "no change", "increased")
+)
+
 fvh_emd_direction_fraction_plot <- ggplot(fvh_emd_direction_fraction, aes(x = fraction, y = feature_group, fill = direction)) +
     geom_bar(stat = "identity", position = "stack") +
-    scale_x_continuous(limits = c(0, 1), expand = c(0, 0)) +
-    labs(
-        title = "Failing DMSO vs healthy DMSO EMD direction fraction",
-        x = "Fraction of measurements",
-        y = "Feature group",
-        fill = "Direction"
+    scale_x_continuous(
+        limits = c(0, 1),
+        labels = c("0", "0.25", "0.5", "0.75", "1"),
+        expand = c(0, 0)
     ) +
-    facet_wrap(~ organelle, scales = "free_y") +
+    labs(
+        title = "Failing DMSO vs healthy DMSO",
+        x = "Proportion of features",
+        y = "Feature group",
+        fill = "Earth movers distance\ndirection of change"
+    ) +
+    facet_wrap(~ organelle) +
     theme_bw(base_size = 18) +
     scale_fill_manual(
-    values = c(
-        "increased" = "#D62728",  # red
-        "decreased" = "#1F77B4",  # blue
-        "no change" = "grey60"
+        values = c(
+            "increased" = "#D62728",  # red
+            "decreased" = "#1F77B4",  # blue
+            "no change" = "grey60"
         )
     ) +
     theme(
         plot.title = element_text(size = 22, face = "bold", hjust = 0.5),
         axis.title = element_text(size = 18),
         axis.text = element_text(size = 14),
+        axis.text.x = element_text(angle = 9, hjust = 1),
         legend.title = element_text(size = 16),
         legend.text = element_text(size = 14)
     )

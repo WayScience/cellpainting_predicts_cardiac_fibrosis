@@ -10,7 +10,7 @@ from typing import Tuple, Dict
 def compute_null_emd_range(
     reference_df: pd.DataFrame,
     comparison_df: pd.DataFrame,
-    reference_conditions: Dict[str, str],
+    reference_query: str,
     num_permutations: int = 1000,
     random_seed: int = 0,
 ) -> Tuple[float, float]:
@@ -22,8 +22,8 @@ def compute_null_emd_range(
     Args:
         reference_df (pd.DataFrame): DataFrame for the reference group.
         comparison_df (pd.DataFrame): DataFrame for the comparison group.
-        reference_conditions (dict): Metadata column-value pairs defining the reference group.
-            Example: {"Metadata_cell_type": "healthy", "Metadata_treatment": "DMSO"}
+        reference_query (str): Query string to select the reference group from the combined DataFrame.
+            Example: 'Metadata_cell_type == "healthy" and Metadata_treatment == "DMSO"'
         num_permutations (int): Number of shuffles to perform.
         random_seed (int): Seed for reproducibility.
 
@@ -41,13 +41,9 @@ def compute_null_emd_range(
         for col in feature_cols:
             shuffled_df[col] = rng.permutation(shuffled_df[col].values)
 
-        # Dynamically build the reference mask
-        ref_rows = pd.Series(True, index=shuffled_df.index)
-        for col, val in reference_conditions.items():
-            ref_rows &= shuffled_df[col] == val
-
-        group1 = shuffled_df[ref_rows]
-        group2 = shuffled_df[~ref_rows]
+        # Split into two groups based on the reference query
+        group1 = shuffled_df.query(reference_query)
+        group2 = shuffled_df[~shuffled_df.index.isin(group1.index)]
 
         for col in feature_cols:
             vals1 = group1[col].dropna()
