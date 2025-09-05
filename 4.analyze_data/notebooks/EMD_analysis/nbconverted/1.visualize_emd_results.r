@@ -150,6 +150,12 @@ ggsave(
     height = height,
     dpi = 500
 )
+ggsave(
+    filename = file.path(output_dir, "failing_vs_failing_drug_x_emd_fraction_bar_plot.pdf"),
+    plot = emd_direction_fraction_plot,
+    width = width,
+    height = height
+)
 
 emd_direction_fraction_plot
 
@@ -283,6 +289,12 @@ ggsave(
     height = height,
     dpi = 500
 )
+ggsave(
+    filename = file.path(output_dir, "healthy_vs_failing_drug_x_emd_fraction_bar_plot.pdf"),
+    plot = hvf_emd_direction_fraction_plot,
+    width = width,
+    height = height
+)
 
 hvf_emd_direction_fraction_plot
 
@@ -415,6 +427,12 @@ ggsave(
     width = width,
     height = height,
     dpi = 500
+)
+ggsave(
+    filename = file.path(output_dir, "failing_vs_healthy_DMSO_emd_fraction_bar_plot.pdf"),
+    plot = fvh_emd_direction_fraction_plot,
+    width = width,
+    height = height
 )
 
 fvh_emd_direction_fraction_plot
